@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Debug/bin/vorpastat /home/runner/work/geogram/geogram/tests/data/Small/S2.obj out.meshb</line>
 </preamble>
 
-<pid>23602</pid>
-<ppid>12748</ppid>
+<pid>23512</pid>
+<ppid>12691</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -42,7 +42,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:29.184 </time>
+  <time>00:00:00:29.369 </time>
 </status>
 
 <errorcounts>
