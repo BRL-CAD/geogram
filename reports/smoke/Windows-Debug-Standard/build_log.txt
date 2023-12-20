@@ -607,8 +607,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   stbsv.c
   stpmv.c
   stpsv.c
-  strmm.c
   strmv.c
+  strmm.c
   strsm.c
   strsv.c
   xerbla.c
@@ -932,8 +932,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   zdiagonal.c
   zgscon.c
   zgsequ.c
-  zgsisx.c
   zgsitrf.c
+  zgsisx.c
   zgsrfs.c
   zgssv.c
   zgssvx.c

@@ -441,8 +441,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   libf2c_pow_ri.c
   libf2c_pow_zi.c
   libf2c_pow_zz.c
-  libf2c_r_acos.c
   libf2c_r_abs.c
+  libf2c_r_acos.c
   libf2c_r_asin.c
   libf2c_r_atan.c
   libf2c_r_atn2.c
@@ -945,8 +945,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   zldperm.c
   zmemory.c
   zmyblas2.c
-  zpanel_dfs.c
   zpanel_bmod.c
+  zpanel_dfs.c
   zpivotL.c
   zpivotgrowth.c
   zpruneL.c
