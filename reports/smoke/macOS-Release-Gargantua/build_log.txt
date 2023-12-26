@@ -20,7 +20,7 @@
 [ 10%] Building CXX object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/PoissonRecon/poisson_geogram.cpp.o
 [ 10%] Building CXX object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/xatlas/xatlas.cpp.o
 [ 10%] Built target geogram_third_party
-[ 10%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/android_utils.cpp.o
+[ 11%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/android_utils.cpp.o
 [ 11%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/algorithm.cpp.o
 [ 12%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/assert.cpp.o
 [ 12%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/attributes.cpp.o
@@ -32,8 +32,8 @@
 [ 15%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/counted.cpp.o
 [ 16%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/debug_stream.cpp.o
 [ 16%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/environment.cpp.o
-[ 17%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/file_system.cpp.o
 [ 17%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/factory.cpp.o
+[ 17%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/file_system.cpp.o
 [ 18%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/geofile.cpp.o
 [ 18%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/geometry.cpp.o
 [ 19%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/basic/line_stream.cpp.o
@@ -59,17 +59,8 @@
 [ 29%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_AABB.cpp.o
 [ 29%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_CSG.cpp.o
 [ 30%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_baking.cpp.o
-In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_CSG.cpp:43:
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: warning: parameter 'CoplanarFacets' not found in the function declaration [-Wdocumentation]
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: note: did you mean 'CF'?
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-                          CF
 [ 30%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_compare.cpp.o
 [ 31%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_decimate.cpp.o
-1 warning generated.
 [ 31%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_degree3_vertices.cpp.o
 [ 32%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_distance.cpp.o
 [ 32%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_fill_holes.cpp.o
@@ -87,25 +78,7 @@ In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/me
 [ 38%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_smoothing.cpp.o
 [ 39%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_subdivision.cpp.o
 [ 39%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_surface_intersection.cpp.o
-In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection.cpp:41:
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: warning: parameter 'CoplanarFacets' not found in the function declaration [-Wdocumentation]
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: note: did you mean 'CF'?
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-                          CF
-1 warning generated.
 [ 40%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_surface_intersection_internal.cpp.o
-In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.cpp:40:
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: warning: parameter 'CoplanarFacets' not found in the function declaration [-Wdocumentation]
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-/Users/runner/work/geogram/geogram/src/lib/geogram/mesh/mesh_surface_intersection_internal.h:946:27: note: did you mean 'CF'?
-             * \param[in] CoplanarFacets a reference to the CoplanarFacets
-                          ^~~~~~~~~~~~~~
-                          CF
-1 warning generated.
 [ 40%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_tetrahedralize.cpp.o
 [ 41%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_topology.cpp.o
 [ 41%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/triangle_intersection.cpp.o
@@ -180,20 +153,20 @@ In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/me
 [ 74%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/main.cpp.o
 [ 75%] Linking CXX executable ../../../bin/vorpalite
 [ 75%] Built target vorpalite
-[ 75%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/nn_search_ANN.cpp.o
 [ 76%] Building CXX object src/tests/test_convex_cell/CMakeFiles/test_convex_cell.dir/main.cpp.o
+[ 76%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/nn_search_ANN.cpp.o
 [ 77%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/ANN.cpp.o
 [ 77%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/bd_fix_rad_search.cpp.o
 [ 78%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/bd_pr_search.cpp.o
-[ 78%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/bd_search.cpp.o
 [ 78%] Linking CXX executable ../../../bin/test_convex_cell
 [ 78%] Built target test_convex_cell
+[ 78%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/bd_search.cpp.o
+[ 78%] Building CXX object src/tests/bench_load/CMakeFiles/bench_load.dir/main.cpp.o
 [ 79%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/bd_tree.cpp.o
-[ 79%] Building CXX object src/tests/bench_load/CMakeFiles/bench_load.dir/main.cpp.o
 [ 79%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/brute.cpp.o
 [ 79%] Linking CXX executable ../../../bin/bench_load
+[ 79%] Built target bench_load
 [ 80%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_dump.cpp.o
-[ 80%] Built target bench_load
 [ 81%] Building CXX object src/tests/test_locks/CMakeFiles/test_locks.dir/main.cpp.o
 [ 81%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_fix_rad_search.cpp.o
 [ 82%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_pr_search.cpp.o
@@ -205,11 +178,11 @@ In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/me
 [ 84%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_tree.cpp.o
 [ 84%] Linking CXX executable ../../../bin/test_expansion_nt
 [ 84%] Built target test_expansion_nt
-[ 85%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_util.cpp.o
-[ 86%] Building CXX object src/tests/test_HLBFGS/CMakeFiles/test_HLBFGS.dir/main.cpp.o
-[ 86%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/perf.cpp.o
+[ 85%] Building CXX object src/tests/test_HLBFGS/CMakeFiles/test_HLBFGS.dir/main.cpp.o
+[ 86%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/kd_util.cpp.o
 [ 86%] Linking CXX executable ../../../bin/test_HLBFGS
 [ 86%] Built target test_HLBFGS
+[ 86%] Building CXX object src/tests/test_nn_search/CMakeFiles/test_nn_search.dir/third_party/ANN/perf.cpp.o
 [ 87%] Building CXX object src/tests/test_RVC/CMakeFiles/test_RVC.dir/main.cpp.o
 [ 88%] Linking CXX executable ../../../bin/test_nn_search
 [ 88%] Built target test_nn_search
@@ -226,11 +199,11 @@ In file included from /Users/runner/work/geogram/geogram/src/lib/geogram/mesh/me
 [ 92%] Linking CXX executable ../../../../bin/compute_delaunay
 [ 92%] Built target compute_delaunay
 [ 93%] Building CXX object src/examples/geogram/compute_CSG/CMakeFiles/compute_CSG.dir/main.cpp.o
-[ 93%] Linking CXX executable ../../../../bin/compute_CSG
 [ 93%] Linking CXX executable ../../../../bin/compute_RVD
-[ 93%] Built target compute_CSG
+[ 93%] Built target compute_RVD
 [ 94%] Building CXX object src/examples/geogram/opennl_LSCM/CMakeFiles/opennl_LSCM.dir/main.cpp.o
-[ 94%] Built target compute_RVD
+[ 94%] Linking CXX executable ../../../../bin/compute_CSG
+[ 94%] Built target compute_CSG
 [ 95%] Building CXX object src/examples/geogram/opennl_mesh_smooth/CMakeFiles/opennl_mesh_smooth.dir/main.cpp.o
 [ 95%] Linking CXX executable ../../../../bin/opennl_LSCM
 [ 95%] Built target opennl_LSCM
