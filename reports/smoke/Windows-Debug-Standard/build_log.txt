@@ -563,8 +563,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   dtbsv.c
   dtpmv.c
   dtpsv.c
-  dtrmv.c
   dtrmm.c
+  dtrmv.c
   dtrsm.c
   dtrsv.c
   dzasum.c
