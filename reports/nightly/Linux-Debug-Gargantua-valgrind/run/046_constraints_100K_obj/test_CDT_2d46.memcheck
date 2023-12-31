@@ -13,7 +13,7 @@
 </preamble>
 
 <pid>7247</pid>
-<ppid>7056</ppid>
+<ppid>7041</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -42,7 +42,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:02:14.262 </time>
+  <time>00:00:02:05.296 </time>
 </status>
 
 <errorcounts>
@@ -54,7 +54,7 @@
     <name>Vorpaline_gomp_64bits_leak_2</name>
   </pair>
   <pair>
-    <count>167</count>
+    <count>146</count>
     <name>ZLIB uninitialized memory read</name>
   </pair>
 </suppcounts>
