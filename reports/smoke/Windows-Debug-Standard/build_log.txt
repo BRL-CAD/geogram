@@ -1002,8 +1002,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   snaupe.c
   snconv.c
   sneigh.c
-  sneupd.c
   sngets.c
+  sneupd.c
   ssaitr.c
   ssapps.c
   ssaup2.c
