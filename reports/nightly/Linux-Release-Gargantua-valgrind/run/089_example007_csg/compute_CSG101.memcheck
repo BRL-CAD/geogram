@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_CSG /home/runner/work/geogram/geogram/tests/data/CSG/example007.csg</line>
 </preamble>
 
-<pid>8108</pid>
-<ppid>7106</ppid>
+<pid>7863</pid>
+<ppid>7076</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -41,7 +41,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:07.936 </time>
+  <time>00:00:00:06.490 </time>
 </status>
 
 <errorcounts>
@@ -49,16 +49,8 @@
 
 <suppcounts>
   <pair>
-    <count>3</count>
-    <name>Vorpaline_gomp_64bits_leak_2</name>
-  </pair>
-  <pair>
-    <count>2</count>
-    <name>Vorpaline_gomp_64bits_leak_4</name>
-  </pair>
-  <pair>
     <count>1</count>
-    <name>Vorpaline_gomp_64bits_leak_1</name>
+    <name>Vorpaline_gomp_64bits_leak_2</name>
   </pair>
 </suppcounts>
 
