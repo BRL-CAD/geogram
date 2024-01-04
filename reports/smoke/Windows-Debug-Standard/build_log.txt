@@ -587,8 +587,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   sgemv.c
   sger.c
   snrm2.c
-  srotg.c
   srot.c
+  srotg.c
   srotm.c
   srotmg.c
   ssbmv.c
@@ -658,8 +658,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   clapack_clarf.c
   clapack_clarfg.c
   clapack_clarfp.c
-  clapack_clartg.c
   clapack_clarnv.c
+  clapack_clartg.c
   clapack_clascl.c
   clapack_claset.c
   clapack_classq.c
