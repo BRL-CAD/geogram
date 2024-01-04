@@ -998,8 +998,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   snaitr.c
   snapps.c
   snaup2.c
-  snaupd.c
   snaupe.c
+  snaupd.c
   snconv.c
   sneigh.c
   sneupd.c

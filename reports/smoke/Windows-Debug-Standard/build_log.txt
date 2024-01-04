@@ -912,8 +912,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   sp_ienv.c
   sp_preorder.c
   spanel_bmod.c
-  spanel_dfs.c
   spivotL.c
+  spanel_dfs.c
   spivotgrowth.c
   spruneL.c
   sreadhb.c
