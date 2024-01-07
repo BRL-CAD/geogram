@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_CSG /home/runner/work/geogram/geogram/tests/data/CSG/example007.csg</line>
 </preamble>
 
-<pid>13531</pid>
-<ppid>12761</ppid>
+<pid>13710</pid>
+<ppid>12709</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -41,15 +41,15 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:07.958 </time>
+  <time>00:00:00:06.477 </time>
 </status>
 
 <error>
-  <unique>0x2</unique>
+  <unique>0x1</unique>
   <tid>1</tid>
   <kind>Leak_DefinitelyLost</kind>
   <xwhat>
-    <text>112 bytes in 1 blocks are definitely lost in loss record 3 of 7</text>
+    <text>112 bytes in 1 blocks are definitely lost in loss record 2 of 2</text>
     <leakedbytes>112</leakedbytes>
     <leakedblocks>1</leakedblocks>
   </xwhat>
@@ -60,17 +60,17 @@
       <fn>operator new(unsigned long)</fn>
     </frame>
     <frame>
-      <ip>0x492FE37</ip>
+      <ip>0x4930327</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::Logger::Logger()</fn>
     </frame>
     <frame>
-      <ip>0x493031C</ip>
+      <ip>0x493080C</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::Logger::initialize()</fn>
     </frame>
     <frame>
-      <ip>0x490AE34</ip>
+      <ip>0x490B324</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::initialize(int)</fn>
     </frame>
@@ -87,16 +87,8 @@
 
 <suppcounts>
   <pair>
-    <count>3</count>
-    <name>Vorpaline_gomp_64bits_leak_2</name>
-  </pair>
-  <pair>
-    <count>2</count>
-    <name>Vorpaline_gomp_64bits_leak_4</name>
-  </pair>
-  <pair>
     <count>1</count>
-    <name>Vorpaline_gomp_64bits_leak_1</name>
+    <name>Vorpaline_gomp_64bits_leak_2</name>
   </pair>
 </suppcounts>
 
