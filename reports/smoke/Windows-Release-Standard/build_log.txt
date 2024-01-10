@@ -390,8 +390,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   libf2c_etime_.c
   libf2c_exit_.c
   libf2c_f77_aloc.c
-  libf2c_fmt.c
   libf2c_f77vers.c
+  libf2c_fmt.c
   libf2c_fmtlib.c
   libf2c_ftell_.c
   libf2c_getarg_.c
