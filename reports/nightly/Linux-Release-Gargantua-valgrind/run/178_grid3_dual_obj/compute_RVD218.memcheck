@@ -12,7 +12,7 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_RVD algo:predicates=exact algo:nn_search=BNN /home/runner/work/geogram/geogram/tests/data/RVD/grid3.obj /home/runner/work/geogram/geogram/tests/data/RVD/grid3_dual.obj</line>
 </preamble>
 
-<pid>19702</pid>
+<pid>19706</pid>
 <ppid>7106</ppid>
 <tool>memcheck</tool>
 
