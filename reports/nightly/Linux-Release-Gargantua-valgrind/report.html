@@ -5,16 +5,60 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta content="Robot Framework 6.1.1 (Python 3.11.7 on linux)" name="Generator">
+<meta content="Robot Framework 7.0 (Python 3.11.7 on linux)" name="Generator">
 <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKcAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAAqAAAAAAAAAAAAAAAAAAAALIAAAD/AAAA4AAAANwAAADcAAAA3AAAANwAAADcAAAA3AAAANwAAADcAAAA4AAAAP8AAACxAAAAAAAAAKYAAAD/AAAAuwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC/AAAA/wAAAKkAAAD6AAAAzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN8AAAD/AAAA+gAAAMMAAAAAAAAAAgAAAGsAAABrAAAAawAAAGsAAABrAAAAawAAAGsAAABrAAAADAAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAAIsAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAANEAAAAAAAAA2gAAAP8AAAD6AAAAwwAAAAAAAAAAAAAAMgAAADIAAAAyAAAAMgAAADIAAAAyAAAAMgAAADIAAAAFAAAAAAAAANoAAAD/AAAA+gAAAMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAADwAAAB8AAAAAAAAAGAAAABcAAAAAAAAAH8AAABKAAAAAAAAAAAAAAAAAAAA2gAAAP8AAAD6AAAAwwAAAAAAAADCAAAA/wAAACkAAADqAAAA4QAAAAAAAAD7AAAA/wAAALAAAAAGAAAAAAAAANoAAAD/AAAA+gAAAMMAAAAAAAAAIwAAAP4AAAD/AAAA/wAAAGAAAAAAAAAAAAAAAMkAAAD/AAAAigAAAAAAAADaAAAA/wAAAPoAAADDAAAAAAAAAAAAAAAIAAAAcAAAABkAAAAAAAAAAAAAAAAAAAAAAAAAEgAAAAAAAAAAAAAA2gAAAP8AAAD7AAAAywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAN4AAAD/AAAAqwAAAP8AAACvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALIAAAD/AAAAsgAAAAAAAAC5AAAA/wAAAMoAAADAAAAAwAAAAMAAAADAAAAAwAAAAMAAAADAAAAAwAAAAMkAAAD/AAAAvAAAAAAAAAAAAAAAAAAAAKwAAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAArQAAAAAAAAAAwAMAAIABAAAf+AAAP/wAAD/8AAAgBAAAP/wAAD/8AAA//AAAJIwAADHEAAA//AAAP/wAAB/4AACAAQAAwAMAAA==">
-<style media="all" type="text/css">
+<style media="all">
+:root {
+    --text-color: black;
+    --background-color: white;
+    --primary-color: #ddd;
+    --secondary-color: #ccc;
+    --link-color: #15c;
+    --link-hover-color: #61c;
+    --highlight-color: #eee;
+    --target-color: #f9f9f9;
+    --pass-color: #97bd61;
+    --fail-color: #ce3e01;
+    --warn-color: #fed84f;
+    --pass-link-color: #098a09;
+    --warn-link-color: #927201;
+    --fail-link-color: #ce3e01;
+    --ascending-icon: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlBWnFr3cnIr0WQOyBmvzp13CpxQAOw==);
+    --descending-icon: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlAWnBr3cnIr0WROyDmvzp13CpxQAOw==);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+}
+[data-theme="dark"] {
+    --text-color: #e2e1d7;
+    --background-color: #1c2227;
+    --primary-color: #26373b;
+    --secondary-color: #424f5a;
+    --link-color: #8cc4ff;
+    --link-hover-color: #bb86fc;
+    --highlight-color: #002b36;
+    --target-color: #1a252e;
+    --pass-link-color: #97bd61;
+    --warn-link-color: #fed84f;
+    --fail-link-color: #ff9b8f;
+    --ascending-icon: url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAJAgMAAACZCj6+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAAfn5+////f/cqYgAAAAN0Uk5TAP//RFDWIQAAACdJREFUeJxjYHBgYGAMYGBgDWFgEA1lAAOtVQwMXCsYGJgWADkNDAA78QP9oKr7vwAAAABJRU5ErkJggg==);
+    --descending-icon: url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAJAgMAAACZCj6+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAA////fn5+K6jOaAAAAAN0Uk5TAP//RFDWIQAAACdJREFUeJxjYHBgYGAMYGBgDWFgEA1lAAOtVQwMXCsYGJgWADkNDAA78QP9oKr7vwAAAABJRU5ErkJggg==);
+}
 /* Generic and misc styles */
 body {
     font-family: Helvetica, sans-serif;
     font-size: 0.8em;
-    color: black;
+    color: black; /* Fallback value */
+    color: var(--text-color);
     padding: 6px;
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
+    margin-left: 15px;
+}
+body[theme-toggled] {
+    transition: background 0.3s, background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 table {
     table-layout: fixed;
@@ -29,20 +73,37 @@ br {
     mso-data-placement: same-cell; /* maintain line breaks in Excel */
 }
 hr {
-    background: #ccc;
+    background: #ccc; /* Fallback value */
+    background: var(--secondary-color);
     height: 1px;
     border: 0;
 }
 a, a:link, a:visited {
     text-decoration: none;
-    color: #15c;
+    color: #15c; /* Fallback value */
+    color: var(--link-color);
 }
 a > img {
-    border: 1px solid #15c !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: #15c !important; /* Fallback value */
+    border-color: var(--link-color) !important;
 }
 a:hover, a:active {
     text-decoration: underline;
-    color: #61c;
+    color: #61c; /* Fallback value */
+    color: var(--link-hover-color);
+}
+select {
+    background-color: white; /* Fallback value */
+    background-color: var(--background-color);
+    color: black; /* Fallback value */
+    color: var(--text-color);
+    border-width: 2px;
+    border-style: solid;
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
+    border-radius: 4px;
 }
 .parent-name {
     font-size: 0.7em;
@@ -55,7 +116,7 @@ a:hover, a:active {
 #header {
     width: 65em;
     height: 3em;
-    margin: 6px 0;
+    margin: 20px 0 6px 0;
 }
 h1 {
     float: left;
@@ -83,14 +144,17 @@ h2 {
 }
 /* Status text colors -- !important allows using them in links */
 .fail {
-    color: #ce3e01 !important;
+    color: #ce3e01 !important; /* Fallback value */
+    color: var(--fail-link-color) !important;
     font-weight: bold;
 }
 .pass {
-    color: #098a09 !important;
+    color: #098a09 !important; /* Fallback value */
+    color: var(--pass-link-color) !important;
 }
 .skip {
-    color: #927201 !important;
+    color: #927201 !important; /* Fallback value */
+    color: var(--warn-link-color) !important;
     font-weight: bold;
 }
 .label {
@@ -98,8 +162,10 @@ h2 {
     font-size: 0.75em;
     letter-spacing: 1px;
     white-space: nowrap;
-    color: black;
-    background-color: #ddd;
+    color: black; /* Fallback value */
+    color: var(--text-color);
+    background-color: #ddd; /* Fallback value */
+    background-color: var(--primary-color);
     border-radius: 3px;
 }
 .label.debug, .label.trace, .label.error, .label.keyword {
@@ -109,15 +175,18 @@ h2 {
     font-weight: bold;
 }
 .label.pass {
-    background-color: #97bd61;
+    background-color: #97bd61; /* Fallback value */
+    background-color: var(--pass-color);
     color: #000 !important;
 }
 .label.fail, .label.error {
-    background-color: #ce3e01;
+    background-color: #ce3e01; /* Fallback value */
+    background-color: var(--fail-color);
     color: #fff !important;
 }
 .label.skip, .label.warn {
-    background-color: #fed84f;
+    background-color: #fed84f; /* Fallback value */
+    background-color: var(--warn-color);
     color: #000 !important;
 }
 /* Top right header */
@@ -146,7 +215,8 @@ h2 {
     padding: 0.3em 0;
     font-size: 0.9em;
     border-bottom-left-radius: 4px;
-    background: #ddd;
+    background: #ddd; /* Fallback value */
+    background: var(--primary-color);
 }
 /* Statistics table */
 .statistics {
@@ -156,15 +226,20 @@ h2 {
     margin-bottom: 1em;
 }
 .statistics tr:hover {
-    background: #f4f4f4;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
     cursor: pointer;
 }
 .statistics th, .statistics td {
-    border: 1px solid #ccc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
     padding: 0.1em 0.3em;
 }
 .statistics th {
-    background-color: #ddd;
+    background-color: #ddd; /* Fallback value */
+    background-color: var(--primary-color);
     padding: 0.2em 0.3em;
 }
 .statistics td {
@@ -200,27 +275,33 @@ th.stats-col-graph:hover {
 }
 /* Statistics graph */
 .graph, .empty-graph {
-    border: 1px solid #ccc;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
     width: auto;
     height: 7px;
     padding: 0;
-    background: #aaa;
 }
 .empty-graph {
-    background: #eee;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
 }
 .pass-bar, .fail-bar, .skip-bar {
     float: left;
     height: 100%;
 }
 .fail-bar {
-    background: #ce3e01;
+    background: #ce3e01; /* Fallback value */
+    background: var(--fail-color);
 }
 .pass-bar {
-    background: #97bd61;
+    background: #97bd61; /* Fallback value */
+    background: var(--pass-color);
 }
 .skip-bar {
-    background: #fed84f;
+    background: #fed84f; /* Fallback value */
+    background: var(--warn-color);
 }
 /* Tablesorter - adapted from provided Blue Skin */
 .tablesorter-header {
@@ -230,47 +311,103 @@ th.stats-col-graph:hover {
     cursor: pointer;
 }
 .tablesorter-header:hover {
-    background-color: #ccc;
+    background-color: #ccc; /* Fallback value */
+    background-color: var(--secondary-color);
 }
 .tablesorter-headerAsc {
-    background-image: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlBWnFr3cnIr0WQOyBmvzp13CpxQAOw==);
-    background-color: #ccc !important;
+    background-image: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlBWnFr3cnIr0WQOyBmvzp13CpxQAOw==); /* Fallback value */
+    background-image: var(--ascending-icon);
+    background-color: #ccc !important; /* Fallback value */
+    background-color: var(--secondary-color) !important;
 }
 .tablesorter-headerDesc {
-    background-image: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlAWnBr3cnIr0WROyDmvzp13CpxQAOw==);
-    background-color: #ccc !important;
+    background-image: url(data:image/gif;base64,R0lGODlhCwAJAKEAAAAAAH9/fwAAAAAAACH5BAEAAAIALAAAAAALAAkAAAIUlAWnBr3cnIr0WROyDmvzp13CpxQAOw==); /* Fallback value */
+    background-image: var(--descending-icon);
+    background-color: #ccc !important; /* Fallback value */
+    background-color: var(--secondary-color) !important;
 }
 .sorter-false {
     background-image: none;
     cursor: default;
 }
 .sorter-false:hover {
-    background-color: #ddd;
+    background-color: #ddd; /* Fallback value */
+    background-color: var(--primary-color);
+}
+#theme-toggle {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    padding: 4px;
+    z-index: 1000;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    background: var(--highlight-color);
+}
+[data-theme="dark"] .dark-mode-icon,
+[data-theme="light"] .light-mode-icon {
+    display: none;
+}
+[data-theme="dark"] .light-mode-icon,
+[data-theme="light"] .dark-mode-icon {
+    display: block;
+}
+@keyframes highlight {
+    0% {
+        background: var(--primary-color)
+    }
+    100% {
+        background: var(--target-color);
+    }
+}
+:target {
+    background: var(--target-color);
+    transition: background 0.3s;
+    animation: highlight 4s;
 }
 </style>
-<style media="all" type="text/css">
+<style media="all">
+:root {
+    --col-toggle-color: #6c6c6c; /* same as in sort icon */
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --col-toggle-color: #adadad;
+    }
+}
 /* Generic table styles */
 table {
     margin: 0 1px;
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
 }
 tr {
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
 }
 th {
-    background: #ddd;
-    color: black;
+    background: #ddd; /* Fallback value */
+    background: var(--primary-color);
+    color: black; /* Fallback value */
+    color: var(--text-color);
 }
 /* Summary and total/tag/suite details */
 .details {
-    border: 1px solid #ccc;
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
+    border-width: 1px;
+    border-style: solid;
     border-spacing: 0.2em;
     clear: both;
     width: 65em;
     margin-bottom: 1em;
 }
 .details th {
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
     width: 11em;
     text-align: left;
     vertical-align: top;
@@ -297,8 +434,30 @@ th {
     display: none;
 }
 /* Search */
+input[type='submit'], input[type='button'] {
+    background-color: #ddd; /* Fallback value */
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    border: 0;
+    padding: 4px 6px 4px 6px;
+    color: black; /* Fallback value */
+    color: var(--text-color);
+}
+input[type='submit']:hover, input[type='button']:hover {
+    background-color: #ccc; /* Fallback value */
+    background-color: var(--secondary-color);
+}
 #search-suite, #search-test, #search-include, #search-exclude {
     width: 25em;
+    background-color: white; /* Fallback value */
+    background-color: var(--background-color);
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 2px;
+    color: black; /* Fallback value */
+    color: var(--text-color);
 }
 #search a:hover {
     text-decoration: none;
@@ -306,8 +465,12 @@ th {
 #search-help div {
     margin: 0.5em 0.5em 0.7em 0;
     padding: 0.7em;
-    background: #eee;
-    border: 1px solid #ccc;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
+    border-width: 1px;
+    border-style: solid;
     border-radius: 3px;
 }
 #search-help h3, #search-help p {
@@ -342,18 +505,24 @@ th {
 }
 .detail-tab {
     float: left;
-    background: #ddd;
-    border: 1px solid #ccc;
+    background: #ddd; /* Fallback value */
+    background: var(--primary-color);
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
+    border-width: 1px;
+    border-style: solid;
     border-bottom-width: 0;
     margin: 0 0.5em 0 0;
     padding-top: 0.1em;
     border-radius: 3px 3px 0 0;
 }
 .detail-tab:hover {
-    background: #ccc;
+    background: #ccc; /* Fallback value */
+    background: var(--secondary-color);
 }
 .detail-tab a {
-    color: black;
+    color: black; /* Fallback value */
+    color: var(--text-color);
     text-decoration: none;
     font-weight: bold;
     padding: 0 1em;
@@ -361,19 +530,23 @@ th {
 .detail-tab-selected {
     position: relative;
     top: 1px;
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
 }
 .detail-tab-selected:hover {
-    background: white;
+    background: white; /* Fallback value */
+    background: var(--background-color);
 }
 /* Test details table */
 #test-details {
     width: 100%;
     border-spacing: 1px;
-    background-color: #ccc;
+    background-color: #ccc; /* Fallback value */
+    background-color: var(--secondary-color);
 }
 #test-details > tbody > tr:hover {
-    background: #f4f4f4;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
     cursor: pointer;
 }
 #test-details th, #test-details td {
@@ -388,11 +561,13 @@ th {
 }
 .details-col-toggle {
     float: left;
-    color: #6c6c6c; /* same as in sort icon */
+    color: #6c6c6c; /* Fallback value */
+    color: var(--col-toggle-color);
     cursor: pointer;
 }
 .details-col-toggle:hover {
-    color: black;
+    color: black; /* Fallback value */
+    color: var(--text-color);
 }
 .details-col-name {
     min-width: 20em;
@@ -433,10 +608,18 @@ th {
     background-image: none;
 }
 th.hidden:hover {
-    background-color: #ccc;
+    background-color: #ddd; /* Fallback value */
+    background-color: var(--primary-color);
+}
+#status-bar {
+    height: 100%;
+    width: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 </style>
-<style media="print" type="text/css">
+<style media="print">
 body {
     background: white !important;
     padding: 0;
@@ -476,7 +659,7 @@ a:link, a:visited {
     background: #ddd !important;
 }
 </style>
-<style media="all" type="text/css">
+<style media="all">
 #javascript-disabled {
     width: 600px;
     margin: 100px auto 0 auto;
@@ -499,7 +682,7 @@ a:link, a:visited {
     font-style: italic;
 }
 </style>
-<style media="all" type="text/css">
+<style media="all">
 .doc > * {
     margin: 0.7em 1em 0.1em 1em;
     padding: 0;
@@ -511,14 +694,12 @@ a:link, a:visited {
     margin-top: 0.1em;
 }
 .doc table {
-    border: 1px solid #ccc;
     background: transparent;
     border-collapse: collapse;
     empty-cells: show;
     font-size: 0.9em;
 }
 .doc table th, .doc table td {
-    border: 1px solid #ccc;
     background: transparent;
     padding: 0.1em 0.3em;
     height: 1.2em;
@@ -528,24 +709,32 @@ a:link, a:visited {
     letter-spacing: 0.1em;
 }
 .doc pre {
+    border-radius: 2px;
     font-size: 1.1em;
     letter-spacing: 0.05em;
-    background: #f4f4f4;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
 }
 .doc code {
+    border-radius: 2px;
     padding: 0 0.2em;
     letter-spacing: 0.05em;
-    background: #eee;
+    background: #eee; /* Fallback value */
+    background: var(--highlight-color);
 }
 .doc li {
     list-style-position: inside;
     list-style-type: square;
 }
-.doc img {
-    border: 1px solid #ccc;
+.doc img, .doc table, .doc table th, .doc table td {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc; /* Fallback value */
+    border-color: var(--secondary-color);
 }
 .doc hr {
-    background: #ccc;
+    background: #ccc; /* Fallback value */
+    background: var(--secondary-color);
     height: 1px;
     border: 0;
 }
@@ -642,7 +831,6 @@ window.model = (function () {
         suite.populateSuites = createIterablePopulator('Suite');
         suite.childrenNames = ['keyword', 'suite', 'test'];
         suite.callWhenChildrenReady = function (callable) { callable(); };
-        suite.message = data.message;
         suite.children = function () {
             return suite.keywords().concat(suite.tests()).concat(suite.suites());
         };
@@ -733,6 +921,7 @@ window.model = (function () {
             name: data.name,
             doc: data.doc,
             status: data.status,
+            message: data.message,
             times: data.times,
             id: data.parent ? data.parent.id + '-' + data.id : data.id
         };
@@ -753,7 +942,6 @@ window.model = (function () {
                 return test.keywords();
         };
         test.tags = data.tags;
-        test.message = data.message;
         test.matchesTagPattern = function (pattern) {
             return containsTagPattern(test.tags, pattern);
         };
@@ -764,13 +952,12 @@ window.model = (function () {
     }
     function Keyword(data) {
         var kw = createModelObject(data);
-        var flatTypes = ['RETURN', 'BREAK', 'CONTINUE'];
         kw.libname = data.libname;
         kw.fullName = (kw.libname ? kw.libname + '.' : '') + kw.name;
         kw.type = data.type;
         kw.template = 'keywordTemplate';
         kw.arguments = data.args;
-        kw.assign = data.assign + (data.assign ? ' =' : '');
+        kw.assign = data.assign + (data.assign ? ' =  ' : '');
         kw.tags = data.tags;
         kw.timeout = data.timeout;
         kw.populateKeywords = createIterablePopulator('Keyword');
@@ -1149,8 +1336,9 @@ window.testdata = function () {
     var _statistics = null;
     var LEVELS = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FAIL', 'SKIP'];
     var STATUSES = ['FAIL', 'PASS', 'SKIP', 'NOT RUN'];
-    var KEYWORD_TYPES = ['KEYWORD', 'SETUP', 'TEARDOWN', 'FOR', 'ITERATION', 'IF', 'ELSE IF', 'ELSE', 'RETURN',
-                         'TRY', 'EXCEPT', 'FINALLY', 'WHILE', 'CONTINUE', 'BREAK', 'ERROR'];
+    var KEYWORD_TYPES = ['KEYWORD', 'SETUP', 'TEARDOWN', 'FOR', 'ITERATION', 'IF',
+                         'ELSE IF', 'ELSE', 'RETURN', 'VAR', 'TRY', 'EXCEPT', 'FINALLY',
+                         'WHILE', 'CONTINUE', 'BREAK', 'ERROR'];
     function addElement(elem) {
         if (!elem.id)
             elem.id = uniqueId();
@@ -1193,6 +1381,7 @@ window.testdata = function () {
         return createKeyword(parent, element, strings, index - messages.length);
     }
     function createKeyword(parent, element, strings, index) {
+        var status = element[8];
         var kw = model.Keyword({
             parent: parent,
             type: KEYWORD_TYPES[element[0]],
@@ -1208,7 +1397,12 @@ window.testdata = function () {
                 this.doc = function () { return doc; };
                 return doc;
             },
-            status: parseStatus(element[8], strings),
+            status: parseStatus(status),
+            message: function () {
+                var msg = status.length == 4 ? strings.get(status[3]) : '';
+                this.message = function () { return msg; };
+                return msg;
+            },
             times: model.Times(times(element[8])),
             isChildrenLoaded: typeof(element[9]) !== 'number'
         });
@@ -1419,6 +1613,20 @@ window.testdata = function () {
 }();
 </script>
 <script type="text/javascript">
+const lightModeIcon = `
+<svg class="light-mode-icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
+    viewBox="0 0 24 24" fill="var(--text-color)">
+    <rect fill="none" height="24" width="24" />
+    <path
+        d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0 c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2 c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1 C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06 c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41 l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41 c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36 c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z" />
+</svg>`
+const darkModeIcon = `
+<svg class="dark-mode-icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
+    viewBox="0 0 24 24" fill="var(--text-color)">
+    <rect fill="none" height="24" width="24" />
+    <path
+        d="M11.01,3.05C6.51,3.54,3,7.36,3,12c0,4.97,4.03,9,9,9c4.63,0,8.45-3.5,8.95-8c0.09-0.79-0.78-1.42-1.54-0.95 c-0.84,0.54-1.84,0.85-2.91,0.85c-2.98,0-5.4-2.42-5.4-5.4c0-1.06,0.31-2.06,0.84-2.89C12.39,3.94,11.9,2.98,11.01,3.05z" />
+</svg>`
 function removeJavaScriptDisabledWarning() {
     // Not using jQuery here for maximum speed
     document.getElementById('javascript-disabled').style.display = 'none';
@@ -1454,6 +1662,10 @@ function setTitle(suiteName, type) {
 function addHeader() {
     var generated = util.timestamp(window.output.generated);
     $.tmpl('<h1>${title}</h1>' +
+           '<button id=theme-toggle>' +
+             lightModeIcon +
+             darkModeIcon +
+           '</button>' +
            '<div id="generated">' +
              '<span>Generated<br>${generated}</span><br>' +
              '<span id="generated-ago">${ago} ago</span>' +
@@ -1465,6 +1677,7 @@ function addHeader() {
         ago: util.createGeneratedAgoString(generated),
         title: document.title
     }).appendTo($('#header'));
+    document.getElementById('theme-toggle')?.addEventListener('click', theme.onClick);
 }
 function addReportOrLogLink(myType) {
     var url;
@@ -1593,13 +1806,65 @@ function stopPropagation(event) {
     if (event.stopPropagation)
         event.stopPropagation();
 }
+const theme = function () {
+    const storageKey = 'theme-preference';
+    const urlParams = new URLSearchParams(window.location.search);
+    var storage;
+    var theme;
+    function init(givenStorage) {
+        storage = givenStorage;
+        theme = { value: getPreference() };
+        document.body.setAttribute('data-theme', theme.value);
+        reflectPreference();
+        window.matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change', ({matches:isDark}) => {
+                theme.value = isDark ? 'dark' : 'light';
+                setPreference();
+            });
+        window.addEventListener('storage', ({key, newValue}) => {
+            if (key === storage.fullKey(storageKey)) {
+                theme.value = newValue === 'dark' ? 'dark' : 'light';
+                setPreference();
+            }
+        });
+    }
+    function getPreference() {
+        if (urlParams.has('theme')) {
+            var urlTheme = urlParams.get('theme') === 'dark' ? 'dark' : 'light';
+            storage.set(storageKey, urlTheme);
+            urlParams.delete('theme');
+            return urlTheme;
+        }
+        if (storage.get(storageKey))
+            return storage.get(storageKey) === 'dark' ? 'dark' : 'light';
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function setPreference() {
+        storage.set(storageKey, theme.value);
+        reflectPreference();
+    }
+    function reflectPreference() {
+        document.body.setAttribute('data-theme', theme.value);
+        document.querySelector('#theme-toggle')?.setAttribute('aria-label', theme.value);
+        const event = new Event('theme-change', {value: theme.value});
+        document.dispatchEvent(event);
+    }
+    function onClick() {
+        theme.value = theme.value === 'light' ? 'dark' : 'light';
+        document.body.setAttribute('theme-toggled', "");
+        setPreference();
+    }
+    return {init: init, getPreference: getPreference, setPreference: setPreference,
+        reflectPreference: reflectPreference, onClick: onClick};
+}();
 </script>
 <script type="text/javascript">
 storage = function () {
     var prefix = 'robot-framework-';
     var storage;
     function init(user) {
-        prefix += user + '-';
+        if (user)
+            prefix += user + '-';
         storage = getStorage();
     }
     function getStorage() {
@@ -1613,23 +1878,26 @@ storage = function () {
             return {};
         }
     }
-    function get(name, defaultValue) {
-        var value = storage[prefix + name];
+    function get(key, defaultValue) {
+        var value = storage[fullKey(key)];
         if (typeof value === 'undefined')
             return defaultValue;
         return value;
     }
-    function set(name, value) {
-        storage[prefix + name] = value;
+    function set(key, value) {
+        storage[fullKey(key)] = value;
     }
-    return {init: init, get: get, set: set};
+    function fullKey(key) {
+        return prefix + key;
+    }
+    return {init: init, get: get, set: set, fullKey: fullKey};
 }();
 </script>
 <script type="text/javascript">
 window.output = {};
 </script>
 <script type="text/javascript">
-window.output["suite"] = [1,2,3,0,[],[1,0,1643728],[[4,5,6,0,[],[1,13,19546],[],[[7,0,0,[8,9,10,11],[1,26,839],[]],[12,0,0,[8,9,10,11],[1,865,841],[]],[13,0,0,[8,9,10,11],[1,1706,847],[]],[14,0,0,[8,9,10,11],[1,2553,836],[]],[15,0,0,[8,9,10,11],[1,3389,1845],[]],[16,0,0,[8,9,10,11],[1,5234,831],[]],[17,0,0,[8,9,10,11],[1,6065,838],[]],[18,0,0,[8,9,10,11],[1,6903,847],[]],[19,0,0,[8,9,10,11],[1,7750,1314],[]],[20,0,0,[8,9,10,11],[1,9064,1383],[]],[21,0,0,[8,9,10,11],[1,10447,1624],[]],[22,0,0,[8,9,10,11],[1,12071,845],[]],[23,0,0,[8,9,10,11],[1,12916,1490],[]],[24,0,0,[8,9,10,11],[1,14406,1315],[]],[25,0,0,[8,9,10,11],[1,15721,857],[]],[26,0,0,[8,9,10,11],[1,16578,1459],[]],[27,0,0,[8,9,10,11],[1,18037,775],[]],[28,0,0,[8,9,10,11],[1,18812,746],[]]],[],[18,18,0,0]],[29,30,31,0,[],[1,19560,21502],[],[[32,0,0,[8,9,11],[1,19562,928],[]],[33,0,0,[8,9,11],[1,20490,936],[]],[34,0,0,[8,9,11],[1,21426,935],[]],[35,0,0,[8,9,11],[1,22362,937],[]],[36,0,0,[8,9,11],[1,23299,938],[]],[37,0,0,[8,9,11],[1,24237,945],[]],[38,0,0,[8,9,11],[1,25183,971],[]],[39,0,0,[8,9,11],[1,26154,944],[]],[40,0,0,[8,9,11],[1,27098,928],[]],[41,0,0,[8,9,11],[1,28026,930],[]],[42,0,0,[8,9,11],[1,28956,955],[]],[43,0,0,[8,9,11],[1,29912,6752],[]],[44,0,0,[8,9,11],[1,36664,939],[]],[45,0,0,[8,9,11],[1,37603,963],[]],[46,0,0,[8,9,11],[1,38567,943],[]],[47,0,0,[8,9,11],[1,39510,1551],[]]],[],[16,16,0,0]],[48,49,50,0,[],[1,41063,22035],[],[[32,0,0,[8,9,11],[1,41065,929],[]],[33,0,0,[8,9,11],[1,41994,940],[]],[34,0,0,[8,9,11],[1,42934,935],[]],[35,0,0,[8,9,11],[1,43869,933],[]],[36,0,0,[8,9,11],[1,44803,928],[]],[37,0,0,[8,9,11],[1,45732,931],[]],[38,0,0,[8,9,11],[1,46664,941],[]],[39,0,0,[8,9,11],[1,47605,942],[]],[40,0,0,[8,9,11],[1,48547,927],[]],[41,0,0,[8,9,11],[1,49474,929],[]],[42,0,0,[8,9,11],[1,50403,930],[]],[43,0,0,[8,9,11],[1,51333,7459],[]],[44,0,0,[8,9,11],[1,58792,931],[]],[45,0,0,[8,9,11],[1,59724,929],[]],[46,0,0,[8,9,11],[1,60653,938],[]],[47,0,0,[8,9,11],[1,61592,1506],[]]],[],[16,16,0,0]],[51,52,53,0,[],[1,63099,5521],[],[[54,55,0,[8,9,56,11],[1,63101,782],[]],[57,55,0,[8,9,56,11],[1,63883,781],[]],[58,55,0,[8,9,56,11],[1,64664,781],[]],[59,55,0,[8,9,56,11],[1,65445,779],[]],[60,55,0,[8,9,56,11],[1,66224,781],[]],[61,55,0,[8,9,56,11],[1,67005,805],[]],[62,55,0,[8,9,56,11],[1,67810,810],[]]],[],[7,7,0,0]],[63,64,65,0,[],[1,68621,16249],[],[[7,0,0,[8,9,10,11],[1,68622,832],[]],[12,0,0,[8,9,10,11],[1,69455,830],[]],[13,0,0,[8,9,10,11],[1,70285,839],[]],[14,0,0,[8,9,10,11],[1,71124,838],[]],[15,0,0,[8,9,10,11],[1,71962,1379],[]],[16,0,0,[8,9,10,11],[1,73342,834],[]],[17,0,0,[8,9,10,11],[1,74176,836],[]],[18,0,0,[8,9,10,11],[1,75012,847],[]],[19,0,0,[8,9,10,11],[1,75859,867],[]],[20,0,0,[8,9,10,11],[1,76726,919],[]],[21,0,0,[8,9,10,11],[1,77646,1162],[]],[22,0,0,[8,9,10,11],[1,78808,841],[]],[23,0,0,[8,9,10,11],[1,79649,1024],[]],[24,0,0,[8,9,10,11],[1,80674,865],[]],[25,0,0,[8,9,10,11],[1,81539,858],[]],[26,0,0,[8,9,10,11],[1,82397,987],[]],[27,0,0,[8,9,10,11],[1,83384,744],[]],[28,0,0,[8,9,10,11],[1,84129,741],[]]],[],[18,18,0,0]],[66,67,68,0,[],[1,84871,107338],[],[[69,70,0,[66,8,9,11],[1,84873,3321],[]],[71,70,0,[66,8,9,11],[1,88194,4103],[]],[72,70,0,[66,8,9,11],[1,92297,41429],[]],[73,70,0,[66,8,9,11],[1,133726,3282],[]],[74,70,0,[66,8,9,11],[1,137009,4155],[]],[75,70,0,[66,8,9,11],[1,141165,50294],[]],[76,70,0,[66,8,9,11],[1,191459,750],[]]],[],[7,7,0,0]],[77,78,79,0,[],[1,192210,399401],[],[[80,0,0,[77,8,9,11],[1,192212,18009],[]],[81,0,0,[77,8,9,11],[1,210221,7176],[]],[82,0,0,[77,8,9,11],[1,217397,4360],[]],[83,0,0,[77,8,9,11],[1,221758,6232],[]],[84,0,0,[77,8,9,11],[1,227990,16053],[]],[85,0,0,[77,8,9,11],[1,244044,63393],[]],[86,0,0,[77,8,9,11],[1,307437,6522],[]],[87,0,0,[77,8,9,11],[1,313959,7511],[]],[88,0,0,[77,8,9,11],[1,321470,17202],[]],[89,0,0,[77,8,9,11],[1,338672,93268],[]],[90,0,0,[77,8,9,11],[1,431940,869],[]],[91,0,0,[77,8,9,11],[1,432809,6421],[]],[92,0,0,[77,8,9,11],[1,439230,5746],[]],[93,0,0,[77,8,9,11],[1,444976,5744],[]],[94,0,0,[77,8,9,11],[1,450720,1764],[]],[95,0,0,[77,8,9,11],[1,452484,16976],[]],[96,0,0,[77,8,9,11],[1,469461,10594],[]],[97,0,0,[77,8,9,11],[1,480055,14712],[]],[98,0,0,[77,8,9,11],[1,494767,72953],[]],[99,0,0,[77,8,9,11],[1,567720,23890],[]]],[],[20,20,0,0]],[100,101,102,0,[],[1,591613,196672],[],[[103,0,0,[8,9,104,11],[1,591615,62521],[]],[105,0,0,[8,9,104,11],[1,654136,54904],[]],[106,0,0,[8,9,104,11],[1,709040,43958],[]],[107,0,0,[8,9,104,11],[1,752998,35287],[]]],[],[4,4,0,0]],[108,109,110,0,[],[1,788286,10078],[],[[111,0,0,[8,9,108,11],[1,788287,1000],[]],[112,0,0,[8,9,108,11],[1,789288,2566],[]],[113,0,0,[8,9,108,11],[1,791854,1015],[]],[114,0,0,[8,9,108,11],[1,792869,2542],[]],[115,0,0,[8,9,108,11],[1,795411,919],[]],[116,0,0,[8,9,108,11],[1,796330,949],[]],[117,0,0,[8,9,108,11],[1,797279,1085],[]]],[],[7,7,0,0]],[118,119,120,0,[],[1,798365,1927],[],[[111,0,0,[8,9,108,11],[1,798366,907],[]],[112,0,0,[8,9,108,11],[1,799273,1018],[]]],[],[2,2,0,0]],[121,122,123,0,[],[1,800292,12288],[],[[124,0,0,[8,9,121,11],[1,800294,1755],[]],[125,0,0,[8,9,121,11],[1,802050,1733],[]],[126,0,0,[8,9,121,11],[1,803784,1724],[]],[127,0,0,[8,9,121,11],[1,805508,1754],[]],[128,0,0,[8,9,121,11],[1,807262,1718],[]],[129,0,0,[8,9,121,11],[1,808980,1818],[]],[130,0,0,[8,9,121,11],[1,810798,1781],[]]],[],[7,7,0,0]],[131,132,133,0,[],[1,812581,16177],[],[[134,0,0,[8,9,131,11],[1,812583,815],[]],[135,0,0,[8,9,131,11],[1,813398,825],[]],[136,0,0,[8,9,131,11],[1,814224,871],[]],[137,0,0,[8,9,131,11],[1,815095,875],[]],[138,0,0,[8,9,131,11],[1,815970,852],[]],[139,0,0,[8,9,131,11],[1,816823,869],[]],[140,0,0,[8,9,131,11],[1,817692,864],[]],[141,0,0,[8,9,131,11],[1,818556,836],[]],[142,0,0,[8,9,131,11],[1,819392,841],[]],[143,0,0,[8,9,131,11],[1,820234,903],[]],[144,0,0,[8,9,131,11],[1,821137,845],[]],[145,0,0,[8,9,131,11],[1,821982,847],[]],[146,0,0,[8,9,131,11],[1,822830,839],[]],[147,0,0,[8,9,131,11],[1,823669,838],[]],[148,0,0,[8,9,131,11],[1,824507,856],[]],[149,0,0,[8,9,131,11],[1,825363,861],[]],[150,0,0,[8,9,131,11],[1,826224,854],[]],[151,0,0,[8,9,131,11],[1,827079,839],[]],[152,0,0,[8,9,131,11],[1,827918,839],[]]],[],[19,19,0,0]],[153,154,155,0,[],[1,828759,278865],[],[[156,0,0,[8,9,153,11],[1,828761,5260],[]],[157,0,0,[8,9,153,11],[1,834021,8703],[]],[158,0,0,[8,9,153,11],[1,842724,88479],[]],[159,0,0,[8,9,153,11],[1,931204,6816],[]],[160,0,0,[8,9,153,11],[1,938021,13549],[]],[161,0,0,[8,9,153,11],[1,951570,10595],[]],[162,0,0,[8,9,153,11],[1,962166,49529],[]],[163,0,0,[8,9,153,11],[1,1011695,4172],[]],[164,0,0,[8,9,153,11],[1,1015867,3592],[]],[165,0,0,[8,9,153,11],[1,1019459,53286],[]],[166,0,0,[8,9,153,11],[1,1072745,7158],[]],[167,0,0,[8,9,153,11],[1,1079903,3343],[]],[168,0,0,[8,9,153,11],[1,1083246,24378],[]]],[],[13,13,0,0]],[169,170,171,0,[],[1,1107625,3342],[],[[169,0,0,[8,9,11],[1,1107627,3340],[]]],[],[1,1,0,0]],[172,173,174,0,[],[1,1110968,5606],[],[[175,0,0,[8,9,176,11],[1,1110969,5605],[]]],[],[1,1,0,0]],[177,178,179,0,[],[1,1116575,45997],[],[[180,0,0,[8,9,104,11],[1,1116576,19415],[]],[181,0,0,[8,9,104,11],[1,1135991,26580],[]]],[],[2,2,0,0]],[104,182,183,0,[],[1,1162572,341724],[],[[184,0,0,[8,9,104,11],[1,1162574,3050],[]],[185,0,0,[8,9,104,11],[1,1165624,44887],[]],[186,0,0,[8,9,104,11],[1,1210511,60765],[]],[187,0,0,[8,9,104,11],[1,1271276,47924],[]],[188,0,0,[8,9,104,11],[1,1319201,66878],[]],[189,0,0,[8,9,104,11],[1,1386079,45093],[]],[190,0,0,[8,9,104,11],[1,1431173,53412],[]],[191,0,0,[8,9,104,11],[1,1484585,19711],[]]],[],[8,8,0,0]],[176,192,193,0,[],[1,1504297,99551],[],[[7,0,0,[8,9,176,11],[1,1504299,1293],[]],[194,0,0,[8,9,176,11],[1,1505592,1712],[]],[12,0,0,[8,9,176,11],[1,1507304,1327],[]],[13,0,0,[8,9,176,11],[1,1508631,1589],[]],[14,0,0,[8,9,176,11],[1,1510220,1561],[]],[15,0,0,[8,9,176,11],[1,1511781,10151],[]],[16,0,0,[8,9,176,11],[1,1521932,1284],[]],[195,0,0,[8,9,176,11],[1,1523216,1278],[]],[17,0,0,[8,9,176,11],[1,1524494,1326],[]],[196,0,0,[8,9,176,11],[1,1525821,1318],[]],[18,0,0,[8,9,176,11],[1,1527140,1423],[]],[197,0,0,[8,9,176,11],[1,1528563,1467],[]],[19,0,0,[8,9,176,11],[1,1530031,2554],[]],[20,0,0,[8,9,176,11],[1,1532585,6384],[]],[198,0,0,[8,9,176,11],[1,1538969,7357],[]],[21,0,0,[8,9,176,11],[1,1546326,13443],[]],[199,0,0,[8,9,176,11],[1,1559769,17312],[]],[22,0,0,[8,9,176,11],[1,1577081,1433],[]],[200,0,0,[8,9,176,11],[1,1578514,2049],[]],[23,0,0,[8,9,176,11],[1,1580563,6482],[]],[24,0,0,[8,9,176,11],[1,1587045,4866],[]],[25,0,0,[8,9,176,11],[1,1591911,1572],[]],[26,0,0,[8,9,176,11],[1,1593483,7469],[]],[27,0,0,[8,9,176,11],[1,1600952,763],[]],[201,0,0,[8,9,176,11],[1,1601715,2132],[]]],[],[25,25,0,0]],[202,203,204,0,[],[1,1603849,39876],[],[[185,0,0,[8,9,205,11],[1,1603851,5006],[]],[112,0,0,[8,9,205,11],[1,1608857,8945],[]],[188,0,0,[8,9,205,11],[1,1617802,25922],[]]],[],[3,3,0,0]]],[],[],[194,194,0,0]];
+window.output["suite"] = [1,2,3,0,[],[1,0,1633348],[[4,5,6,0,[],[1,16,19579],[],[[7,0,0,[8,9,10,11],[1,29,891],[]],[12,0,0,[8,9,10,11],[1,920,829],[]],[13,0,0,[8,9,10,11],[1,1749,836],[]],[14,0,0,[8,9,10,11],[1,2586,839],[]],[15,0,0,[8,9,10,11],[1,3425,1861],[]],[16,0,0,[8,9,10,11],[1,5286,834],[]],[17,0,0,[8,9,10,11],[1,6120,846],[]],[18,0,0,[8,9,10,11],[1,6966,847],[]],[19,0,0,[8,9,10,11],[1,7813,1306],[]],[20,0,0,[8,9,10,11],[1,9120,1382],[]],[21,0,0,[8,9,10,11],[1,10501,1632],[]],[22,0,0,[8,9,10,11],[1,12134,839],[]],[23,0,0,[8,9,10,11],[1,12973,1488],[]],[24,0,0,[8,9,10,11],[1,14461,1313],[]],[25,0,0,[8,9,10,11],[1,15775,847],[]],[26,0,0,[8,9,10,11],[1,16621,1461],[]],[27,0,0,[8,9,10,11],[1,18082,767],[]],[28,0,0,[8,9,10,11],[1,18850,745],[]]],[],[18,18,0,0]],[29,30,31,0,[],[1,19596,21425],[],[[32,0,0,[8,9,11],[1,19597,950],[]],[33,0,0,[8,9,11],[1,20548,959],[]],[34,0,0,[8,9,11],[1,21507,935],[]],[35,0,0,[8,9,11],[1,22442,943],[]],[36,0,0,[8,9,11],[1,23385,939],[]],[37,0,0,[8,9,11],[1,24324,937],[]],[38,0,0,[8,9,11],[1,25262,941],[]],[39,0,0,[8,9,11],[1,26203,937],[]],[40,0,0,[8,9,11],[1,27141,927],[]],[41,0,0,[8,9,11],[1,28067,927],[]],[42,0,0,[8,9,11],[1,28994,951],[]],[43,0,0,[8,9,11],[1,29945,6729],[]],[44,0,0,[8,9,11],[1,36675,934],[]],[45,0,0,[8,9,11],[1,37609,935],[]],[46,0,0,[8,9,11],[1,38545,938],[]],[47,0,0,[8,9,11],[1,39483,1538],[]]],[],[16,16,0,0]],[48,49,50,0,[],[1,41022,21930],[],[[32,0,0,[8,9,11],[1,41023,921],[]],[33,0,0,[8,9,11],[1,41944,930],[]],[34,0,0,[8,9,11],[1,42875,936],[]],[35,0,0,[8,9,11],[1,43811,937],[]],[36,0,0,[8,9,11],[1,44748,934],[]],[37,0,0,[8,9,11],[1,45682,933],[]],[38,0,0,[8,9,11],[1,46616,939],[]],[39,0,0,[8,9,11],[1,47555,933],[]],[40,0,0,[8,9,11],[1,48488,923],[]],[41,0,0,[8,9,11],[1,49411,926],[]],[42,0,0,[8,9,11],[1,50337,926],[]],[43,0,0,[8,9,11],[1,51264,7431],[]],[44,0,0,[8,9,11],[1,58695,928],[]],[45,0,0,[8,9,11],[1,59623,926],[]],[46,0,0,[8,9,11],[1,60549,938],[]],[47,0,0,[8,9,11],[1,61487,1464],[]]],[],[16,16,0,0]],[51,52,53,0,[],[1,62952,5505],[],[[54,55,0,[8,9,56,11],[1,62954,774],[]],[57,55,0,[8,9,56,11],[1,63728,780],[]],[58,55,0,[8,9,56,11],[1,64508,780],[]],[59,55,0,[8,9,56,11],[1,65289,780],[]],[60,55,0,[8,9,56,11],[1,66069,780],[]],[61,55,0,[8,9,56,11],[1,66849,805],[]],[62,55,0,[8,9,56,11],[1,67655,802],[]]],[],[7,7,0,0]],[63,64,65,0,[],[1,68457,16298],[],[[7,0,0,[8,9,10,11],[1,68459,827],[]],[12,0,0,[8,9,10,11],[1,69287,835],[]],[13,0,0,[8,9,10,11],[1,70122,846],[]],[14,0,0,[8,9,10,11],[1,70968,839],[]],[15,0,0,[8,9,10,11],[1,71807,1402],[]],[16,0,0,[8,9,10,11],[1,73209,832],[]],[17,0,0,[8,9,10,11],[1,74041,835],[]],[18,0,0,[8,9,10,11],[1,74876,847],[]],[19,0,0,[8,9,10,11],[1,75724,867],[]],[20,0,0,[8,9,10,11],[1,76591,921],[]],[21,0,0,[8,9,10,11],[1,77513,1171],[]],[22,0,0,[8,9,10,11],[1,78683,850],[]],[23,0,0,[8,9,10,11],[1,79534,1026],[]],[24,0,0,[8,9,10,11],[1,80560,863],[]],[25,0,0,[8,9,10,11],[1,81424,846],[]],[26,0,0,[8,9,10,11],[1,82270,999],[]],[27,0,0,[8,9,10,11],[1,83269,743],[]],[28,0,0,[8,9,10,11],[1,84012,742],[]]],[],[18,18,0,0]],[66,67,68,0,[],[1,84755,107698],[],[[69,70,0,[66,8,9,11],[1,84757,3279],[]],[71,70,0,[66,8,9,11],[1,88037,4088],[]],[72,70,0,[66,8,9,11],[1,92125,41721],[]],[73,70,0,[66,8,9,11],[1,133847,3277],[]],[74,70,0,[66,8,9,11],[1,137124,4161],[]],[75,70,0,[66,8,9,11],[1,141286,50421],[]],[76,70,0,[66,8,9,11],[1,191707,746],[]]],[],[7,7,0,0]],[77,78,79,0,[],[1,192454,397291],[],[[80,0,0,[77,8,9,11],[1,192455,17968],[]],[81,0,0,[77,8,9,11],[1,210423,7207],[]],[82,0,0,[77,8,9,11],[1,217631,4248],[]],[83,0,0,[77,8,9,11],[1,221879,6135],[]],[84,0,0,[77,8,9,11],[1,228015,16204],[]],[85,0,0,[77,8,9,11],[1,244219,63498],[]],[86,0,0,[77,8,9,11],[1,307717,6462],[]],[87,0,0,[77,8,9,11],[1,314179,7291],[]],[88,0,0,[77,8,9,11],[1,321471,17190],[]],[89,0,0,[77,8,9,11],[1,338661,92070],[]],[90,0,0,[77,8,9,11],[1,430731,859],[]],[91,0,0,[77,8,9,11],[1,431590,6111],[]],[92,0,0,[77,8,9,11],[1,437701,5516],[]],[93,0,0,[77,8,9,11],[1,443217,5837],[]],[94,0,0,[77,8,9,11],[1,449054,1744],[]],[95,0,0,[77,8,9,11],[1,450798,16851],[]],[96,0,0,[77,8,9,11],[1,467649,10218],[]],[97,0,0,[77,8,9,11],[1,477868,14714],[]],[98,0,0,[77,8,9,11],[1,492582,72638],[]],[99,0,0,[77,8,9,11],[1,565220,24524],[]]],[],[20,20,0,0]],[100,101,102,0,[],[1,589745,195229],[],[[103,0,0,[8,9,104,11],[1,589747,62422],[]],[105,0,0,[8,9,104,11],[1,652169,54512],[]],[106,0,0,[8,9,104,11],[1,706681,43440],[]],[107,0,0,[8,9,104,11],[1,750121,34853],[]]],[],[4,4,0,0]],[108,109,110,0,[],[1,784975,10133],[],[[111,0,0,[8,9,108,11],[1,784976,1002],[]],[112,0,0,[8,9,108,11],[1,785979,2551],[]],[113,0,0,[8,9,108,11],[1,788530,1003],[]],[114,0,0,[8,9,108,11],[1,789533,2614],[]],[115,0,0,[8,9,108,11],[1,792147,919],[]],[116,0,0,[8,9,108,11],[1,793066,961],[]],[117,0,0,[8,9,108,11],[1,794028,1080],[]]],[],[7,7,0,0]],[118,119,120,0,[],[1,795108,1919],[],[[111,0,0,[8,9,108,11],[1,795109,908],[]],[112,0,0,[8,9,108,11],[1,796017,1010],[]]],[],[2,2,0,0]],[121,122,123,0,[],[1,797028,12250],[],[[124,0,0,[8,9,121,11],[1,797029,1757],[]],[125,0,0,[8,9,121,11],[1,798786,1736],[]],[126,0,0,[8,9,121,11],[1,800523,1712],[]],[127,0,0,[8,9,121,11],[1,802235,1745],[]],[128,0,0,[8,9,121,11],[1,803980,1736],[]],[129,0,0,[8,9,121,11],[1,805716,1801],[]],[130,0,0,[8,9,121,11],[1,807517,1760],[]]],[],[7,7,0,0]],[131,132,133,0,[],[1,809278,16024],[],[[134,0,0,[8,9,131,11],[1,809279,811],[]],[135,0,0,[8,9,131,11],[1,810090,817],[]],[136,0,0,[8,9,131,11],[1,810907,871],[]],[137,0,0,[8,9,131,11],[1,811778,862],[]],[138,0,0,[8,9,131,11],[1,812641,845],[]],[139,0,0,[8,9,131,11],[1,813486,856],[]],[140,0,0,[8,9,131,11],[1,814343,857],[]],[141,0,0,[8,9,131,11],[1,815200,835],[]],[142,0,0,[8,9,131,11],[1,816036,833],[]],[143,0,0,[8,9,131,11],[1,816870,863],[]],[144,0,0,[8,9,131,11],[1,817733,833],[]],[145,0,0,[8,9,131,11],[1,818566,836],[]],[146,0,0,[8,9,131,11],[1,819402,839],[]],[147,0,0,[8,9,131,11],[1,820241,830],[]],[148,0,0,[8,9,131,11],[1,821071,855],[]],[149,0,0,[8,9,131,11],[1,821927,862],[]],[150,0,0,[8,9,131,11],[1,822789,853],[]],[151,0,0,[8,9,131,11],[1,823642,828],[]],[152,0,0,[8,9,131,11],[1,824470,832],[]]],[],[19,19,0,0]],[153,154,155,0,[],[1,825302,271074],[],[[156,0,0,[8,9,153,11],[1,825304,5019],[]],[157,0,0,[8,9,153,11],[1,830323,8942],[]],[158,0,0,[8,9,153,11],[1,839266,86193],[]],[159,0,0,[8,9,153,11],[1,925459,4143],[]],[160,0,0,[8,9,153,11],[1,929602,14291],[]],[161,0,0,[8,9,153,11],[1,943893,9523],[]],[162,0,0,[8,9,153,11],[1,953416,48239],[]],[163,0,0,[8,9,153,11],[1,1001655,3695],[]],[164,0,0,[8,9,153,11],[1,1005350,4911],[]],[165,0,0,[8,9,153,11],[1,1010262,52166],[]],[166,0,0,[8,9,153,11],[1,1062428,6484],[]],[167,0,0,[8,9,153,11],[1,1068913,2850],[]],[168,0,0,[8,9,153,11],[1,1071763,24614],[]]],[],[13,13,0,0]],[169,170,171,0,[],[1,1096377,4992],[],[[169,0,0,[8,9,11],[1,1096378,4990],[]]],[],[1,1,0,0]],[172,173,174,0,[],[1,1101369,5264],[],[[175,0,0,[8,9,176,11],[1,1101371,5262],[]]],[],[1,1,0,0]],[177,178,179,0,[],[1,1106633,46638],[],[[180,0,0,[8,9,104,11],[1,1106635,19897],[]],[181,0,0,[8,9,104,11],[1,1126532,26739],[]]],[],[2,2,0,0]],[104,182,183,0,[],[1,1153272,340686],[],[[184,0,0,[8,9,104,11],[1,1153273,3035],[]],[185,0,0,[8,9,104,11],[1,1156309,44892],[]],[186,0,0,[8,9,104,11],[1,1201201,60413],[]],[187,0,0,[8,9,104,11],[1,1261614,48200],[]],[188,0,0,[8,9,104,11],[1,1309814,66715],[]],[189,0,0,[8,9,104,11],[1,1376530,45045],[]],[190,0,0,[8,9,104,11],[1,1421575,52759],[]],[191,0,0,[8,9,104,11],[1,1474334,19624],[]]],[],[8,8,0,0]],[176,192,193,0,[],[1,1493958,99675],[],[[7,0,0,[8,9,176,11],[1,1493960,1264],[]],[194,0,0,[8,9,176,11],[1,1495224,1711],[]],[12,0,0,[8,9,176,11],[1,1496935,1320],[]],[13,0,0,[8,9,176,11],[1,1498255,1594],[]],[14,0,0,[8,9,176,11],[1,1499849,1566],[]],[15,0,0,[8,9,176,11],[1,1501416,10117],[]],[16,0,0,[8,9,176,11],[1,1511533,1275],[]],[195,0,0,[8,9,176,11],[1,1512808,1289],[]],[17,0,0,[8,9,176,11],[1,1514098,1328],[]],[196,0,0,[8,9,176,11],[1,1515426,1317],[]],[18,0,0,[8,9,176,11],[1,1516744,1423],[]],[197,0,0,[8,9,176,11],[1,1518167,1449],[]],[19,0,0,[8,9,176,11],[1,1519616,2561],[]],[20,0,0,[8,9,176,11],[1,1522178,6447],[]],[198,0,0,[8,9,176,11],[1,1528625,7189],[]],[21,0,0,[8,9,176,11],[1,1535814,13461],[]],[199,0,0,[8,9,176,11],[1,1549275,17316],[]],[22,0,0,[8,9,176,11],[1,1566591,1427],[]],[200,0,0,[8,9,176,11],[1,1568019,2054],[]],[23,0,0,[8,9,176,11],[1,1570073,6782],[]],[24,0,0,[8,9,176,11],[1,1576856,4866],[]],[25,0,0,[8,9,176,11],[1,1581722,1580],[]],[26,0,0,[8,9,176,11],[1,1583303,7445],[]],[27,0,0,[8,9,176,11],[1,1590748,751],[]],[201,0,0,[8,9,176,11],[1,1591499,2133],[]]],[],[25,25,0,0]],[202,203,204,0,[],[1,1593633,39714],[],[[185,0,0,[8,9,205,11],[1,1593635,4995],[]],[112,0,0,[8,9,205,11],[1,1598630,8977],[]],[188,0,0,[8,9,205,11],[1,1607607,25740],[]]],[],[3,3,0,0]]],[],[],[194,194,0,0]];
 </script>
 <script type="text/javascript">
 window.output["strings"] = [];
@@ -1638,13 +1906,13 @@ window.output["strings"] = [];
 window.output["strings"] = window.output["strings"].concat(["*","*Tests","*/home/runner/work/geogram/geogram/tests","*tests","*BNN Search","*/home/runner/work/geogram/geogram/tests/BNN_Search.robot","*tests/BNN_Search.robot","*center_square.obj","*daily","*daily_valgrind","*NNSearch","*smoke","*cyl.meshb","*disk1.obj","*disk2.obj","*fandisk.obj","*grid1.obj","*grid2.obj","*grid3.obj","*grid4.obj","*grid5.obj","*grid6.obj","*grid.obj","*SaraPezzini.obj","*tordu.meshb","*two_grids.obj","*Zylkopf.meshb","*xfail_missing_input_file","*xfail_two_input_files","*CDT 2d","*/home/runner/work/geogram/geogram/tests/CDT_2d.robot","*tests/CDT_2d.robot","*constraints_100_1.obj","*constraints_100_2.obj","*constraints_100_3.obj","*constraints_100_4.obj","*constraints_100_5.obj","*constraints_100_6.obj","*constraints_100_7.obj","*constraints_100_8.obj","*constraints_100_9.obj","*constraints_100_10.obj","*constraints_100_11.obj","*constraints_100K.obj","*triangle_no_duplicated_constraints.obj","*triangle_duplicated_constraints.obj","*constraints_finally_2.obj","*constraints_finally_3.obj","*CDT no Delaunay 2d","*/home/runner/work/geogram/geogram/tests/CDT_no_Delaunay_2d.robot","*tests/CDT_no_Delaunay_2d.robot","*CmdLine","*/home/runner/work/geogram/geogram/tests/CmdLine.robot","*tests/CmdLine.robot","*xfail invalid parameter","*10 seconds","*Small","*xfail bad boolean parameter","*xfail bad integer parameter","*xfail bad double parameter","*xfail bad profile","*xfail missing file arguments","*xfail too many file arguments","*CNN Search","*/home/runner/work/geogram/geogram/tests/CNN_Search.robot","*tests/CNN_Search.robot","*ConvexCell","*/home/runner/work/geogram/geogram/tests/ConvexCell.robot","*tests/ConvexCell.robot","*sphere_10.xyz","*15 minutes","*sphere_100.xyz","*sphere_1000.xyz","*cone_10.xyz","*cone_100.xyz","*cone_1000.xyz","*xfail missing input file","*CSG","*/home/runner/work/geogram/geogram/tests/CSG.robot","*tests/CSG.robot","*example001.csg","*example002.csg","*example003.csg","*example004.csg","*example005.csg","*example006.csg","*example007.csg","*example008.csg","*example009.csg","*example010.csg","*example011.csg","*example012.csg","*example013.csg","*example014.csg","*example015.csg","*example016.csg","*example017.csg","*example018.csg","*example019.csg","*example020.csg","*CVT","*/home/runner/work/geogram/geogram/tests/CVT.robot","*tests/CVT.robot","*small_cube.tet8 (dim8)","*Remesh","*small_cube.tet8 (dim6)","*small_cube.tet8 (dim4)","*small_cube.tet8 (dim3)","*Delaunay","*/home/runner/work/geogram/geogram/tests/Delaunay.robot","*tests/Delaunay.robot","*cube.obj","*joint.off","*cube.obj (hull)","*joint.off (hull)","*cube.obj (2d)","*joint.off (2d)","*joint.off (2d triangle)","*DelaunaySequential","*/home/runner/work/geogram/geogram/tests/DelaunaySequential.robot","*tests/DelaunaySequential.robot","*FileConvert","*/home/runner/work/geogram/geogram/tests/FileConvert.robot","*tests/FileConvert.robot","*icosa.obj.mesh","*icosa.obj.meshb","*icosa.obj.eobj","*icosa.obj.ply","*icosa.obj.off","*icosa.obj.geogram","*icosa.obj.geogram_ascii","*FileInput","*/home/runner/work/geogram/geogram/tests/FileInput.robot","*tests/FileInput.robot","*xfail unknown file extension","*xfail file not found","*xfail corrupted.obj invalid integer value","*xfail corrupted.obj invalid floating point value","*xfail corrupted.obj invalid facet vertex index","*xfail corrupted.off invalid integer value","*xfail corrupted.off invalid floating point value","*xfail corrupted.off invalid facet vertex count","*xfail corrupted.off invalid facet vertex","*xfail corrupted.off invalid vertex count","*xfail truncated.off","*xfail corrupted invalid face count.meshb","*xfail corrupted invalid facet vertex.meshb","*xfail truncated.meshb","*xfail corrupted invalid face count.ply","*xfail corrupted invalid vertex count.ply","*xfail truncated.ply","*xfail corrupted invalid triangle count.stl","*xfail truncated.stl","*Intersect","*/home/runner/work/geogram/geogram/tests/Intersect.robot","*tests/Intersect.robot","*classif_1.obj","*classif_2.obj","*cube_with_8_spheres.obj","*cucubes.obj","*rot_seven_cubes.obj","*sphere_icosa_2.obj","*sphere_icosa.obj","*three_cubes_3.obj","*three_cubes.obj","*three_cylinders.obj","*tmp_wing.obj","*two_cubes_1.obj","*two_cylinders.obj","*Logger","*/home/runner/work/geogram/geogram/tests/Logger.robot","*tests/Logger.robot","*NL","*/home/runner/work/geogram/geogram/tests/NL.robot","*tests/NL.robot","*OpenNL test","*RVD","*Reconstruct","*/home/runner/work/geogram/geogram/tests/Reconstruct.robot","*tests/Reconstruct.robot","*mask.off (profile=reconstruct)","*mask.off (profile=reconstruct, Psmooth=3)","*/home/runner/work/geogram/geogram/tests/Remesh.robot","*tests/Remesh.robot","*icosa.obj no remesh","*icosa.obj","*mask3kf.obj","*S2.obj","*three_holes.obj","*cube.obj (profile=cad)","*joint.off (profile=cad)","*test_isect.obj (profile=convert, isect=true)","*/home/runner/work/geogram/geogram/tests/RVD.robot","*tests/RVD.robot","*center_square.obj with two_grids.obj","*grid1_dual.obj","*grid2_dual.obj","*grid3_dual.obj","*grid5_dual.obj","*grid6_dual.obj","*grid_dual.obj","*xfail_bad_results","*RVD cells","*/home/runner/work/geogram/geogram/tests/RVD_cells.robot","*tests/RVD_cells.robot","*RVD_cells"]);
 </script>
 <script type="text/javascript">
-window.output["stats"] = [[{"elapsed":"00:27:24","fail":0,"label":"All Tests","pass":194,"skip":0}],[{"elapsed":"00:01:47","fail":0,"label":"ConvexCell","pass":7,"skip":0},{"elapsed":"00:06:39","fail":0,"label":"CSG","pass":20,"skip":0},{"elapsed":"00:27:24","fail":0,"label":"daily","pass":194,"skip":0},{"elapsed":"00:27:24","fail":0,"label":"daily_valgrind","pass":194,"skip":0},{"elapsed":"00:00:12","fail":0,"label":"Delaunay","pass":9,"skip":0},{"elapsed":"00:00:12","fail":0,"label":"FileConvert","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"label":"FileInput","pass":19,"skip":0},{"elapsed":"00:04:39","fail":0,"label":"Intersect","pass":13,"skip":0},{"elapsed":"00:00:36","fail":0,"label":"NNSearch","pass":36,"skip":0},{"elapsed":"00:09:44","fail":0,"label":"Remesh","pass":14,"skip":0},{"elapsed":"00:01:45","fail":0,"label":"RVD","pass":26,"skip":0},{"elapsed":"00:00:40","fail":0,"label":"RVD_cells","pass":3,"skip":0},{"elapsed":"00:00:06","fail":0,"label":"Small","pass":7,"skip":0},{"elapsed":"00:27:24","fail":0,"label":"smoke","pass":194,"skip":0}],[{"elapsed":"00:27:24","fail":0,"id":"s1","label":"Tests","name":"Tests","pass":194,"skip":0},{"elapsed":"00:00:20","fail":0,"id":"s1-s1","label":"Tests.BNN Search","name":"BNN Search","pass":18,"skip":0},{"elapsed":"00:00:22","fail":0,"id":"s1-s2","label":"Tests.CDT 2d","name":"CDT 2d","pass":16,"skip":0},{"elapsed":"00:00:22","fail":0,"id":"s1-s3","label":"Tests.CDT no Delaunay 2d","name":"CDT no Delaunay 2d","pass":16,"skip":0},{"elapsed":"00:00:06","fail":0,"id":"s1-s4","label":"Tests.CmdLine","name":"CmdLine","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"id":"s1-s5","label":"Tests.CNN Search","name":"CNN Search","pass":18,"skip":0},{"elapsed":"00:01:47","fail":0,"id":"s1-s6","label":"Tests.ConvexCell","name":"ConvexCell","pass":7,"skip":0},{"elapsed":"00:06:39","fail":0,"id":"s1-s7","label":"Tests.CSG","name":"CSG","pass":20,"skip":0},{"elapsed":"00:03:17","fail":0,"id":"s1-s8","label":"Tests.CVT","name":"CVT","pass":4,"skip":0},{"elapsed":"00:00:10","fail":0,"id":"s1-s9","label":"Tests.Delaunay","name":"Delaunay","pass":7,"skip":0},{"elapsed":"00:00:02","fail":0,"id":"s1-s10","label":"Tests.DelaunaySequential","name":"DelaunaySequential","pass":2,"skip":0},{"elapsed":"00:00:12","fail":0,"id":"s1-s11","label":"Tests.FileConvert","name":"FileConvert","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"id":"s1-s12","label":"Tests.FileInput","name":"FileInput","pass":19,"skip":0},{"elapsed":"00:04:39","fail":0,"id":"s1-s13","label":"Tests.Intersect","name":"Intersect","pass":13,"skip":0},{"elapsed":"00:00:03","fail":0,"id":"s1-s14","label":"Tests.Logger","name":"Logger","pass":1,"skip":0},{"elapsed":"00:00:06","fail":0,"id":"s1-s15","label":"Tests.NL","name":"NL","pass":1,"skip":0},{"elapsed":"00:00:46","fail":0,"id":"s1-s16","label":"Tests.Reconstruct","name":"Reconstruct","pass":2,"skip":0},{"elapsed":"00:05:42","fail":0,"id":"s1-s17","label":"Tests.Remesh","name":"Remesh","pass":8,"skip":0},{"elapsed":"00:01:40","fail":0,"id":"s1-s18","label":"Tests.RVD","name":"RVD","pass":25,"skip":0},{"elapsed":"00:00:40","fail":0,"id":"s1-s19","label":"Tests.RVD cells","name":"RVD cells","pass":3,"skip":0}]];
+window.output["stats"] = [[{"elapsed":"00:27:13","fail":0,"label":"All Tests","pass":194,"skip":0}],[{"elapsed":"00:01:48","fail":0,"label":"ConvexCell","pass":7,"skip":0},{"elapsed":"00:06:37","fail":0,"label":"CSG","pass":20,"skip":0},{"elapsed":"00:27:13","fail":0,"label":"daily","pass":194,"skip":0},{"elapsed":"00:27:13","fail":0,"label":"daily_valgrind","pass":194,"skip":0},{"elapsed":"00:00:12","fail":0,"label":"Delaunay","pass":9,"skip":0},{"elapsed":"00:00:12","fail":0,"label":"FileConvert","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"label":"FileInput","pass":19,"skip":0},{"elapsed":"00:04:31","fail":0,"label":"Intersect","pass":13,"skip":0},{"elapsed":"00:00:36","fail":0,"label":"NNSearch","pass":36,"skip":0},{"elapsed":"00:09:43","fail":0,"label":"Remesh","pass":14,"skip":0},{"elapsed":"00:01:45","fail":0,"label":"RVD","pass":26,"skip":0},{"elapsed":"00:00:40","fail":0,"label":"RVD_cells","pass":3,"skip":0},{"elapsed":"00:00:06","fail":0,"label":"Small","pass":7,"skip":0},{"elapsed":"00:27:13","fail":0,"label":"smoke","pass":194,"skip":0}],[{"elapsed":"00:27:13","fail":0,"id":"s1","label":"Tests","name":"Tests","pass":194,"skip":0},{"elapsed":"00:00:20","fail":0,"id":"s1-s1","label":"Tests.BNN Search","name":"BNN Search","pass":18,"skip":0},{"elapsed":"00:00:21","fail":0,"id":"s1-s2","label":"Tests.CDT 2d","name":"CDT 2d","pass":16,"skip":0},{"elapsed":"00:00:22","fail":0,"id":"s1-s3","label":"Tests.CDT no Delaunay 2d","name":"CDT no Delaunay 2d","pass":16,"skip":0},{"elapsed":"00:00:06","fail":0,"id":"s1-s4","label":"Tests.CmdLine","name":"CmdLine","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"id":"s1-s5","label":"Tests.CNN Search","name":"CNN Search","pass":18,"skip":0},{"elapsed":"00:01:48","fail":0,"id":"s1-s6","label":"Tests.ConvexCell","name":"ConvexCell","pass":7,"skip":0},{"elapsed":"00:06:37","fail":0,"id":"s1-s7","label":"Tests.CSG","name":"CSG","pass":20,"skip":0},{"elapsed":"00:03:15","fail":0,"id":"s1-s8","label":"Tests.CVT","name":"CVT","pass":4,"skip":0},{"elapsed":"00:00:10","fail":0,"id":"s1-s9","label":"Tests.Delaunay","name":"Delaunay","pass":7,"skip":0},{"elapsed":"00:00:02","fail":0,"id":"s1-s10","label":"Tests.DelaunaySequential","name":"DelaunaySequential","pass":2,"skip":0},{"elapsed":"00:00:12","fail":0,"id":"s1-s11","label":"Tests.FileConvert","name":"FileConvert","pass":7,"skip":0},{"elapsed":"00:00:16","fail":0,"id":"s1-s12","label":"Tests.FileInput","name":"FileInput","pass":19,"skip":0},{"elapsed":"00:04:31","fail":0,"id":"s1-s13","label":"Tests.Intersect","name":"Intersect","pass":13,"skip":0},{"elapsed":"00:00:05","fail":0,"id":"s1-s14","label":"Tests.Logger","name":"Logger","pass":1,"skip":0},{"elapsed":"00:00:05","fail":0,"id":"s1-s15","label":"Tests.NL","name":"NL","pass":1,"skip":0},{"elapsed":"00:00:47","fail":0,"id":"s1-s16","label":"Tests.Reconstruct","name":"Reconstruct","pass":2,"skip":0},{"elapsed":"00:05:41","fail":0,"id":"s1-s17","label":"Tests.Remesh","name":"Remesh","pass":8,"skip":0},{"elapsed":"00:01:40","fail":0,"id":"s1-s18","label":"Tests.RVD","name":"RVD","pass":25,"skip":0},{"elapsed":"00:00:40","fail":0,"id":"s1-s19","label":"Tests.RVD cells","name":"RVD cells","pass":3,"skip":0}]];
 </script>
 <script type="text/javascript">
-window.output["baseMillis"] = 1704934997640;
+window.output["baseMillis"] = 1705021384919;
 </script>
 <script type="text/javascript">
-window.output["generated"] = 1643948;
+window.output["generated"] = 1633534;
 </script>
 <script type="text/javascript">
 window.output["expand_keywords"] = null;
@@ -1654,7 +1922,7 @@ window.settings = {"background":{"fail":"#f66","pass":"#9e9","skip":"#fed84f"},"
 </script>
 <title></title>
 </head>
-<body>
+<body data-theme="dark">
 <div id="javascript-disabled">
   <h1>Opening Robot Framework report failed</h1>
   <ul>
@@ -1664,13 +1932,15 @@ window.settings = {"background":{"fail":"#f66","pass":"#9e9","skip":"#fed84f"},"
   </ul>
 </div>
 <script type="text/javascript">removeJavaScriptDisabledWarning();</script>
-
+<div id="status-bar"></div>
 <div id="header"></div>
 <div id="statistics-container"></div>
 <div id="test-details-container"></div>
 
 <script type="text/javascript">
 $(document).ready(function () {
+    storage.init();
+    theme.init(storage);
     try {
         var topsuite = window.testdata.suite();
     } catch (error) {
@@ -1678,24 +1948,37 @@ $(document).ready(function () {
         return;
     }
     window.prevLocationHash = '';
-    setBackground(topsuite);
     initLayout(topsuite.name, 'Report');
-    storage.init('report');
+    setStatusColor(topsuite);
     addSummary(topsuite);
     addStatistics();
     addDetails();
     window.onhashchange = showDetailsByHash;
+    document.addEventListener("theme-change", () => {
+        setStatusColor(topsuite);
+    });
 });
 
-function setBackground(topsuite) {
+function setStatusColor(topsuite) {
     var color;
-    if (topsuite.fail)
+    let fail = Boolean(topsuite.fail);
+    let pass = Boolean(!topsuite.fail && topsuite.pass);
+    let skip = Boolean(!topsuite.fail && !topsuite.pass);
+    if (theme.getPreference() === 'dark') {
+        $('#status-bar').toggleClass("fail-bar", fail);
+        $('#status-bar').toggleClass("pass-bar", pass);
+        $('#status-bar').toggleClass("skip-bar", skip);
+        $('body').css('background-color', "#1c2227");
+        return;
+    }
+    if (fail)
         color = window.settings.background.fail;
-    else if (topsuite.pass)
+    else if (pass)
         color = window.settings.background.pass;
     else
         color = window.settings.background.skip;
     $('body').css('background-color', color);
+    $('#status-bar').toggleClass("fail-bar pass-bar skip-bar", false);
 }
 
 function addSummary(topsuite) {
