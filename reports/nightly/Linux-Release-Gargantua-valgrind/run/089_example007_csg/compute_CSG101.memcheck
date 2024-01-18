@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_CSG /home/runner/work/geogram/geogram/tests/data/CSG/example007.csg</line>
 </preamble>
 
-<pid>7865</pid>
-<ppid>7074</ppid>
+<pid>7743</pid>
+<ppid>6953</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -41,15 +41,15 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:06.487 </time>
+  <time>00:00:00:07.763 </time>
 </status>
 
 <error>
-  <unique>0x1</unique>
+  <unique>0x2</unique>
   <tid>1</tid>
   <kind>Leak_DefinitelyLost</kind>
   <xwhat>
-    <text>112 bytes in 1 blocks are definitely lost in loss record 2 of 2</text>
+    <text>112 bytes in 1 blocks are definitely lost in loss record 3 of 7</text>
     <leakedbytes>112</leakedbytes>
     <leakedblocks>1</leakedblocks>
   </xwhat>
@@ -87,8 +87,16 @@
 
 <suppcounts>
   <pair>
-    <count>1</count>
+    <count>3</count>
     <name>Vorpaline_gomp_64bits_leak_2</name>
+  </pair>
+  <pair>
+    <count>2</count>
+    <name>Vorpaline_gomp_64bits_leak_4</name>
+  </pair>
+  <pair>
+    <count>1</count>
+    <name>Vorpaline_gomp_64bits_leak_1</name>
   </pair>
 </suppcounts>
 
