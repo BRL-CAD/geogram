@@ -835,8 +835,8 @@ MSBuild version 17.8.3+195e7f5a3 for .NET Framework
   dmach.c
   dmemory.c
   dmyblas2.c
-  dpanel_dfs.c
   dpanel_bmod.c
+  dpanel_dfs.c
   dpivotL.c
   dpivotgrowth.c
   dpruneL.c
