@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/test_logger</line>
 </preamble>
 
-<pid>13361</pid>
-<ppid>7011</ppid>
+<pid>13372</pid>
+<ppid>7027</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -40,7 +40,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:03.872 </time>
+  <time>00:00:00:03.353 </time>
 </status>
 
 <error>
@@ -84,12 +84,12 @@
       <fn>std::_Function_handler&lt;void (unsigned long), main::{lambda(unsigned long)#1}&gt;::_M_invoke(std::_Any_data const&amp;, unsigned long&amp;&amp;)</fn>
     </frame>
     <frame>
-      <ip>0x492C354</ip>
+      <ip>0x492C2B4</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>(anonymous namespace)::ParallelForThread::run()</fn>
     </frame>
     <frame>
-      <ip>0x4932146</ip>
+      <ip>0x49320A6</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>(anonymous namespace)::PThreadManager::run_thread(void*)</fn>
     </frame>
@@ -128,17 +128,17 @@
       <fn>operator new(unsigned long)</fn>
     </frame>
     <frame>
-      <ip>0x49277D7</ip>
+      <ip>0x4927737</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::Logger::Logger()</fn>
     </frame>
     <frame>
-      <ip>0x4927CBC</ip>
+      <ip>0x4927C1C</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::Logger::initialize()</fn>
     </frame>
     <frame>
-      <ip>0x48FFB5C</ip>
+      <ip>0x48FFA9C</ip>
       <obj>/home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/lib/libgeogram.so.1.8.7-rc</obj>
       <fn>GEO::initialize(int)</fn>
     </frame>
