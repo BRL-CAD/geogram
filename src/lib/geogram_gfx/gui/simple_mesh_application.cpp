@@ -382,7 +382,7 @@ namespace GEO {
             files.begin(), files.end(), instance()->current_file_
         );
         if(it == files.end()) {
-            it = files.begin() + (unsigned int)(files.size()-1);
+            it = files.begin() + int(files.size()-1);
         }
         do {
             it++;
@@ -508,7 +508,7 @@ namespace GEO {
         
         if(animate()) {
             anim_time_ = float(
-                sin(double(anim_speed_) * GEO::SystemStopwatch::now())
+                sin(double(anim_speed_) * GEO::Stopwatch::now())
             );
             anim_time_ = 0.5f * (anim_time_ + 1.0f);
         }

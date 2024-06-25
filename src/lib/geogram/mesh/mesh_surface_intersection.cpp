@@ -52,6 +52,7 @@
 #include <geogram/basic/permutation.h>
 #include <geogram/basic/boolean_expression.h>
 #include <geogram/basic/debug_stream.h>
+#include <geogram/basic/algorithm.h>
 
 #include <sstream>
 #include <stack>
@@ -252,6 +253,8 @@ namespace GEO {
         // underflow/overflow cases with expansion_nt.
         rescale_ = false;
         skeleton_ = nullptr;
+        skeleton_trim_fins_ = false;
+        interpolate_attributes_ = false;
     }
 
     MeshSurfaceIntersection::~MeshSurfaceIntersection() {
@@ -426,7 +429,8 @@ namespace GEO {
 
             // Compute facet-facet intersections in parallel
             if(verbose_) {
-                Logger::out("Intersect") << "  compute intersections" << std::endl;
+                Logger::out("Intersect") << "  compute intersections"
+                                         << std::endl;
             }
             Process::spinlock lock = GEOGRAM_SPINLOCK_INIT;
             parallel_for_slice(
@@ -562,7 +566,7 @@ namespace GEO {
 
             // Sort intersections by f1, so that all intersections between f1
             // and another facet appear as a contiguous sequence.
-            std::sort(
+            GEO::sort(
                 intersections.begin(), intersections.end(),
                 [](const IsectInfo& a, const IsectInfo& b) -> bool {
                     return (a.f1 < b.f1) ? true  :
@@ -764,6 +768,61 @@ namespace GEO {
             }
         }
 
+        if(interpolate_attributes_) {
+            Attribute<index_t> original_facet_id(
+                mesh_.facets.attributes(), "original_facet_id"
+            );
+
+            for(index_t c: mesh_.facet_corners) {
+                index_t f = c/3;
+                index_t f0 = original_facet_id[f];
+                // If this is an original facet, there is nothing to do !
+                if(f == f0) {
+                    continue;
+                }
+
+                index_t v = mesh_.facet_corners.vertex(c);
+                index_t v1 = mesh_.facets.vertex(f0,0);
+                index_t v2 = mesh_.facets.vertex(f0,1);
+                index_t v3 = mesh_.facets.vertex(f0,2);
+
+                index_t c1 = mesh_.facets.corner(f0,0);
+                index_t c2 = mesh_.facets.corner(f0,1);
+                index_t c3 = mesh_.facets.corner(f0,2);
+
+                if(v == v1) {
+                    mesh_.facet_corners.attributes().copy_item(c,c1);
+                    continue;
+                }
+
+                if(v == v2) {
+                    mesh_.facet_corners.attributes().copy_item(c,c2);
+                    continue;
+                }
+
+                if(v == v3) {
+                    mesh_.facet_corners.attributes().copy_item(c,c3);
+                    continue;
+                }
+                
+                vec3 p1(mesh_.vertices.point_ptr(v1));
+                vec3 p2(mesh_.vertices.point_ptr(v2));
+                vec3 p3(mesh_.vertices.point_ptr(v3));
+                vec3 p(mesh_.vertices.point_ptr(v));
+
+                double a  = Geom::triangle_area(p1,p2,p3);
+                double a1 = Geom::triangle_area(p ,p2,p3);
+                double a2 = Geom::triangle_area(p1,p ,p3);
+                double a3 = Geom::triangle_area(p1,p2,p );
+                
+                mesh_.facet_corners.attributes().zero_item(c);
+                mesh_.facet_corners.attributes().madd_item(c, a1/a, c1);
+                mesh_.facet_corners.attributes().madd_item(c, a2/a, c2);
+                mesh_.facet_corners.attributes().madd_item(c, a3/a, c3);
+            }
+        }
+
+        
         // Remove original facets that have intersections.
         {
             vector<index_t> has_intersections(mesh_.facets.nb(), 0);
@@ -1222,11 +1281,20 @@ namespace GEO {
                 mesh_.facets.set_vertex(f2,0,mesh_.facets.vertex(f1,2));
                 mesh_.facets.set_vertex(f2,1,mesh_.facets.vertex(f1,1));
                 mesh_.facets.set_vertex(f2,2,mesh_.facets.vertex(f1,0));
+                
+                // Copy attributes
+                mesh_.facets.attributes().copy_item(f2,f1);
+                if(interpolate_attributes_) {
+                    mesh_.facet_corners.attributes().copy_item(3*f2,  3*f1+2);
+                    mesh_.facet_corners.attributes().copy_item(3*f2+1,3*f1+1);
+                    mesh_.facet_corners.attributes().copy_item(3*f2+2,3*f1  );
+                }
+
+                // Sew halfedges (need to be done *after* copy attributes, 
+                // since alpha3 is stored as an .. **attribute** !!!
                 halfedges_.sew3(3*f1,  3*f2+1);
                 halfedges_.sew3(3*f1+1,3*f2  );
                 halfedges_.sew3(3*f1+2,3*f2+2);
-                // Copy attributes
-                mesh_.facets.attributes().copy_item(f2,f1);
             }
         }
 
@@ -1240,7 +1308,7 @@ namespace GEO {
         radial_polylines_.initialize();
 
         if(skeleton_ != nullptr) {
-            radial_polylines_.get_skeleton(*skeleton_);
+            radial_polylines_.get_skeleton(*skeleton_, skeleton_trim_fins_);
         }
         
         // Step 4: Connect manifold edges
@@ -1314,6 +1382,7 @@ namespace GEO {
 
     }
 
+    
     /***********************************************************************/    
 
     void MeshSurfaceIntersection::RadialBundles::initialize() {
@@ -1334,7 +1403,7 @@ namespace GEO {
         // Step 2: Lexicographic sort of the H array, so that "bundles" will be
         // contiguous. By "bundle", I mean the set of halfedges having the same
         // extremities in the same order.
-        std::sort(
+        GEO::sort(
             H_.begin(), H_.end(),
             [&](index_t h1, index_t h2)->bool {
                 geo_debug_assert(h1 < mesh_.facet_corners.nb());
@@ -1394,6 +1463,11 @@ namespace GEO {
         v_first_bndl_.assign(mesh_.vertices.nb(), NO_INDEX);
         bndl_next_around_v_.assign(bndl_start_.size()-1, NO_INDEX);
         for(index_t bndl = 0; bndl < nb(); ++bndl) {
+            // Skip regular bundles (that are inside charts),
+            // we only need chaining along non-manifold radial polylines
+            if(nb_halfedges(bndl) == 2) {
+                continue;
+            }
             index_t v1 = vertex(bndl,0);
             bndl_next_around_v_[bndl] = v_first_bndl_[v1];
             v_first_bndl_[v1] = bndl;
@@ -1437,6 +1511,7 @@ namespace GEO {
         vector<bool> bndl_visited(I_.radial_bundles_.nb(),false);
         for(index_t bndl: I_.radial_bundles_) {
 
+            // Bundle already visited, or regular internal edgge
             if(bndl_visited[bndl] || I_.radial_bundles_.nb_halfedges(bndl)==2) {
                 continue;
             }
@@ -1456,7 +1531,7 @@ namespace GEO {
             }
 
             // Traverse polyline by traversing bundles on border forward
-            // until a non-manifold vertex is reached or until we have loped
+            // until a non-manifold vertex is reached or until we have looped
             // to our starting point.
             index_t bndl_cur = bndl_first;
             for(;;) {
@@ -1477,7 +1552,9 @@ namespace GEO {
         }
     }
 
-    void MeshSurfaceIntersection::RadialPolylines::get_skeleton(Mesh& skeleton) {
+    void MeshSurfaceIntersection::RadialPolylines::get_skeleton(
+        Mesh& skeleton, bool trim_fins
+    ) {
         skeleton.clear();
         skeleton.vertices.set_dimension(3);
         Attribute<bool> new_v_selection(
@@ -1503,6 +1580,9 @@ namespace GEO {
         }
         for(index_t polyline: *this) {
             for(index_t bndl: bundles(polyline)) {
+                if(trim_fins && I_.radial_bundles_.nb_halfedges(bndl) < 3) {
+                    continue;
+                }
                 index_t v1 = I_.radial_bundles_.vertex(bndl,0);
                 index_t v2 = I_.radial_bundles_.vertex(bndl,1);
                 geo_assert(v_id[v1] != NO_INDEX);
@@ -1510,6 +1590,7 @@ namespace GEO {
                 skeleton.edges.create_edge(v_id[v1], v_id[v2]);
             }
         }
+        skeleton.vertices.remove_isolated();
     }
 
     void MeshSurfaceIntersection::RadialPolylines::radial_sort() {
@@ -2215,8 +2296,15 @@ namespace GEO {
     /*************************************************************************/
     
     void MeshSurfaceIntersection::simplify_coplanar_facets(
-        double angle_threshold
+        double angle_tolerance
     ) {
+        if(interpolate_attributes_) {
+            Logger::warn("Intersect")
+                << "Cannot simplify coplanar facets with interpolated attributes"
+                << std::endl;
+            return;
+        }
+
         if(verbose_) {
             Logger::out("Intersect") << "Simplifying coplanar facets"
                                      << std::endl;
@@ -2233,7 +2321,7 @@ namespace GEO {
         index_t current_group = 0;
         {
             // clear attributes -------------v
-            CoplanarFacets coplanar(*this, true, angle_threshold); 
+            CoplanarFacets coplanar(*this, true, angle_tolerance); 
             for(index_t f: mesh_.facets) {
                 if(facet_group[f] == NO_INDEX) {
                     coplanar.get(f, current_group); // This sets facet_group_[f]
@@ -2248,12 +2336,17 @@ namespace GEO {
         index_t nb_groups = current_group;
         geo_assert(nb_groups == group_facet.size());
 
+        // Avoid to have reallocations in parallel with access by
+        // preallocating facets (we are going to create a maximum
+        // nb of facets that corresponds to the actual nb of facets)
+        mesh_.facets.reserve(mesh_.facets.nb()); 
+        
         // Triangulate coplanar facet groups in parallel
         Process::spinlock lock = GEOGRAM_SPINLOCK_INIT;
         parallel_for_slice(
             0, nb_groups, [&](index_t b, index_t e) {
                 // do not clear attributes -----v
-                CoplanarFacets coplanar(*this,false,angle_threshold); 
+                CoplanarFacets coplanar(*this,false,angle_tolerance); 
                 for(index_t group=b; group<e; ++group) {
                     coplanar.get(group_facet[group],group);
                     if(coplanar.nb_facets() < 2) {

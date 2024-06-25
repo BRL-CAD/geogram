@@ -44,7 +44,6 @@
 #include <geogram/basic/assert.h>
 #include <geogram/basic/numeric.h>
 #include <geogram/basic/argused.h>
-#include <geogram/basic/atomics.h>
 #include <vector>
 #include <string.h>
 #include <stdlib.h>
@@ -68,7 +67,7 @@
 // Stack size depending on OS:
 // Linux: 10 Mb
 // Windows: 1 Mb
-// Mac OSX: 523 Kb
+// Mac OSX: 512 Kb
 // GEO_HAS_BIG_STACK is defined under Linux
 // and lets some of the functions that
 // manipulate exact precision numbers
@@ -752,7 +751,7 @@ namespace GEO {
          * \return A reference to the element at position \p i in the vector.
          */
         T& operator[] (unsigned int i) {
-            geo_debug_assert(i >= 0 && index_t(i) < size());
+            geo_debug_assert(index_t(i) < size());
             return baseclass::operator[] (index_t(i));
         }
 
@@ -763,7 +762,7 @@ namespace GEO {
          *  in the vector.
          */
         const T& operator[] (unsigned int i) const {
-            geo_debug_assert(i >= 0 && index_t(i) < size());
+            geo_debug_assert(index_t(i) < size());
             return baseclass::operator[] (index_t(i));
         }
 #endif	

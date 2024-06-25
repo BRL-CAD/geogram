@@ -43,7 +43,6 @@
 
 #include <geogram/basic/process.h>
 #include <geogram/basic/process_private.h>
-#include <geogram/basic/atomics.h>
 #include <geogram/basic/logger.h>
 #include <geogram/basic/progress.h>
 #include <geogram/basic/line_stream.h>
@@ -63,6 +62,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <new>
+
+#if !defined(GEO_OS_ANDROID) && !defined(GEO_OS_EMSCRIPTEN)
+#include <execinfo.h>
+#endif
 
 #ifdef GEO_OS_APPLE
 #include <mach-o/dyld.h>
@@ -144,15 +147,6 @@ namespace {
          * \brief Creates and initializes the POSIX ThreadManager
          */
         PThreadManager() {
-            // For now, I do not trust pthread_mutex_xxx functions
-            // under Android, so I'm using assembly functions
-            // from atomics (I'm sure they got the right memory
-            // barriers for SMP).
-#if defined(GEO_OS_ANDROID) || defined(GEO_OS_RASPBERRY)
-            mutex_ = 0;
-#else
-            pthread_mutex_init(&mutex_, nullptr);
-#endif
             pthread_attr_init(&attr_);
             pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
         }
@@ -162,35 +156,11 @@ namespace {
             return Process::number_of_cores();
         }
 
-        /** \copydoc GEO::ThreadManager::enter_critical_section() */
-	void enter_critical_section() override {
-#if defined(GEO_OS_RASPBERRY)
-            lock_mutex_arm32(&mutex_);
-#elif defined(GEO_OS_ANDROID)
-            lock_mutex_android(&mutex_);
-#else
-            pthread_mutex_lock(&mutex_);
-#endif
-        }
-
-        /** \copydoc GEO::ThreadManager::leave_critical_section() */
-	void leave_critical_section() override {
-#if defined(GEO_OS_RASPBERRY)
-            unlock_mutex_arm32(&mutex_);	    
-#elif defined(GEO_OS_ANDROID)
-            unlock_mutex_android(&mutex_);
-#else
-            pthread_mutex_unlock(&mutex_);
-#endif
-        }
 
     protected:
         /** \brief PThreadManager destructor */
 	~PThreadManager() override {
             pthread_attr_destroy(&attr_);
-#ifndef GEO_OS_ANDROID
-            pthread_mutex_destroy(&mutex_);
-#endif
         }
 
         /**
@@ -232,13 +202,6 @@ namespace {
         }
 
     private:
-#if defined(GEO_OS_RASPBERRY)
-        arm32_mutex_t mutex_;	
-#elif defined(GEO_OS_ANDROID)
-        android_mutex_t mutex_;
-#else
-        pthread_mutex_t mutex_;
-#endif
         pthread_attr_t attr_;
         std::vector<pthread_t> thread_impl_;
     };
@@ -272,11 +235,12 @@ namespace {
      * \param[in] signal signal number
      */
     GEO_NORETURN_DECL void signal_handler(int signal) GEO_NORETURN;
-    
+
     void signal_handler(int signal) {
         const char* sigstr = strsignal(signal);
         std::ostringstream os;
         os << "received signal " << signal << " (" << sigstr << ")";
+        Process::os_print_stack_trace();
         abnormal_program_termination(os.str().c_str());
     }
 
@@ -344,7 +308,7 @@ namespace {
     }
 
     /**
-     * Catches uncaught C++ exceptions
+     * \brief Catches uncaught C++ exceptions
      */
     GEO_NORETURN_DECL void terminate_handler() GEO_NORETURN;
     
@@ -353,7 +317,7 @@ namespace {
     }
 
     /**
-     * Catches allocation errors
+     * \brief Catches allocation errors
      */
     GEO_NORETURN_DECL void memory_exhausted_handler() GEO_NORETURN;
     
@@ -422,6 +386,25 @@ namespace GEO {
                 }
             }
             return result;
+
+            /*
+            const char* statm_path = "/proc/self/statm";
+            unsigned long size,resident,share,text,lib,data,dt;
+            FILE *F = fopen(statm_path,"r");
+            if(F == nullptr) {
+                perror(statm_path);
+                abort();
+            }
+            if(
+                fscanf(F,"%ld %ld %ld %ld %ld %ld %ld",
+                       &size,&resident,&share,&text,&lib,&data,&dt
+                ) != 7
+            ) {
+                perror(statm_path);
+                abort();
+            }
+            fclose(f);
+            */
 #endif
         }
 
@@ -486,7 +469,6 @@ namespace GEO {
          * assertion, a runtime check or runtime error.
          */
         void os_install_signal_handlers() {
-
             // Install signal handlers
             signal(SIGSEGV, signal_handler);
             signal(SIGILL, signal_handler);
@@ -533,8 +515,25 @@ namespace GEO {
             return std::string("");
 #endif
         }        
-        
+
+        void os_print_stack_trace() {
+#if !defined(GEO_OS_ANDROID) && !defined(GEO_OS_EMSCRIPTEN)
+            constexpr int MAX_STACK_FRAMES=128;
+            static void *stack_traces[MAX_STACK_FRAMES];
+            int i, trace_size = 0;
+            char **messages = nullptr;
+            trace_size = backtrace(stack_traces, MAX_STACK_FRAMES);
+            messages = backtrace_symbols(stack_traces, trace_size);
+            for (i = 0; i < trace_size; ++i)  {
+                fprintf(stderr,"Stacktrace: %s\n",messages[i]);
+            }
+            if (messages != nullptr) {
+                free(messages);
+            }
+#endif            
+        }
     }
+    
 }
 
 #else 

@@ -487,6 +487,7 @@ namespace GLUP {
 
     
     Context::Context() :
+        nb_vertices_per_primitive_{0},
         immediate_state_(nb_vertices_per_primitive_),
         marching_tet_(GLUP_TETRAHEDRA),
         marching_hex_(GLUP_HEXAHEDRA),
@@ -1711,7 +1712,7 @@ namespace GLUP {
             ";\n" +
 	    "#define GLUP_PRIMITIVE_DIMENSION " +
 	    String::to_string(primitive_dimension[prim]) +
-            "\n"	    
+            "\n" 
             ;
         
         return result;

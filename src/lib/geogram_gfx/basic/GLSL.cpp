@@ -1050,10 +1050,14 @@ namespace GEO {
             return it->second.text;
         }
         
-        
         GLuint compile_shader_with_includes(
             GLenum target, const char* source, PseudoFileProvider* provider
         ) {
+            // TODO: if an import directive is right in the middle of the source,
+            // push the source parts and the imported files in the correct order
+            // (for now, imported files are necessarily at the beginning of the
+            // source).
+            
             File F;
             F.text = source;
             get_depends(F);
@@ -1075,6 +1079,46 @@ namespace GEO {
                 sources_texts[i] = sources[i].text();
             }
 
+#ifndef GEO_OS_EMSCRIPTEN            
+            // If GL_debug is set, save shaders to file
+            // It makes it easier testing and debugging
+            // them  with glslangValidator
+            if(CmdLine::get_arg_bool("gfx:GL_debug")) {
+                static int index = 0;
+                ++index;
+                std::string filename = String::format("shader_%03d",index);
+                switch(target) {
+                case GL_VERTEX_SHADER:
+                    filename += ".vert";
+                    break;
+                case GL_TESS_CONTROL_SHADER:
+                    filename += ".tesc";
+                    break;
+                case GL_TESS_EVALUATION_SHADER:
+                    filename += ".tese";
+                    break;
+                case GL_GEOMETRY_SHADER:
+                    filename += ".geom";
+                    break;
+                case GL_FRAGMENT_SHADER:
+                    filename += ".frag";
+                    break;
+                case GL_COMPUTE_SHADER:
+                    filename += ".comp";
+                    break;
+                default:
+                    filename += ".shader";
+                    break;
+                }
+                
+                std::ofstream out(filename.c_str());
+                Logger::out("GLSLdbg") << "Saving shader " << filename << std::endl;
+                for(index_t i=0; i<sources_texts.size(); ++i) {
+                        out << sources_texts[i];
+                }
+            }
+#endif
+            
             return compile_shader(
                 target, &sources_texts[0], index_t(sources_texts.size())
             );

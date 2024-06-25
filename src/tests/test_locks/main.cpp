@@ -72,8 +72,11 @@ namespace {
             index_t size, bool single_lock, index_t nb_times
         ) :
             single_lock_(single_lock),
-            nb_times_(nb_times) {
-            global_lock_ = GEOGRAM_SPINLOCK_INIT;
+            global_lock_(GEOGRAM_SPINLOCK_INIT),
+            io_lock_(GEOGRAM_SPINLOCK_INIT),
+            nb_times_(nb_times)
+        {
+            Process::release_spinlock(global_lock_); 
             if(!single_lock_) {
                 locks_.resize(size);
             }
@@ -87,10 +90,10 @@ namespace {
          * \param[in] pid The id of the thread
          */
         void test_locks(index_t pid) {
-            Process::enter_critical_section();
+            Process::acquire_spinlock(io_lock_);
             std::cerr << "Starting thread " << Thread::current()->id() 
                       << std::endl;
-            Process::leave_critical_section();
+            Process::release_spinlock(io_lock_);
             index_t j = 0;
             for(index_t i = 0; i < nb_times_; ++i) {
                 j = (j + 7) % index_t(data_.size());
@@ -102,15 +105,15 @@ namespace {
                 data_[j] = -1;
                 unlock(j);
             }
-            Process::enter_critical_section();
+            Process::acquire_spinlock(io_lock_);
             std::cerr << "End of thread " << Thread::current()->id() 
                       << std::endl;
-            Process::leave_critical_section();
+            Process::release_spinlock(io_lock_);
         }
 
     protected:
         /**
-         * \brief Locks an critical section element
+         * \brief Locks a critical section element
          * \details Locks the element at index \p i in the critical section.
          * In single_lock mode, this locks the whole critical section is
          * locked, otherwise the element is locked individually using the
@@ -154,6 +157,7 @@ namespace {
     private:
         bool single_lock_;
         Process::spinlock global_lock_;
+        Process::spinlock io_lock_;
         Process::SpinLockArray locks_;
         std::vector<signed_index_t> data_;
         index_t nb_times_;

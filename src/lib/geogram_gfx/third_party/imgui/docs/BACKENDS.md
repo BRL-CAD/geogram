@@ -63,7 +63,7 @@ List of Platforms Backends:
     imgui_impl_glfw.cpp       ; GLFW (Windows, macOS, Linux, etc.) http://www.glfw.org/
     imgui_impl_osx.mm         ; macOS native API (not as feature complete as glfw/sdl backends)
     imgui_impl_sdl2.cpp       ; SDL2 (Windows, macOS, Linux, iOS, Android) https://www.libsdl.org
-    imgui_impl_sdl3.cpp       ; SDL2 (Windows, macOS, Linux, iOS, Android) https://www.libsdl.org (*EXPERIMENTAL*)
+    imgui_impl_sdl3.cpp       ; SDL3 (Windows, macOS, Linux, iOS, Android) https://www.libsdl.org (*EXPERIMENTAL UNTIL SDL3 IS RELEASED*)
     imgui_impl_win32.cpp      ; Win32 native API (Windows)
     imgui_impl_glut.cpp       ; GLUT/FreeGLUT (this is prehistoric software and absolutely not recommended today!)
 
@@ -79,14 +79,14 @@ List of Renderer Backends:
     imgui_impl_sdlrenderer2.cpp ; SDL_Renderer (optional component of SDL2 available from SDL 2.0.18+)
     imgui_impl_sdlrenderer3.cpp ; SDL_Renderer (optional component of SDL3 available from SDL 3.0.0+)
     imgui_impl_vulkan.cpp     ; Vulkan
-    imgui_impl_wgpu.cpp       ; WebGPU
+    imgui_impl_wgpu.cpp       ; WebGPU (web and desktop)
 
 List of high-level Frameworks Backends (combining Platform + Renderer):
 
     imgui_impl_allegro5.cpp
 
 Emscripten is also supported!
-The SDL+GL, GLFW+GL and SDL+WebGPU examples are all ready to build and run with Emscripten.
+The SDL+GL, GLFW+GL and GLFW+WebGPU examples are all ready to build and run with Emscripten.
 
 ### Backends for third-party frameworks, graphics API or other languages
 

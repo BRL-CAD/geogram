@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
         );
 
         CmdLine::declare_arg(
-            "coplanar_angle_threshold",0.0,
+            "coplanar_angle_tolerance",0.0,
             "maximum angle (in degrees) between coplanar facets"
         );
         
@@ -155,6 +155,11 @@ int main(int argc, char** argv) {
         CmdLine::declare_arg(
             "detect_intersecting_neighbors",true,
             "detect intersecting neighbors in input and intermediary meshes"
+        );
+
+        CmdLine::declare_arg(
+            "fast_union", true,
+            "fast union mode (there is no cnx component completely inside)"
         );
         
         
@@ -185,12 +190,13 @@ int main(int argc, char** argv) {
             CSGCompiler CSG;
             CSG.builder().set_simplify_coplanar_facets(
                 CmdLine::get_arg_bool("simplify_coplanar_facets"),
-                CmdLine::get_arg_double("coplanar_angle_threshold")
+                CmdLine::get_arg_double("coplanar_angle_tolerance")
             );
             CSG.builder().set_delaunay(CmdLine::get_arg_bool("delaunay"));
             CSG.builder().set_detect_intersecting_neighbors(
                 CmdLine::get_arg_bool("detect_intersecting_neighbors")
             );
+            CSG.builder().set_fast_union(CmdLine::get_arg_bool("fast_union"));
             CSG.set_verbose(CmdLine::get_arg_bool("verbose"));
             result = CSG.compile_file(csg_filename);
         }

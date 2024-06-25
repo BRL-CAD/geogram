@@ -85,6 +85,7 @@ namespace GEO {
     void AttributeStore::notify(
         Memory::pointer base_addr, index_t size, index_t dim
     ) {
+        Process::acquire_spinlock(lock_);
         if(
             size != cached_size_ ||
             base_addr != cached_base_addr_ ||
@@ -97,6 +98,7 @@ namespace GEO {
 		cur->notify(cached_base_addr_, cached_size_, dim);
 	    }
         }
+        Process::release_spinlock(lock_);
     }
     
     AttributeStore::~AttributeStore() {
@@ -179,6 +181,17 @@ namespace GEO {
             temp,
             item_size
         );
+    }
+
+    void AttributeStore::scale_item(index_t to, double s) {
+        geo_argused(to);
+        geo_argused(s);
+    }
+
+    void AttributeStore::madd_item(index_t to, double s, index_t from) {
+        geo_argused(to);
+        geo_argused(s);
+        geo_argused(from);
     }
     
     /*************************************************************************/
@@ -327,6 +340,24 @@ namespace GEO {
 	}
     }
 
+    void AttributesManager::zero_item(index_t i) {
+	for(auto& cur : attributes_) {
+	    cur.second->zero_item(i);
+	}
+    }
+    
+    void AttributesManager::scale_item(index_t i, double s) {
+	for(auto& cur : attributes_) {
+	    cur.second->scale_item(i,s);
+	}
+    }
+
+    void AttributesManager::madd_item(index_t i, double s, index_t j) {
+	for(auto& cur : attributes_) {
+	    cur.second->madd_item(i,s,j);
+	}
+    }
+    
     bool AttributesManager::copy_attribute(
         const std::string& name, const std::string& new_name
     ) {
@@ -339,7 +370,9 @@ namespace GEO {
         const auto new_itr = attributes_.find(new_name);
         if( new_itr != attributes_.end() ) {
             AttributeStore* new_store = new_itr->second;
-            if( !store->elements_type_matches(new_store->element_typeid_name()) ) {
+            if( !store->elements_type_matches(
+                    new_store->element_typeid_name())
+              ) {
                 return false;
             }
             if(

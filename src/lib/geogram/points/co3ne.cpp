@@ -2519,11 +2519,9 @@ namespace {
 
         Attribute<double> normal;
         if(CmdLine::get_arg_bool("co3ne:use_normals")) {
-            Process::enter_critical_section();
             normal.bind_if_is_defined(
                 master_->mesh().vertices.attributes(), "normal"
             );
-            Process::leave_critical_section();
         }
         
         std::ofstream RVD_file; 
@@ -2546,7 +2544,6 @@ namespace {
             }
         }
         index_t cur_v = 0;
-        index_t tcount = 0;
 
         Co3NeRestrictedVoronoiDiagram& RVD = master_->RVD();
         index_t nb_neigh = RVD.nb_neighbors();
@@ -2605,7 +2602,6 @@ namespace {
                 if(
                     j >= 0 && k >= 0 && j != k
                 ) {
-                    ++tcount;
                     triangles_.push_back(i);
                     triangles_.push_back(index_t(j));
                     triangles_.push_back(index_t(k));
@@ -2614,9 +2610,7 @@ namespace {
         }
 
         if(normal.is_bound()) {
-            Process::enter_critical_section();
             normal.unbind();
-            Process::leave_critical_section();
         }
     }
 }

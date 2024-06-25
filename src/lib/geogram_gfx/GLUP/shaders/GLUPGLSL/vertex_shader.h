@@ -42,7 +42,7 @@ void main(void) {
     
 #if GLUP_PRIMITIVE_DIMENSION==1
 
-#ifndef GLUP_NO_GL_CLIPPING	
+#ifndef GLUP_NO_GL_CLIPPING
     if(glupIsEnabled(GLUP_CLIPPING)) {
         gl_ClipDistance[0] = dot(                           
             vertex_in, GLUP.world_clip_plane               
@@ -53,7 +53,6 @@ void main(void) {
 #endif
     
 #elif GLUP_PRIMITIVE_DIMENSION==2
-    
     if(
 	glupIsEnabled(GLUP_LIGHTING) &&
 	glupIsEnabled(GLUP_VERTEX_NORMALS)

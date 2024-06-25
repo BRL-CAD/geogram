@@ -326,13 +326,24 @@ namespace GEO {
          * \param[in] x if set, coplanar facets are simplified, else they
          *  are kept as is (faster but generates many triangles). Default
          *  is set.
-         * \param[in] coplanar_angle_threshold (in degree) the pairs of 
+         * \param[in] angle_tolerance (in degree) the pairs of 
          *  adjacent facets with normals that make an angle smaller than
          *  this threshold as considered to be coplanar.
          */
-        void set_simplify_coplanar_facets(bool x, double angle_threshold=0.0) {
+        void set_simplify_coplanar_facets(bool x, double angle_tolerance=0.0) {
             simplify_coplanar_facets_ = x;
-            coplanar_angle_threshold_ = angle_threshold;
+            coplanar_angle_tolerance_ = angle_tolerance;
+        }
+
+        /**
+         * \brief Sets fast union mode
+         * \details In fast union mode, all intersections are computed and the
+         *  external shell is kept. It may give incorrect result if an object
+         *  is floating inside another one (completely included).
+         * \param[in] x true if fast union mode should be used, false otherwise.
+         */
+        void set_fast_union(bool x) {
+            fast_union_ = x;
         }
         
         /**
@@ -441,7 +452,8 @@ namespace GEO {
         bool detect_intersecting_neighbors_;
         bool delaunay_;
         bool simplify_coplanar_facets_;
-        double coplanar_angle_threshold_;
+        double coplanar_angle_tolerance_;
+        bool fast_union_;
     };
 
     /**************************************************************/

@@ -53,20 +53,6 @@
 
 namespace GEO {
 
-// thread_local is supposed to be supported by c++0x,
-// but some old MSVC compilers do not have it.    
-#if defined(GEO_COMPILER_MSVC) && !defined(thread_local)
-#  define thread_local __declspec(thread)
-#endif
-
-// Older MAC OS X do not have thread_local
-#ifdef GEO_OS_APPLE
-# if defined(TARGET_OS_OSX) && MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_9
-#  define thread_local
-#  define GEO_NO_THREAD_LOCAL    
-# endif
-#endif
-
     /**
      * \brief Platform-independent base class for running threads.
      * \details
@@ -256,24 +242,6 @@ namespace GEO {
          */
         virtual index_t maximum_concurrent_threads() = 0;
 
-        /**
-         * \brief Enters a critical section
-         * \details
-         * One thread at a time can enter the critical section, all the other
-         * threads that call this function are blocked until the blocking
-         * thread leaves the critical section.
-         * \see leave_critical_section()
-         */
-        virtual void enter_critical_section() = 0;
-
-        /**
-         * \brief Leaves a critical section
-         * \details When a blocking thread leaves a critical section, this
-         * makes the critical section available for a waiting thread.
-         * \see enter_critical_section()
-         */
-        virtual void leave_critical_section() = 0;
-
     protected:
         /**
          * \brief Runs a group of Thread%s concurrently.
@@ -333,18 +301,6 @@ namespace GEO {
          * \note This implementation always returns 1.
          */
         index_t maximum_concurrent_threads() override;
-
-        /**
-         * \copydoc ThreadManager::enter_critical_section()
-         * \note This implementation does actually nothing
-         */
-        void enter_critical_section() override;
-
-        /**
-         * \copydoc ThreadManager::leave_critical_section()
-         * \note This implementation does actually nothing
-         */
-        void leave_critical_section() override;
 
     protected:
         /** MonoThreadingThreadManager destructor */
@@ -412,25 +368,6 @@ namespace GEO {
          * vector \p threads and waits for the completion of all of them.
          */
         void GEOGRAM_API run_threads(ThreadGroup& threads);
-
-        /**
-         * \brief Enters a critical section
-         * \details One thread at a time can enter the critical section,
-         * all the other threads that call this function are blocked until the
-         * blocking thread leaves the critical section
-         * \see ThreadManager::enter_critical_section()
-         * \see leave_critical_section()
-         */
-        void GEOGRAM_API enter_critical_section();
-
-        /**
-         * \brief Leaves a critical section
-         * \details When a blocking thread leaves a critical section, this
-         * makes the critical section available for a waiting thread.
-         * \see ThreadManager::leave_critical_section()
-         * \see enter_critical_section()
-         */
-        void GEOGRAM_API leave_critical_section();
 
         /**
          * \brief Gets the number of available cores
@@ -545,12 +482,16 @@ namespace GEO {
          */
         size_t GEOGRAM_API max_used_memory();
 
-
         /**
          * \brief Gets the full path to the currently
          *  running program.
          */
         std::string GEOGRAM_API executable_filename();
+
+        /**
+         * \brief Prints a stack trace to the standard error.
+         */
+        void print_stack_trace();
     }
 
     /**

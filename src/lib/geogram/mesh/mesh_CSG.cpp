@@ -66,6 +66,8 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 #ifdef GEO_COMPILER_CLANG
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
@@ -74,7 +76,7 @@
 #pragma clang diagnostic ignored "-Wunused-member-function"
 #pragma clang diagnostic ignored "-Wcast-qual"
 #pragma clang diagnostic ignored "-Wunused-macros"
-#endif
+#pragma clang diagnostic ignored "-Wimplicit-fallthrough"
 #endif
 
 // We need to change stb-c-lexer configuration
@@ -272,9 +274,10 @@ namespace GEO {
         verbose_ = false;
         max_arity_ = 32;
         simplify_coplanar_facets_ = true;
-        coplanar_angle_threshold_ = 0.0;
+        coplanar_angle_tolerance_ = 0.0;
         delaunay_ = true;
         detect_intersecting_neighbors_ = true;
+        fast_union_ = false;
     }
     
     void CSGBuilder::reset_defaults() {
@@ -583,6 +586,9 @@ namespace GEO {
                 mesh_repair(*result, mode, STL_epsilon_);
             }
             result->facets.compute_borders();
+	    if(result->facets.nb() != 0 && !result->facets.are_simplices()) {
+	       result->facets.triangulate();
+	    }
         }
 
         // Apply origin and scale
@@ -889,9 +895,9 @@ namespace GEO {
             return scope[0];
         }
 
-        // Boolean operations can handle no more than 32 operands.
-        // For a union with more than 32 operands, split it into two.
-        if(scope.size() > max_arity_) {
+        // Boolean operations can handle no more than max_arity_ operands.
+        // For a union with more than max_arity_ operands, split it into two.
+        if(!fast_union_ && scope.size() > max_arity_) {
             CSGScope scope1;
             CSGScope scope2;
             index_t n1 = index_t(scope.size()/2);
@@ -935,8 +941,9 @@ namespace GEO {
             return scope[0];
         }
 
-        // Boolean operations can handle no more than 32 operands.
-        // For a intersection with more than 32 operands, split it into two.
+        // Boolean operations can handle no more than max_arity_ operands.
+        // For a intersection with more than max_arity_ operands,
+        // split it into two.
         if(scope.size() > max_arity_) {
             CSGScope scope1;
             CSGScope scope2;
@@ -967,9 +974,9 @@ namespace GEO {
             return scope[0];
         }
 
-        // Boolean operations can handle no more than 32 operands.
-        // For a difference with more than 32 operands, split it
-        // (by calling union_instr() that in turn splits the list).
+        // Boolean operations can handle no more than max_arity_ operands.
+        // For a difference with more than max_arity_ operands, split it
+        // (by calling union_instr() that in turn splits the list if need be).
         if(scope.size() > max_arity_) {
             CSGScope scope2;
             for(index_t i=1; i<scope.size(); ++i) {
@@ -1002,7 +1009,7 @@ namespace GEO {
         CSGMesh_var result = new CSGMesh;
         result->vertices.set_dimension(3);
 
-        if(scope.size() > max_arity_) { 
+        if(!fast_union_ && scope.size() > max_arity_) { 
             Logger::warn("CSG") << "Scope with more than "
                                 << max_arity_
                                 << " children"
@@ -1542,11 +1549,18 @@ namespace GEO {
             MeshSurfaceIntersection I(*mesh);
             I.set_verbose(verbose_);
             I.set_delaunay(delaunay_); 
-            I.set_detect_intersecting_neighbors(detect_intersecting_neighbors_); 
+            I.set_detect_intersecting_neighbors(detect_intersecting_neighbors_);
+            if(fast_union_ && boolean_expr == "union") {
+                I.set_radial_sort(true); // TODO: Needed ? 
+            }
             I.intersect();
-            I.classify(boolean_expr);
+            if(fast_union_ && boolean_expr == "union") {
+                I.remove_internal_shells();
+            } else {
+                I.classify(boolean_expr);
+            }
             if(simplify_coplanar_facets_) {
-                I.simplify_coplanar_facets(coplanar_angle_threshold_);
+                I.simplify_coplanar_facets(coplanar_angle_tolerance_);
             }
         }
     }
@@ -2071,7 +2085,9 @@ namespace GEO {
         vec2 scale = args.get_arg("scale", vec2(1.0, 1.0));
         index_t slices = index_t(args.get_arg("slices",0));
         double twist = args.get_arg("twist",0.0);
-        return builder_.linear_extrude(scope, height, center, scale, slices, twist);
+        return builder_.linear_extrude(
+            scope, height, center, scale, slices, twist
+        );
     }
 
     CSGMesh_var CSGCompiler::rotate_extrude(

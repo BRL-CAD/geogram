@@ -13,10 +13,8 @@
 
 
 
-![](https://github.com/BrunoLevy/geogram/wiki/geogram_banner_2023.png)
+![](https://github.com/BrunoLevy/geogram/wiki/geogram_banner_2024_2.png)
 
-Geogram received the [Symposium on Geometry Processing Software Award](http://awards.geometryprocessing.org/)
-in 2023.
 
 Geogram is a programming library with geometric algorithms. It has
 geometry-processing functionalities:
@@ -34,6 +32,9 @@ It also has lower-level algorithm:
   intersection and raytracing (AABBs, KdTrees, ...)
 - [Spectral mesh processing](https://github.com/BrunoLevy/geogram/wiki/ManifoldHarmonics)
 - [Linear solver on CPU and GPU](https://github.com/BrunoLevy/geogram/wiki/OpenNL)
+
+Geogram received the [Symposium on Geometry Processing Software Award](http://awards.geometryprocessing.org/)
+in 2023.
 
 Geogram contains the main results in Geometry Processing from the former
 ALICE Inria project, that is, more than 30 research articles published

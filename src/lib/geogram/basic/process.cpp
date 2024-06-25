@@ -38,6 +38,7 @@
  */
 
 #include <geogram/basic/process.h>
+#include <geogram/basic/process_private.h>
 #include <geogram/basic/logger.h>
 #include <geogram/basic/environment.h>
 #include <geogram/basic/string.h>
@@ -196,7 +197,6 @@ namespace {
          * \brief Creates and initializes the OpenMP ThreadManager
          */
         OMPThreadManager() {
-            omp_init_lock(&lock_);
         }
 
         /** \copydoc GEO::ThreadManager::maximum_concurrent_threads() */
@@ -204,20 +204,9 @@ namespace {
             return Process::number_of_cores();
         }
 
-        /** \copydoc GEO::ThreadManager::enter_critical_section() */
-        virtual void enter_critical_section() {
-            omp_set_lock(&lock_);
-        }
-
-        /** \copydoc GEO::ThreadManager::leave_critical_section() */
-        virtual void leave_critical_section() {
-            omp_unset_lock(&lock_);
-        }
-
     protected:
         /** \brief OMPThreadManager destructor */
         virtual ~OMPThreadManager() {
-            omp_destroy_lock(&lock_);
         }
 
         /** \copydoc GEO::ThreadManager::run_concurrent_threads() */
@@ -235,9 +224,6 @@ namespace {
                 threads[ii]->run();
             }
         }
-
-    private:
-        omp_lock_t lock_;
     };
 
 #endif
@@ -302,28 +288,9 @@ namespace GEO {
         return 1;
     }
 
-    void MonoThreadingThreadManager::enter_critical_section() {
-    }
-
-    void MonoThreadingThreadManager::leave_critical_section() {
-    }
-
     /************************************************************************/
 
     namespace Process {
-
-        // OS dependent functions implemented in process_unix.cpp and
-        // process_win.cpp
-
-        bool os_init_threads();
-        void os_brute_force_kill();
-        bool os_enable_FPE(bool flag);
-        bool os_enable_cancel(bool flag);
-        void os_install_signal_handlers();
-        index_t os_number_of_cores();
-        size_t os_used_memory();
-        size_t os_max_used_memory();
-        std::string os_executable_filename();
         
         void initialize(int flags) {
 
@@ -344,9 +311,9 @@ namespace GEO {
 #endif
             }
 
-	    if(
+	    if( 
 		(::getenv("GEO_NO_SIGNAL_HANDLER") == nullptr) &&
-		(flags & GEOGRAM_INSTALL_HANDLERS) != 0
+		((flags & GEOGRAM_INSTALL_HANDLERS) != 0)
 	    ) {
 		os_install_signal_handlers();
 	    }
@@ -357,14 +324,12 @@ namespace GEO {
             enable_FPE(fpe_enabled_);
             enable_cancel(cancel_enabled_);
 
-            start_time_ = SystemStopwatch::now();
+            start_time_ = Stopwatch::now();
         }
 
         void show_stats() {
 
-            Logger::out("Process") << "Total elapsed time: " 
-                                   << SystemStopwatch::now() - start_time_
-                                   << "s" << std::endl;
+            Stopwatch::show_stats();
 
             const size_t K=size_t(1024);
             const size_t M=K*K;
@@ -432,6 +397,10 @@ namespace GEO {
         std::string executable_filename() {
             return os_executable_filename();
         }
+
+        void print_stack_trace() {
+            os_print_stack_trace();
+        }
         
         void set_thread_manager(ThreadManager* thread_manager) {
             thread_manager_ = thread_manager;
@@ -441,14 +410,6 @@ namespace GEO {
             running_threads_invocations_++;
             thread_manager_->run_threads(threads);
             running_threads_invocations_--;
-        }
-
-        void enter_critical_section() {
-            thread_manager_->enter_critical_section();
-        }
-
-        void leave_critical_section() {
-            thread_manager_->leave_critical_section();
         }
 
         bool is_running_threads() {

@@ -166,10 +166,10 @@ namespace GEO {
         /**
          * \brief Merge coplanar facets and retriangulate them using a 
          *  Constrained Delaunay triangulation
-         * \param[in] angle_threshold angle tolerance for detecting coplanar
+         * \param[in] angle_tolerance angle tolerance for detecting coplanar
          *  facets and colinear edges (in degrees)
          */
-        void simplify_coplanar_facets(double angle_threshold = 0.0);
+        void simplify_coplanar_facets(double angle_tolerance = 0.0);
         
         /**
          * \brief Display information while computing the intersection.
@@ -247,9 +247,21 @@ namespace GEO {
          *  non-manifold edges) to a given mesh.
          * \param[in] skeleton a pointer to the mesh that will receive the
          *  skeleton.
+         * \param[in] trim_fins if set, do not keep bundles that have 
+         *  less than three halfedges.
          */
-        void set_build_skeleton(Mesh* skeleton) {
+        void set_build_skeleton(Mesh* skeleton, bool trim_fins=false) {
             skeleton_ = skeleton;
+            skeleton_trim_fins_ = trim_fins;
+        }
+
+        /**
+         * \brief Specifies that attributes should be interpolated
+         * \param[in] x true if attributes should be interpolated, 
+         *  false otherwise. Default is false.
+         */
+        void set_interpolate_attributes(bool x) {
+            interpolate_attributes_ = x;
         }
         
     protected:
@@ -560,6 +572,8 @@ namespace GEO {
         friend class CoplanarFacets;
 
         Mesh* skeleton_;
+        bool skeleton_trim_fins_;
+        bool interpolate_attributes_;
 
         /***************************************************/
         
@@ -783,7 +797,7 @@ namespace GEO {
              * \param[in] bndl the bundle
              * \return the number of halfedges in \p bndl
              */
-            index_t nb_halfedges(index_t bndl) {
+            index_t nb_halfedges(index_t bndl) const {
                 geo_debug_assert(bndl < nb());
                 return bndl_start_[bndl+1] - bndl_start_[bndl];
             }
@@ -795,7 +809,7 @@ namespace GEO {
              *    in [0 .. nb_halfedges(bndl)-1]
              * \return the halfedge
              */
-            index_t halfedge(index_t bndl, index_t li) {
+            index_t halfedge(index_t bndl, index_t li) const {
                 geo_debug_assert(bndl < nb());
                 geo_debug_assert(li < nb_halfedges(bndl));
                 return H_[bndl_start_[bndl] + li];
@@ -906,7 +920,7 @@ namespace GEO {
              */
             index_t prev_along_polyline(index_t bndl) {
                 index_t v = vertex(bndl,0);
-                if(nb_bundles_around_vertex(v) > 2) {
+                if(nb_bundles_around_vertex(v) != 2) {
                     return NO_INDEX;
                 }
                 for(
@@ -917,17 +931,7 @@ namespace GEO {
                         return opposite(bndl2);
                     }
                 }
-
-                std::cerr << "Nb bundles around vertex = "
-                          << nb_bundles_around_vertex(v) << std::endl;
-                
-                mesh_save(mesh_, "blackbox.geogram");
-                DebugStream dbg("dbg");
-                index_t v2 = vertex(bndl,1);
-                vec3 p1(mesh_.vertices.point_ptr(v));
-                vec3 p2(mesh_.vertices.point_ptr(v2));
-                dbg.add_segment(p1,p2);
-                geo_assert_not_reached;
+                geo_assert_not_reached;                
             }
 
             /**
@@ -937,7 +941,7 @@ namespace GEO {
              */
             index_t next_along_polyline(index_t bndl) {
                 index_t v = vertex(bndl,1);
-                if(nb_bundles_around_vertex(v) > 2) {
+                if(nb_bundles_around_vertex(v) != 2) {
                     return NO_INDEX;
                 }
                 for(
@@ -948,17 +952,6 @@ namespace GEO {
                         return bndl2;
                     }
                 }
-
-                std::cerr << "Nb bundles around vertex = "
-                          << nb_bundles_around_vertex(v) << std::endl;
-                
-                mesh_save(mesh_, "blackbox.geogram");
-                DebugStream dbg("dbg");
-                index_t v2 = vertex(bndl,0);
-                vec3 p1(mesh_.vertices.point_ptr(v));
-                vec3 p2(mesh_.vertices.point_ptr(v2));
-                dbg.add_segment(p1,p2);
-                
                 geo_assert_not_reached;
             }
 
@@ -1115,8 +1108,10 @@ namespace GEO {
              * \brief Copies the set of polylines to a mesh
              * \details Used for visualization purposes
              * \param[out] to a mesh that will contain all the polygonal lines
+             * \param[in] trim_fins if set, do not keep bundles that have 
+             *  less than three halfedges.
              */
-            void get_skeleton(Mesh& to);
+            void get_skeleton(Mesh& to, bool trim_fins=false);
             
         private:
             MeshSurfaceIntersection& I_;

@@ -558,7 +558,7 @@ typedef struct {
  * \brief Gets the CUDA context.
  * \return a pointer to the CUDA context
  */
-static CUDAContext* CUDA() {
+static CUDAContext* CUDA(void) {
     static CUDAContext context;
     static NLboolean init = NL_FALSE;
     if(!init) {
@@ -568,7 +568,7 @@ static CUDAContext* CUDA() {
     return &context;
 }
 
-NLboolean nlExtensionIsInitialized_CUDA() {
+NLboolean nlExtensionIsInitialized_CUDA(void) {
     if(
 	CUDA()->DLL_cudart == NULL ||
 	CUDA()->cudaDriverGetVersion == NULL ||
@@ -657,7 +657,9 @@ static int ConvertSMVer2Cores(int major, int minor) {
                                (but FP64 runs as 1/32 FP32 speed) */
 	{ 0x70, 64 }, /* yes, nb cores decreased in SM 7.x        */
 	{ 0x72, 64 },
-	{ 0x75, 64 },
+	{ 0x75, 64 }, /* T4 */
+        { 0x80, 64 }, /* A30,A100 */
+        { 0x86, 128}, /* A40 */
         {   -1, -1 }
     };
     int index = 0;
@@ -759,7 +761,7 @@ static double getDeviceDoublePrecisionGFlops(int device) {
  * \return the ID of the fastest device or -1 is no device is 
  *  available.
  */
-static int getBestDeviceID() {
+static int getBestDeviceID(void) {
     int result = -1;
     double fastest_GFlops = 0.0;
     int device_count;
@@ -1410,7 +1412,7 @@ static void cuda_blas_dtpsv(
 }
 
 
-NLBlas_t nlCUDABlas() {
+NLBlas_t nlCUDABlas(void) {
     static NLboolean initialized = NL_FALSE;
     static struct NLBlas blas;
     if(!initialized) {

@@ -62,7 +62,7 @@ typedef double GLdouble;
  *  it needs either a geometry shader to replace line segments with quads
  *  (GLUPGLSL 150 and 440 profiles), or a pre-processing of the immediate 
  *  vertex buffers to generate two additional vertices per segment with 
- *  the attributes (in GLUPES profile, WIP, to be implemented).
+ *  the attributes (in GLUPES profile).
  */
 static constexpr GLUPprimitive GLUP_THICK_LINES = GLUP_RESERVED_PRIMITIVE_1;
 
@@ -1521,7 +1521,16 @@ namespace GLUP {
          * \brief Flushes the immediate mode buffers.
          */
         virtual void flush_immediate_buffers();
-            
+
+
+        /**
+         * \brief Gets the name of a primitive by GLUPprimitive.
+         * \param[in] prim a GLUPprimitive
+         * \return the name of the primitive, as a const char pointer
+         */
+        static const char* glup_primitive_name(GLUPprimitive prim);
+        
+        
     protected:
 
         /**
@@ -1543,13 +1552,6 @@ namespace GLUP {
          * \retval false otherwise.
          */
         bool extension_is_supported(const std::string& extension);
-        
-        /**
-         * \brief Gets the name of a primitive by GLUPprimitive.
-         * \param[in] prim a GLUPprimitive
-         * \return the name of the primitive, as a const char pointer
-         */
-        const char* glup_primitive_name(GLUPprimitive prim);
         
         /**
          * \brief This function is called before starting to
@@ -1802,7 +1804,7 @@ namespace GLUP {
          * \brief Creates a buffer for uniform variables for
          *  implementations that do not support uniform buffer
          *  objects.
-         * \details This function is uses by VanillaGL and ES2.
+         * \details This function is used by ES2.
          */
         void create_CPU_side_uniform_buffer();
 
@@ -1816,8 +1818,7 @@ namespace GLUP {
          * \brief Updates v_is_visible_[] according to
          *  current clipping plane.
          * \details Used by implementations of Context that
-         *  do not support clipping by shaders (VanillaGL and
-         *  ES2).
+         *  do not support clipping by shaders (ES2).
          */
         void classify_vertices_in_immediate_buffers();
 
@@ -1961,6 +1962,16 @@ namespace GLUP {
         MatrixStack matrix_stack_[3];
         bool matrices_dirty_;
 
+        /**
+         * \brief Number of vertices per primitive (3 for GLUP_TRIANGLES,
+         *   4 for GLUP_QUADS etc...)
+         * \details It is stored as a class member array rather than a 
+         *  static array so that particular implementations can change
+         *  it according to the needs (for instance, GLUPES profile temporarily
+         *  uses quads with for vertices to render GLUP_THICK_LINES).
+         */
+        index_t nb_vertices_per_primitive_[GLUP_NB_PRIMITIVES];
+        
         // Immediate mode buffers.
         ImmediateState immediate_state_;
 
@@ -2030,16 +2041,6 @@ namespace GLUP {
          * \details It is used to emulate gl_VertexID in shaders.
          */
         GLuint vertex_id_VBO_;
-
-        /**
-         * \brief Number of vertices per primitive (3 for GLUP_TRIANGLES,
-         *   4 for GLUP_QUADS etc...)
-         * \details It is stored as a class member array rather than a 
-         *  static array so that particular implementations can change
-         *  it according to the needs (for instance, GLUPES profile temporarily
-         *  uses quads with for vertices to render GLUP_THICK_LINES).
-         */
-        index_t nb_vertices_per_primitive_[GLUP_NB_PRIMITIVES];
     };
 
     /*********************************************************************/

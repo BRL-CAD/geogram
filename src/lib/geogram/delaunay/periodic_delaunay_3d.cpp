@@ -51,21 +51,20 @@
 #include <stack>
 #include <algorithm>
 
+#include <mutex>
+#include <condition_variable>
+
 // ParallelDelaunayThread class, declared locally, has
 // no out-of-line virtual functions. It is not a
 // problem since they are only visible from this translation
 // unit, but clang will complain.
-// Silence also a warning regarding stronger memory barriers than
-// necessary.
 #ifdef __clang__
 #pragma GCC diagnostic ignored "-Wweak-vtables"
-#pragma GCC diagnostic ignored "-Watomic-implicit-seq-cst"
 #endif
 
 // TODO:
 //  - insert additional vertices in parallel ?
 //  - update v_to_cell in parallel ?
-
 
 namespace {
 
@@ -189,10 +188,10 @@ namespace GEO {
 	friend class PeriodicDelaunay3d;
 	
         /**
-         * \brief Symbolic value for cell_thread_[t] that
+         * \brief Symbolic value for cell_status_[t] that
          *  indicates that no thread owns t.
          */
-        static const index_t NO_THREAD = thread_index_t(-1);
+        static constexpr index_t NO_THREAD = CellStatusArray::FREE_CELL; 
 
         /** 
          * \brief Creates a new PeriodicDelaunay3dThread.
@@ -217,7 +216,7 @@ namespace GEO {
             cell_to_v_store_(master_->cell_to_v_store_),
             cell_to_cell_store_(master_->cell_to_cell_store_),
             cell_next_(master_->cell_next_),
-            cell_thread_(master_->cell_thread_),
+            cell_status_(master_->cell_status_),
 	    has_empty_cells_(false)
         {
 
@@ -234,13 +233,10 @@ namespace GEO {
             nb_rollbacks_ = 0;
             nb_failed_locate_ = 0;
 
-            v1_ = index_t(-1);
-            v2_ = index_t(-1);
-            v3_ = index_t(-1);
-            v4_ = index_t(-1);
-
-            pthread_cond_init(&cond_, nullptr);
-            pthread_mutex_init(&mutex_, nullptr);
+            v1_ = NO_INDEX;
+            v2_ = NO_INDEX;
+            v3_ = NO_INDEX;
+            v4_ = NO_INDEX;
 
             b_hint_ = NO_TETRAHEDRON;
             e_hint_ = NO_TETRAHEDRON;
@@ -279,22 +275,13 @@ namespace GEO {
             interfering_thread_ = NO_THREAD;
             nb_tets_to_create_ = 0;
             t_boundary_ = NO_TETRAHEDRON;
-            f_boundary_ = index_t(-1);
+            f_boundary_ = NO_INDEX;
 
             // max_used_t_ is initialized to 1 so that
             // computing modulos does not trigger FPEs
             // at the beginning.
             max_used_t_ = std::max(max_used_t, index_t(1));
 	}
-
-	
-        /**
-         * \brief PeriodicDelaunay3dThread destructor.
-         */
-        ~PeriodicDelaunay3dThread() override {
-            pthread_mutex_destroy(&mutex_);
-            pthread_cond_destroy(&cond_);
-        }
 
 	/**
 	 * \brief Tests whether this thread created empty cells.
@@ -457,9 +444,6 @@ namespace GEO {
                 } else {
                     ++nb_rollbacks_;
                     if(interfering_thread_ != NO_THREAD) {
-                        interfering_thread_ = thread_index_t(
-                            interfering_thread_ >> 1
-                        );
                         if(id() < interfering_thread_) {
                             // If this thread has a higher priority than
                             // the one that interfered, wait for the
@@ -484,9 +468,9 @@ namespace GEO {
 	    
 	    //   Fix by Hiep Vu: wake up threads that potentially missed
 	    // the previous wake ups.
-	    pthread_mutex_lock(&mutex_);
+            mutex_.lock();
 	    send_event();
-	    pthread_mutex_unlock(&mutex_);
+            mutex_.unlock();
         }
 
         /**
@@ -495,7 +479,7 @@ namespace GEO {
          *  specifying a hint. This constant indicates that
          *  no hint is given.
          */
-        static const index_t NO_TETRAHEDRON = index_t(-1);
+        static const index_t NO_TETRAHEDRON = NO_INDEX;
 
         /**
          * \brief Symbolic value for a vertex of a
@@ -732,7 +716,7 @@ namespace GEO {
           * \return the index of one the newly created tetrahedron
 	  */
 	index_t stellate_cavity(index_t v) {
-	    index_t new_tet = index_t(-1);
+	    index_t new_tet = NO_INDEX;
 
 	    for(index_t f=0; f<cavity_.nb_facets(); ++f) {
 		index_t old_tet = cavity_.facet_tet(f);
@@ -819,7 +803,7 @@ namespace GEO {
             geo_debug_assert(nb_acquired_tets_ == 1);
 
             index_t t_bndry = NO_TETRAHEDRON;
-            index_t f_bndry = index_t(-1);
+            index_t f_bndry = NO_INDEX;
 
 	    vec4 p_lifted = lifted_vertex(v,p);
 
@@ -887,7 +871,7 @@ namespace GEO {
             // their neighbors, therefore no other thread can interfere, and
             // we can update the triangulation.
 
-            index_t new_tet = index_t(-1);
+            index_t new_tet = NO_INDEX;
 	    if(cavity_.OK()) {
 		new_tet = stellate_cavity(v);	
 	    } else {
@@ -1385,7 +1369,7 @@ namespace GEO {
             // is replaced with orient3d())
             for(index_t lf = 0; lf < 4; ++lf) {
 
-                if(iv[lf] == index_t(-1)) {
+                if(iv[lf] == NO_INDEX) {
 
                     // Facet of a virtual tetrahedron opposite to
                     // infinite vertex corresponds to
@@ -1655,7 +1639,7 @@ namespace GEO {
          */
         bool tet_is_marked_as_conflict(index_t t) const {
             geo_debug_assert(owns_tet(t));
-            return ((cell_thread_[t] & 1) != 0);
+            return cell_status_.cell_is_marked_as_conflict(t);
         }
 
 
@@ -1678,7 +1662,7 @@ namespace GEO {
         void mark_tet_as_conflict(index_t t) {
             geo_debug_assert(owns_tet(t));
             tets_to_delete_.push_back(t);
-            cell_thread_[t] |= 1;
+            cell_status_.mark_cell_as_conflict(t);
             geo_debug_assert(owns_tet(t));
             geo_debug_assert(tet_is_marked_as_conflict(t));
         }
@@ -1691,8 +1675,8 @@ namespace GEO {
          * \pre owns_tet(t)
          */
         void mark_tet_as_neighbor(index_t t) {
-            //   Note: nothing to change in cell_thread_[t]
-            // since LSB=0 means neigbhor tet.
+            //   Note: nothing to change in cell_status_[t]
+            // since MSB=0 means neigbhor tet.
             tets_to_release_.push_back(t);
         }
 
@@ -1705,8 +1689,9 @@ namespace GEO {
             //  The tet was created in this thread's tet pool,
             // therefore there is no need to use sync 
             // primitives to acquire a lock on it.
-            geo_debug_assert(cell_thread_[t] == NO_THREAD);
-            cell_thread_[t] = thread_index_t(id() << 1);
+            geo_debug_assert(cell_status_.cell_thread(t) == NO_THREAD);
+            cell_status_.set_cell_status(t,thread_index_t(id()));
+            
 #ifdef GEO_DEBUG
             ++nb_acquired_tets_;
 #endif
@@ -1742,21 +1727,9 @@ namespace GEO {
             geo_debug_assert(t < max_t());
             geo_debug_assert(!owns_tet(t));
 
-#if defined(GEO_COMPILER_MSVC)
-           // Note: comparand and exchange parameter are swapped in Windows API
-           // as compared to __sync_val_compare_and_swap !!
-            interfering_thread_ =
-                (thread_index_t)(_InterlockedCompareExchange8(
-                    (volatile char *)(&cell_thread_[t]),
-                    (char)(id() << 1),
-                    (char)(NO_THREAD)
-                ));
-#else            
-            interfering_thread_ = 
-                __sync_val_compare_and_swap(
-                    &cell_thread_[t], NO_THREAD, thread_index_t(id() << 1)
-                );
-#endif
+            interfering_thread_ = cell_status_.acquire_cell(
+                t,thread_index_t(id())
+            );
             
             if(interfering_thread_ == NO_THREAD) {
                 geo_debug_assert(t == first_free_ || !tet_is_in_list(t));
@@ -1778,7 +1751,7 @@ namespace GEO {
 #ifdef GEO_DEBUG
             --nb_acquired_tets_;
 #endif
-            cell_thread_[t] = NO_THREAD;
+            cell_status_.release_cell(t);
         }
 
 
@@ -1790,7 +1763,7 @@ namespace GEO {
          */
         bool owns_tet(index_t t) const {
             geo_debug_assert(t < max_t());
-            return (cell_thread_[t] >> 1) == thread_index_t(id());
+            return (cell_status_.cell_thread(t) == thread_index_t(id()));
         }
 
         /**
@@ -2017,14 +1990,13 @@ namespace GEO {
          *  that indicates the end of list in a linked
          *  list of tetrahedra.
          */
-        static const index_t END_OF_LIST = index_t(-1);
-
+        static constexpr index_t END_OF_LIST = NO_INDEX;
 
         /**
          * \brief Symbolic value of the cell_next_ field
          *  for a tetrahedron that is not in a list.
          */
-        static const index_t NOT_IN_LIST = index_t(-2);
+        static constexpr index_t NOT_IN_LIST = index_t(-2);
 
         /**
          * \brief Gets the number of vertices.
@@ -2069,7 +2041,7 @@ namespace GEO {
 
         index_t tet_thread(index_t t) const {
             geo_debug_assert(t < max_t());
-            return cell_thread_[t];
+            return cell_status_.cell_thread(t);
         }
 
         /**
@@ -2140,11 +2112,13 @@ namespace GEO {
                 // index_t(NOT_IN_LIST) is necessary, else with
                 // NOT_IN_LIST alone the compiler tries to generate a
                 // reference to NOT_IN_LIST resulting in a link error.
+                // (weird, even with constepx, I do not understand...)
+                // Probably when the function excepts a *reference*
                 master_->cell_next_.push_back(index_t(END_OF_LIST));
-                master_->cell_thread_.push_back(thread_index_t(NO_THREAD));
+                master_->cell_status_.grow();
                 ++nb_free_;
                 ++max_t_;
-                first_free_ = master_->cell_thread_.size() - 1;
+                first_free_ = master_->cell_status_.size() - 1;
             }
 
             acquire_and_mark_tet_as_created(first_free_);
@@ -2262,7 +2236,7 @@ namespace GEO {
          *  this thread.
          */
         void send_event() {
-            pthread_cond_broadcast(&cond_);
+            cond_.notify_all();
         }
         
         /**
@@ -2275,11 +2249,11 @@ namespace GEO {
 	    // Fixed by Hiep Vu: enlarged critical section (contains
 	    // now the test (!thrd->finished)
             PeriodicDelaunay3dThread* thrd = thread(t);
-	    pthread_mutex_lock(&(thrd->mutex_));	    
+            // RAII: ctor locks, dtor unlocks            
+            std::unique_lock<std::mutex> L(thrd->mutex_); 
             if(!thrd->finished_) {
-                pthread_cond_wait(&(thrd->cond_), &(thrd->mutex_));
+                thrd->cond_.wait(L);
             }
-	    pthread_mutex_unlock(&(thrd->mutex_));	    
         }
 
         /****** iterative stellate_conflict_zone *****************/        
@@ -2301,7 +2275,7 @@ namespace GEO {
              * \param[in] t1fbord index of the facet of \p t1 that is
              *  on the border of the conflict zone
              * \param[in] t1fprev index of the facet of \p t1 that we
-             *  come from, or index_t(-1) if \p t1 is the first tetrahedron
+             *  come from, or NO_INDEX if \p t1 is the first tetrahedron
              */
             void push(index_t t1, index_t t1fbord, index_t t1fprev) {
                 store_.resize(store_.size()+1);
@@ -2330,7 +2304,7 @@ namespace GEO {
              * \param[out] t1fbord index of the facet of \p t1 that is
              *  on the border of the conflict zone
              * \param[out] t1fprev index of the facet of \p t1 that we
-             *  come from, or index_t(-1) if \p t1 is the first tetrahedron
+             *  come from, or NO_INDEX if \p t1 is the first tetrahedron
              */
             void get_parameters(
                 index_t& t1, index_t& t1fbord, index_t& t1fprev
@@ -2430,13 +2404,13 @@ namespace GEO {
          * \param[in] t1fbord index of the facet along which \p t_bndry
          *  is incident to the border of the conflict zone
          * \param[in] t1fprev the facet of \p t_bndry connected to the
-         *  tetrahedron that \p t_bndry was reached from, or index_t(-1)
+         *  tetrahedron that \p t_bndry was reached from, or NO_INDEX
          *  if it is the first tetrahedron.
          * \return the index of one the newly created tetrahedron
          */
         index_t stellate_conflict_zone_iterative(
             index_t v_in, index_t t1, index_t t1fbord,
-            index_t t1fprev = index_t(-1)
+            index_t t1fprev = NO_INDEX
         ) {
             //   This function is de-recursified because some degenerate
             // inputs can cause stack overflow (system stack is limited to
@@ -2815,7 +2789,8 @@ namespace GEO {
         vector<signed_index_t>& cell_to_v_store_;
         vector<signed_index_t>& cell_to_cell_store_;
         vector<index_t>& cell_next_;
-        vector<thread_index_t>& cell_thread_;
+        // vector<thread_index_t>& cell_status_;
+        CellStatusArray& cell_status_;
         
         index_t first_free_;
         index_t nb_free_;
@@ -2885,9 +2860,9 @@ namespace GEO {
         index_t nb_rollbacks_;
         index_t nb_failed_locate_;
 
-        pthread_cond_t cond_;
-        pthread_mutex_t mutex_;
-
+        std::condition_variable cond_;
+        std::mutex mutex_;
+        
 	vector<std::pair<index_t,index_t> > border_tet_2_periodic_vertex_;
 
 	bool has_empty_cells_;
@@ -3056,8 +3031,10 @@ namespace GEO {
 	}
 	
         Stopwatch* W = nullptr ;
+        Stopwatch* W0 = nullptr ;
         if(benchmark_mode_) {
-            W = new Stopwatch("DelInternal");
+            W  = new Stopwatch("DelInternal");
+            W0 = new Stopwatch("DelPhase0");
         }
 
         index_t expected_tetra = nb_vertices() * 7;
@@ -3065,13 +3042,17 @@ namespace GEO {
         // Allocate the tetrahedra
         cell_to_v_store_.assign(expected_tetra * 4,-1);
         cell_to_cell_store_.assign(expected_tetra * 4,-1);
-        cell_next_.assign(expected_tetra,index_t(-1));
-        cell_thread_.assign(expected_tetra,thread_index_t(-1));
-
+        cell_next_.assign(expected_tetra,NO_INDEX);
+        cell_status_.resize(expected_tetra);
 
         // Create the threads
         index_t nb_threads = Process::maximum_concurrent_threads();
         index_t pool_size = expected_tetra / nb_threads;
+        if (pool_size == 0) {
+            // There are more threads than expected_tetra
+            pool_size = 1;
+            nb_threads = expected_tetra;
+        }
         index_t pool_begin = 0;
         threads_.clear();
         for(index_t t=0; t<nb_threads; ++t) {
@@ -3155,8 +3136,10 @@ namespace GEO {
             for(index_t t=0; t<threads_.size(); ++t) {
                 Logger::out("PDEL") 
                     << "thread " << std::setw(3) << t << " : " 
-                    << std::setw(3) << thread(t)->nb_rollbacks() << " rollbacks  "
-                    << std::setw(3) << thread(t)->nb_failed_locate() << " restarted locate"
+                    << std::setw(3) << thread(t)->nb_rollbacks()
+                    << " rollbacks  "
+                    << std::setw(3) << thread(t)->nb_failed_locate()
+                    << " restarted locate"
                     << std::endl;
                 tot_rollbacks += thread(t)->nb_rollbacks();
                 tot_failed_locate += thread(t)->nb_failed_locate();
@@ -3198,8 +3181,11 @@ namespace GEO {
 	    );
             t0->initialize_from(tn);
         }
+
+        delete W0;
         
 	if(periodic_) {
+            Stopwatch W12("DelPhaseI-II", benchmark_mode_);
 	    handle_periodic_boundaries();
 	}
 
@@ -3257,7 +3243,7 @@ namespace GEO {
 #ifdef GEO_DEBUG	    
 	    FOR(v, nb_vertices_non_periodic_) {
 		index_t t = index_t(v_to_cell_[v]);
-		geo_assert(t == index_t(-1) || t < nb_tets);
+		geo_assert(t == NO_INDEX || t < nb_tets);
 	    }
 #endif	    
 	}
@@ -3303,7 +3289,7 @@ namespace GEO {
                     old2new[t] = nb_tets;
                     ++nb_tets;
                 } else {
-                    old2new[t] = index_t(-1);
+                    old2new[t] = NO_INDEX;
                     ++nb_tets_to_delete;
                 }
             }
@@ -3437,7 +3423,7 @@ namespace GEO {
 		cur += pop_count(vertex_instances_[v])-1;
 		periodic_v_to_cell_rowptr_[v+1] = cur;
 	    }
-	    periodic_v_to_cell_data_.assign(cur, index_t(-1));
+	    periodic_v_to_cell_data_.assign(cur, NO_INDEX);
 	}
 	
 	if(keeps_infinite()) {
@@ -3461,7 +3447,7 @@ namespace GEO {
 			v_to_cell_[v] = signed_index_t(c);
 		    } else if(
 			update_periodic_v_to_cell_ &&
-			v != index_t(-1) && v != index_t(-2)
+			v != NO_INDEX && v != index_t(-2)
 		    ) {
 			index_t v_real = periodic_vertex_real(v);
 			index_t v_instance = periodic_vertex_instance(v);
@@ -3563,7 +3549,7 @@ namespace GEO {
 
 	W.clear_incident_tets();
 
-	index_t t = index_t(-1);
+	index_t t = NO_INDEX;
 	if(v < nb_vertices_non_periodic_) {
 	    t = index_t(v_to_cell_[v]);
 	} else {
@@ -3584,7 +3570,7 @@ namespace GEO {
 	}
 	
 	// Can happen: empty power cell.
-	if(t == index_t(-1)) {
+	if(t == NO_INDEX) {
 	    return;
 	}
 
@@ -3600,17 +3586,17 @@ namespace GEO {
 		    T,signed_index_t(v)
 		);
 		index_t neigh = index_t(cell_to_cell_store_[4*t + (lv + 1)%4]);
-		if(neigh != index_t(-1) && !W.has_incident_tet(neigh)) {
+		if(neigh != NO_INDEX && !W.has_incident_tet(neigh)) {
 		    W.add_incident_tet(neigh);
 		    W.S.push(neigh);
 		}
 		neigh = index_t(cell_to_cell_store_[4*t + (lv + 2)%4]);
-		if(neigh != index_t(-1) && !W.has_incident_tet(neigh)) {
+		if(neigh != NO_INDEX && !W.has_incident_tet(neigh)) {
 		    W.add_incident_tet(neigh);
 		    W.S.push(neigh);
 		}
 		neigh = index_t(cell_to_cell_store_[4*t + (lv + 3)%4]);
-		if(neigh != index_t(-1) && !W.has_incident_tet(neigh)) {
+		if(neigh != NO_INDEX && !W.has_incident_tet(neigh)) {
 		    W.add_incident_tet(neigh);
 		    W.S.push(neigh);
 		}
@@ -3642,7 +3628,7 @@ namespace GEO {
 	C.clear();
 	
 	// Create the vertex at infinity.
-	C.create_vertex(vec4(0.0, 0.0, 0.0, 0.0), index_t(-1));
+	C.create_vertex(vec4(0.0, 0.0, 0.0, 0.0), NO_INDEX);
 	
 	GEO::vec3 Pi = vertex(i);
 	double wi = weight(i);
@@ -3754,7 +3740,7 @@ namespace GEO {
 	    reorder_.begin() + long(e),
 	    period_
 	);
-	
+
 	if(benchmark_mode_) {
 	    Logger::out("Periodic") << "Inserting "	<< (e-b)
 				    << " additional vertices" << std::endl;
@@ -3772,15 +3758,15 @@ namespace GEO {
 	cell_to_v_store_.reserve(expected_tetra * 4);
 	cell_to_cell_store_.reserve(expected_tetra * 4);
 	cell_next_.reserve(expected_tetra);
-	cell_thread_.reserve(expected_tetra);
+	cell_status_.reserve(expected_tetra);
 
 	index_t total_nb_traversed_tets = 0;
 
-	index_t hint = index_t(-1);
+	index_t hint = NO_INDEX;
 	for(index_t i = b; i<e; ++i) {
 	    thread0->insert(reorder_[i],hint);
 	    total_nb_traversed_tets += thread0->nb_traversed_tets();
-	    if(hint == index_t(-1)) {
+	    if(hint == NO_INDEX) {
 		has_empty_cells_ = true;
 		return;
 	    }
@@ -3962,7 +3948,7 @@ namespace GEO {
 	}
 	return result;
     }
-    
+
     void PeriodicDelaunay3d::handle_periodic_boundaries() {
 
 	// Update pointers so that queries function will work (even in our
@@ -3992,6 +3978,11 @@ namespace GEO {
 	// create periodic vertices for each possible translation.
 	// -----------------------------------------------------------
 
+        Stopwatch* W_classify_I = nullptr;
+        if(benchmark_mode_) {
+            W_classify_I = new Stopwatch("classify-I");
+        }
+        
 	// Indicates for each real vertex the instances it has.
 	// Each bit of vertex_instances_[v] indicates which instance
 	// is used.
@@ -4004,59 +3995,60 @@ namespace GEO {
 
 	parallel_for_slice(
 	    0, nb_vertices_non_periodic_,		     
-	    [this,&lock,&nb_cells_on_boundary,&nb_cells_outside_cube](
+	    [this, &lock, &nb_cells_on_boundary, &nb_cells_outside_cube] (
 		index_t from, index_t to
 	    ) {
 		ConvexCell C;
 		C.use_exact_predicates(convex_cell_exact_predicates_);
 		IncidentTetrahedra W;
 
-	      for(index_t v=from; v<to; ++v) {
-		  bool use_instance[27];
-		  bool cell_is_on_boundary = false;
-		  bool cell_is_outside_cube = false;
-		  
-		  // Determines the periodic vertices to create, that is,
-		  // whenever the cell of the current vertex has an
-		  // intersection with one of the 27 cubes, an instance
-		  // needs to be created there.
-		  index_t nb_instances =
-		      get_periodic_vertex_instances_to_create(
-			  v, C, use_instance,
-			  cell_is_on_boundary, cell_is_outside_cube,
-			  W
-		      );
+                for(index_t v=from; v<to; ++v) {
+                    bool use_instance[27];
+                    bool cell_is_on_boundary = false;
+                    bool cell_is_outside_cube = false;
+                    
+                    // Determines the periodic vertices to create, that is,
+                    // whenever the cell of the current vertex has an
+                    // intersection with one of the 27 cubes, an instance
+                    // needs to be created there.
+                    index_t nb_instances =
+                        get_periodic_vertex_instances_to_create(
+                            v, C, use_instance,
+                            cell_is_on_boundary, cell_is_outside_cube,
+                            W
+                        );
 
 
-		  Process::acquire_spinlock(lock);
-		  
-		  if(cell_is_on_boundary) {
-		      ++nb_cells_on_boundary;
-		  }
+                    Process::acquire_spinlock(lock);
+                    
+                    if(cell_is_on_boundary) {
+                        ++nb_cells_on_boundary;
+                    }
 
-		  if(cell_is_outside_cube) {
-		      ++nb_cells_outside_cube;
-		  }
+                    if(cell_is_outside_cube) {
+                        ++nb_cells_outside_cube;
+                    }
 	    
-		  // Append the new periodic vertices in the list of vertices.
-		  // (we put them in the reorder_ vector that is always used
-		  //  to do the insertions).
-		  if(nb_instances > 0) {
-		      for(index_t instance=1; instance<27; ++instance) {
-			  if(use_instance[instance]) {
-			      vertex_instances_[v] |= (1u << instance);
-			      reorder_.push_back(
-				  make_periodic_vertex(v,instance)
-			      );
-			  }
-		      }
-		  }
-		  
-		  Process::release_spinlock(lock);		
-	      }
-	   }
+                    // Append the new periodic vertices in the list of vertices.
+                    // (we put them in the reorder_ vector that is always used
+                    //  to do the insertions).
+                    if(nb_instances > 0) {
+                        for(index_t instance=1; instance<27; ++instance) {
+                            if(use_instance[instance]) {
+                                vertex_instances_[v] |= (1u << instance);
+                                reorder_.push_back(
+                                    make_periodic_vertex(v,instance)
+                                );
+                            }
+                        }
+                    }
+                    
+                    Process::release_spinlock(lock);		
+                }
+            }
 	);
-
+        delete W_classify_I;
+        
 
 	if(benchmark_mode_) {
 	    Logger::out("Periodic") << "Nb cells on boundary = "
@@ -4068,7 +4060,10 @@ namespace GEO {
 				    << std::endl;
 	}
 
-	insert_vertices(nb_vertices_non_periodic_, reorder_.size());
+        {
+            Stopwatch Winsert("insert-I",benchmark_mode_);
+            insert_vertices(nb_vertices_non_periodic_, reorder_.size());
+        }
 
 	// This flag to tell update_v_to_cell() to
 	// also update the table for periodic (virtual)
@@ -4088,6 +4083,10 @@ namespace GEO {
 	// -----------------------------------------------------------		
 
 	{
+            Stopwatch* W_classify_II = nullptr;
+            if(benchmark_mode_) {
+                W_classify_II = new Stopwatch("classify-II");
+            }
 	    IncidentTetrahedra W;
 
 	    // vertex_instances_ is used to implement v2t_ for virtual
@@ -4107,7 +4106,7 @@ namespace GEO {
 			for(index_t t: W) {
 			    FOR(lv, 4) {
 				index_t wp = index_t(cell_vertex(t,lv));
-				if(wp != vp && wp != index_t(-1)) {
+				if(wp != vp && wp != NO_INDEX) {
 				    index_t w = periodic_vertex_real(wp);
 				    index_t w_instance =
 					periodic_vertex_instance(wp);
@@ -4148,8 +4147,12 @@ namespace GEO {
 		    }
 		}
 	    } // No, seriously ... 8 closing braces ...
+            delete W_classify_II;
 	    std::swap(vertex_instances_, vertex_instances);
-	    insert_vertices(nb_vertices_phase_I, reorder_.size());
+            {
+                Stopwatch W_insert("insert-II",benchmark_mode_);
+                insert_vertices(nb_vertices_phase_I, reorder_.size());
+            }
 	}
     }
 
