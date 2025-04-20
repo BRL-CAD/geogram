@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_RVD algo:predicates=exact algo:nn_search=BNN /home/runner/work/geogram/geogram/tests/data/RVD/fandisk.obj</line>
 </preamble>
 
-<pid>17821</pid>
-<ppid>5496</ppid>
+<pid>17921</pid>
+<ppid>5515</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -37,13 +37,13 @@
 
 <status>
   <state>RUNNING</state>
-  <time>00:00:00:00.024 </time>
+  <time>00:00:00:00.025 </time>
 </status>
 
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:08.990 </time>
+  <time>00:00:00:09.093 </time>
 </status>
 
 <error>
