@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Debug/bin/vorpalite profile=convert remesh=false /home/runner/work/geogram/geogram/tests/data/Small/icosa.obj out.mesh</line>
 </preamble>
 
-<pid>17409</pid>
-<ppid>11136</ppid>
+<pid>17353</pid>
+<ppid>11060</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -44,7 +44,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:01.820 </time>
+  <time>00:00:00:01.819 </time>
 </status>
 
 <error>
