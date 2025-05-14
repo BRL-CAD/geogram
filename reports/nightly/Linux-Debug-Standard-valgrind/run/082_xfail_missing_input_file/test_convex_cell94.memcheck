@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Debug/bin/test_convex_cell shape=file</line>
 </preamble>
 
-<pid>11860</pid>
-<ppid>11277</ppid>
+<pid>11728</pid>
+<ppid>11199</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -41,7 +41,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:01.502 </time>
+  <time>00:00:00:01.521 </time>
 </status>
 
 <error>
