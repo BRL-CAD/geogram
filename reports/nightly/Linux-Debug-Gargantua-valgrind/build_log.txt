@@ -141,8 +141,8 @@
 [ 69%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/bibliography/embedded_references.cpp.o
 [ 69%] Linking CXX shared library ../../../lib/libgeogram.so
 [ 69%] Built target geogram
-[ 69%] Building CXX object src/bin/vorpastat/CMakeFiles/vorpastat.dir/main.cpp.o
 [ 69%] Building CXX object src/bin/vorpacomp/CMakeFiles/vorpacomp.dir/main.cpp.o
+[ 69%] Building CXX object src/bin/vorpastat/CMakeFiles/vorpastat.dir/main.cpp.o
 [ 70%] Linking CXX executable ../../../bin/vorpacomp
 [ 71%] Linking CXX executable ../../../bin/vorpastat
 [ 71%] Built target vorpacomp
@@ -218,16 +218,16 @@
 [ 95%] Linking CXX executable ../../../../bin/opennl_mesh_smooth
 [ 96%] Linking CXX executable ../../../../bin/manifold_harmonics
 [ 96%] Built target opennl_mesh_smooth
-[ 96%] Building C object src/examples/geogram/opennl_basic_example/CMakeFiles/opennl_basic_example.dir/main.c.o
 [ 96%] Built target manifold_harmonics
+[ 96%] Building C object src/examples/geogram/opennl_basic_example/CMakeFiles/opennl_basic_example.dir/main.c.o
+[ 96%] Building CXX object src/examples/geogram/simple_raytrace/CMakeFiles/simple_raytrace.dir/main.cpp.o
 [ 97%] Linking C executable ../../../../bin/opennl_basic_example
-[ 97%] Building CXX object src/examples/geogram/simple_raytrace/CMakeFiles/simple_raytrace.dir/main.cpp.o
 [ 97%] Built target opennl_basic_example
 [ 98%] Building CXX object src/examples/geogram/boolean_operations/CMakeFiles/boolean_op.dir/main.cpp.o
 [ 98%] Linking CXX executable ../../../../bin/boolean_op
-[ 98%] Built target boolean_op
-[ 98%] Building CXX object src/examples/geogram/intersect/CMakeFiles/intersect.dir/main.cpp.o
 [ 99%] Linking CXX executable ../../../../bin/simple_raytrace
+[ 99%] Built target boolean_op
+[ 99%] Building CXX object src/examples/geogram/intersect/CMakeFiles/intersect.dir/main.cpp.o
 [ 99%] Built target simple_raytrace
 [100%] Linking CXX executable ../../../../bin/intersect
 [100%] Built target intersect
