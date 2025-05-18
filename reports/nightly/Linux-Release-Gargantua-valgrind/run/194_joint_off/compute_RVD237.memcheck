@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/compute_RVD algo:predicates=exact algo:nn_search=BNN RVD_cells:simplify_tets=false RVD_cells:simplify_voronoi=false RVD_cells:simplify_boundary=false /home/runner/work/geogram/geogram/tests/data/Small/joint.off /home/runner/work/geogram/geogram/tests/data/Small/joint.off</line>
 </preamble>
 
-<pid>18339</pid>
-<ppid>5525</ppid>
+<pid>18418</pid>
+<ppid>5672</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -47,7 +47,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:00:02.382 </time>
+  <time>00:00:00:02.384 </time>
 </status>
 
 <error>
