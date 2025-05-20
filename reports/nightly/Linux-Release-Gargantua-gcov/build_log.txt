@@ -156,8 +156,8 @@ In file included from /home/runner/work/geogram/geogram/src/lib/geogram/NL/nl_pr
 [ 69%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/bibliography/embedded_references.cpp.o
 [ 69%] Linking CXX shared library ../../../lib/libgeogram.so
 [ 69%] Built target geogram
-[ 69%] Building CXX object src/bin/vorpacomp/CMakeFiles/vorpacomp.dir/main.cpp.o
 [ 69%] Building CXX object src/bin/vorpastat/CMakeFiles/vorpastat.dir/main.cpp.o
+[ 69%] Building CXX object src/bin/vorpacomp/CMakeFiles/vorpacomp.dir/main.cpp.o
 [ 70%] Linking CXX executable ../../../bin/vorpacomp
 [ 70%] Built target vorpacomp
 [ 71%] Building CXX object src/bin/geodump/CMakeFiles/geodump.dir/main.cpp.o
