@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Release/bin/vorpalite pts=5000 /home/runner/work/geogram/geogram/tests/data/Small/mask3kf.obj out.meshb</line>
 </preamble>
 
-<pid>12702</pid>
-<ppid>5587</ppid>
+<pid>12723</pid>
+<ppid>5499</ppid>
 <tool>memcheck</tool>
 
 <args>
