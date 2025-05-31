@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Debug/bin/test_mesh_syntaxic_sugar nb_subdivisions=9 quads=false</line>
 </preamble>
 
-<pid>25871</pid>
-<ppid>12141</ppid>
+<pid>25097</pid>
+<ppid>11438</ppid>
 <tool>memcheck</tool>
 
 <args>
@@ -42,7 +42,7 @@
 
 <status>
   <state>FINISHED</state>
-  <time>00:00:13:57.377 </time>
+  <time>00:00:14:00.504 </time>
 </status>
 
 <error>
