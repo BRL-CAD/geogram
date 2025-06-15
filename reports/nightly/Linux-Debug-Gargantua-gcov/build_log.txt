@@ -2,8 +2,8 @@
 [  1%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/rply/rply.c.o
 [  2%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/adler32.c.o
 [  2%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/compress.c.o
-[  3%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/deflate.c.o
 [  3%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/crc32.c.o
+[  3%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/deflate.c.o
 [  3%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/gzclose.c.o
 [  4%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/gzlib.c.o
 [  4%] Building C object src/lib/geogram/third_party/CMakeFiles/geogram_third_party.dir/zlib/gzread.c.o
@@ -68,8 +68,8 @@
 [ 33%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_frame_field.cpp.o
 [ 34%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_geometry.cpp.o
 [ 34%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_halfedges.cpp.o
-[ 35%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_io.cpp.o
 [ 35%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_local_operations.cpp.o
+[ 35%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_io.cpp.o
 [ 36%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_manifold_harmonics.cpp.o
 [ 36%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_partition.cpp.o
 [ 37%] Building CXX object src/lib/geogram/CMakeFiles/geogram.dir/mesh/mesh_preprocessing.cpp.o
@@ -144,8 +144,8 @@
 [ 69%] Building CXX object src/bin/vorpastat/CMakeFiles/vorpastat.dir/main.cpp.o
 [ 69%] Building CXX object src/bin/vorpacomp/CMakeFiles/vorpacomp.dir/main.cpp.o
 [ 70%] Linking CXX executable ../../../bin/vorpacomp
+[ 70%] Built target vorpacomp
 [ 71%] Linking CXX executable ../../../bin/vorpastat
-[ 71%] Built target vorpacomp
 [ 72%] Building CXX object src/bin/geodump/CMakeFiles/geodump.dir/main.cpp.o
 [ 72%] Built target vorpastat
 [ 72%] Building CXX object src/bin/vorpalite/CMakeFiles/vorpalite.dir/main.cpp.o
