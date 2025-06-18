@@ -12,8 +12,8 @@
   <line>Command: /home/runner/work/geogram/geogram/build/Linux64-gcc-dynamic-Debug/bin/test_convex_cell shape=file</line>
 </preamble>
 
-<pid>6175</pid>
-<ppid>5631</ppid>
+<pid>6199</pid>
+<ppid>5632</ppid>
 <tool>memcheck</tool>
 
 <args>
