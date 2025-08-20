@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -44,7 +44,7 @@
 #include <iomanip>
 
 int main(int argc, char** argv) {
-    GEO::initialize();
+    GEO::initialize(GEO::GEOGRAM_INSTALL_ALL);
     GEO::Logger::instance()->set_quiet(false);
     GEO::CmdLine::import_arg_group("standard");
     std::vector<std::string> filenames;
@@ -53,6 +53,9 @@ int main(int argc, char** argv) {
     }
     try {
         GEO::InputGeoFile file(filenames[0]);
+	GEO::Logger::out("GeoFile") << "GARGANTUA mode:"
+				    << file.gargantua_mode()
+				    << std::endl;
         for(
             std::string chunk_class = file.next_chunk();
             chunk_class != "EOFL";
@@ -71,7 +74,7 @@ int main(int argc, char** argv) {
                 chunk_class == "CMDL" ||
                 chunk_class == "HIST"
             ) {
-                GEO::index_t nb_lines = file.read_int();
+                GEO::index_t nb_lines = file.read_index_t_32();
                 for(GEO::index_t i=0; i<nb_lines; ++i) {
                     GEO::Logger::out("GeoFile")
                         << "    "
@@ -91,7 +94,7 @@ int main(int argc, char** argv) {
                 chunk_class == "SHDR" ||
                 chunk_class == "SCNG"
             ) {
-                GEO::index_t nb = file.read_int();
+                GEO::index_t nb = file.read_index_t_32();
                 for(GEO::index_t i=0; i<nb; ++i) {
                     std::string name = file.read_string();
                     std::string value = file.read_string();
@@ -120,6 +123,8 @@ int main(int argc, char** argv) {
                     << "   type=" << attr.element_type << std::endl;
                 GEO::Logger::out("GeoFile")
                     << "   dim=" << attr.dimension << std::endl;
+                GEO::Logger::out("GeoFile")
+                    << "   elem. sz.=" << attr.element_size << std::endl;
             }
         }
 

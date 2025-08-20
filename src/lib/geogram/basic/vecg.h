@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -70,7 +70,7 @@ namespace GEO {
     class vecng {
     public:
         /** \brief The dimension of the vector */
-        static const index_t dim = DIM;
+        static constexpr index_t dim = DIM;
 
         /** \brief This vector type */
         typedef vecng<DIM, T> vector_type;
@@ -133,7 +133,7 @@ namespace GEO {
             }
         }
 
-        /** 
+        /**
          * \brief Constructs a vector from an initializer list.
          * \param[in] Vi the initializer list, should contain DIM elements.
          */
@@ -145,7 +145,7 @@ namespace GEO {
                 ++i;
             }
         }
-        
+
         /**
          * \brief Gets the vector dimension
          * \return the value of \p DIM
@@ -520,7 +520,7 @@ namespace GEO {
     class vecng<2, T> {
     public:
         /** \copydoc vecng::dim */
-        static const index_t dim = 2;
+        static constexpr index_t dim = 2;
 
         /** \copydoc vecng::vector_type */
         typedef vecng<dim, T> vector_type;
@@ -536,12 +536,24 @@ namespace GEO {
 
         /**
          * \brief Constructs a vector from coordinates
-         * \param[in] x_in , y_in vector coordinates
+         * \param[in] x_in , y_in references to vector coordinates
          */
-        vecng(T x_in, T y_in) :
+        vecng(const T& x_in, const T& y_in) :
             x(x_in),
             y(y_in) {
         }
+
+        /**
+         * \brief Constructs a vector from coordinates
+         * \param[in] x_in , y_in vector coordinates as rvalue references
+         */
+        vecng(T&& x_in, T&& y_in) :
+            x(x_in),
+            y(y_in) {
+        }
+
+	vecng(const vecng<2,T>& rhs) = default;
+	vecng(vecng<2,T>&& rhs) = default;
 
         /** \copydoc vecng::vecng(const vecng<DIM, T2>&) */
         template <class T2>
@@ -566,7 +578,10 @@ namespace GEO {
                 ++i;
             }
         }
-        
+
+	vecng<2,T>& operator=(const vecng<2,T>& rhs) = default;
+	vecng<2,T>& operator=(vecng<2,T>&& rhs) = default;
+
         /** \copydoc vecng::length2() const */
         inline T length2() const {
             return x * x + y * y;
@@ -678,7 +693,7 @@ namespace GEO {
             Numeric::optimize_number_representation(x);
             Numeric::optimize_number_representation(y);
         }
-        
+
         /** \brief Vector x coordinate */
         T x;
         /** \brief Vector y coordinate */
@@ -731,7 +746,7 @@ namespace GEO {
     class vecng<3, T> {
     public:
         /** \copydoc vecng::dim */
-        static const index_t dim = 3;
+        static constexpr index_t dim = 3;
 
         /** \copydoc vecng::vector_type */
         typedef vecng<dim, T> vector_type;
@@ -748,13 +763,26 @@ namespace GEO {
 
         /**
          * \brief Constructs a vector from coordinates
-         * \param[in] x_in , y_in , z_in vector coordinates
+         * \param[in] x_in , y_in , z_in references to vector coordinates
          */
-        vecng(T x_in, T y_in, T z_in) :
+        vecng(const T& x_in, const T& y_in, const T& z_in) :
             x(x_in),
             y(y_in),
             z(z_in) {
         }
+
+        /**
+         * \brief Constructs a vector from coordinates
+         * \param[in] x_in , y_in , z_in vector coordinates as rvalues
+         */
+        vecng(T&& x_in, T&& y_in, T&& z_in) :
+            x(x_in),
+            y(y_in),
+            z(z_in) {
+        }
+
+	vecng(const vecng<3,T>& rhs) = default;
+	vecng(vecng<3,T>&& rhs) = default;
 
         /** \copydoc vecng::vecng(const vecng<DIM, T2>&) */
         template <class T2>
@@ -781,7 +809,10 @@ namespace GEO {
                 ++i;
             }
         }
-        
+
+	vecng<3,T>& operator=(const vecng<3,T>& rhs) = default;
+	vecng<3,T>& operator=(vecng<3,T>&& rhs) = default;
+
         /** \copydoc vecng::length2() const */
         inline T length2() const {
             return x * x + y * y + z * z;
@@ -899,7 +930,7 @@ namespace GEO {
             Numeric::optimize_number_representation(y);
             Numeric::optimize_number_representation(z);
         }
-        
+
         /** \brief Vector x coordinate */
         T x;
         /** \brief Vector y coordinate */
@@ -958,7 +989,7 @@ namespace GEO {
     class vecng<4, T> {
     public:
         /** \copydoc vecng::dim */
-        static const index_t dim = 4;
+        static constexpr index_t dim = 4;
 
         /** \copydoc vecng::vector_type */
         typedef vecng<dim, T> vector_type;
@@ -976,14 +1007,28 @@ namespace GEO {
 
         /**
          * \brief Constructs a vector from coordinates
-         * \param[in] x_in , y_in , z_in , w_in vector coordinates
+         * \param[in] x_in , y_in , z_in , w_in references to vector coordinates
          */
-        vecng(T x_in, T y_in, T z_in, T w_in) :
+        vecng(const T& x_in, const T& y_in, const T& z_in, const T& w_in) :
             x(x_in),
             y(y_in),
             z(z_in),
             w(w_in) {
         }
+
+        /**
+         * \brief Constructs a vector from coordinates
+         * \param[in] x_in , y_in , z_in , w_in vector coordinates as rvalues
+         */
+        vecng(T&& x_in, T&& y_in, T&& z_in, T&& w_in) :
+            x(x_in),
+            y(y_in),
+            z(z_in),
+            w(w_in) {
+        }
+
+	vecng(const vecng<4,T>& rhs) = default;
+	vecng(vecng<4,T>&& rhs) = default;
 
         /** \copydoc vecng::vecng(const vecng<DIM, T2>&) */
         template <class T2>
@@ -1012,7 +1057,10 @@ namespace GEO {
                 ++i;
             }
         }
-        
+
+	vecng<4,T>& operator=(const vecng<4,T>& rhs) = default;
+	vecng<4,T>& operator=(vecng<4,T>&& rhs) = default;
+
         /** \copydoc vecng::length2() const */
         inline T length2() const {
             return x * x + y * y + z * z + w * w;
@@ -1185,7 +1233,8 @@ namespace GEO {
     /**
      * \brief Reads a vector from a stream
      * \details This reads \p DIM coordinates from the input stream \p in and
-     * stores them in vector \p v
+     * stores them in vector \p v. Understands both "x y z",
+     *  "[x, y, z]" and "{x, y, z}" formats.
      * \param[in] in the input stream
      * \param[out] v the vector to read
      * \return a reference to the input stream \p in
@@ -1195,8 +1244,30 @@ namespace GEO {
     inline std::istream& operator>> (
         std::istream& in, GEO::vecng<DIM, T>& v
     ) {
+        char c;
+        while(isspace(in.peek())) {
+            in.get(c);
+        }
+        if(in.peek() == '[' || in.peek() == '{') {
+            in.get(c);
+        }
+        while(isspace(in.peek())) {
+            in.get(c);
+        }
         for(index_t i = 0; i < DIM; i++) {
             in >> v[i];
+            while(isspace(in.peek())) {
+                in.get(c);
+            }
+            if(in.peek() == ',') {
+                in.get(c);
+            }
+            while(isspace(in.peek())) {
+                in.get(c);
+            }
+        }
+        if(in.peek() == ']' || in.peek() == '}') {
+            in.get(c);
         }
         return in;
     }
@@ -1204,8 +1275,8 @@ namespace GEO {
     /************************************************************************/
 
     namespace Numeric {
-        
-        template<class T> 
+
+        template<class T>
         inline void optimize_number_representation(
             vecng<2,T>& v
         ) {
@@ -1218,12 +1289,10 @@ namespace GEO {
         ) {
             v.optimize();
         }
-        
+
     }
 
     /************************************************************************/
-    
 }
 
 #endif
-

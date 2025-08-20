@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -44,6 +44,13 @@
 #include <geogram/basic/assert.h>
 #include <atomic>
 
+// In GARGANTUA mode (64-bit indices), we also enable
+// more than 127 concurrent threads (16-bits cell status,
+// that contain owner thread id).
+#ifdef GARGANTUA
+#define GEO_CONNECTION_MACHINE
+#endif
+
 /**
  * \file geogram/delaunay/delaunay_sync.h
  * \brief Synchronization primitives for parallel Delaunay
@@ -61,11 +68,23 @@ namespace GEO {
      */
     class CellStatusArray {
     public:
+#ifdef GEO_CONNECTION_MACHINE
+	// For machines that can run more than 127 concurrent threads
+        typedef uint16_t thread_index_t;
+        typedef uint16_t cell_status_t;
+        static constexpr cell_status_t FREE_CELL     = 32767;
+        static constexpr cell_status_t THREAD_MASK   = 32767;
+        static constexpr cell_status_t CONFLICT_MASK = 32768;
+#else
+        typedef uint8_t thread_index_t;
         typedef uint8_t cell_status_t;
         static constexpr cell_status_t FREE_CELL     = 127;
         static constexpr cell_status_t THREAD_MASK   = 127;
         static constexpr cell_status_t CONFLICT_MASK = 128;
-        
+#endif
+
+	static constexpr index_t MAX_THREADS = index_t(THREAD_MASK)-1;
+
         /**
          * \brief Creates an empty CellStatusArray
          */
@@ -83,7 +102,7 @@ namespace GEO {
 
         /**
          * \brief CellStatusArray destructor
-         * \details It is illegal to destroy a CellStatusArray if 
+         * \details It is illegal to destroy a CellStatusArray if
          *  - threads are still running
          *  - there exists a cell with a status different from FREE_CELL
          */
@@ -102,7 +121,7 @@ namespace GEO {
         CellStatusArray& operator=(const CellStatusArray& rhs) = delete;
 
         /**
-         * \brief Tentatively acquires a cell. 
+         * \brief Tentatively acquires a cell.
          * \param[in] cell the index of the cell
          * \param[in] status the status to be written in the cell if acquisition
          *  is successful, that is, if the current status of the cell is
@@ -137,7 +156,7 @@ namespace GEO {
         /**
          * \brief Gets the thread that acquired a cell
          * \param[in] cell the cell
-         * \return the index of the thread that acquired the cell, or 
+         * \return the index of the thread that acquired the cell, or
          *  FREE_CELL if the cell is free
          */
         cell_status_t cell_thread(index_t cell) const {
@@ -171,18 +190,13 @@ namespace GEO {
          * \pre the cell is owned by the current thread
          */
         void mark_cell_as_conflict(index_t cell) {
-            // we could also use std::atomic::fetch_or(), but it
-            // would constrain the operation to be atomic, which we
-            // do not need since this function is always used by
-            // a thread that previously acquired the cell (well in
-            // practice it gives approximately the same performance).
-            cell_status_[cell].store(
-                cell_status_[cell].load(
-                    std::memory_order_relaxed
-                ) | CONFLICT_MASK, std::memory_order_relaxed
-            );
+	    // memory_order_relaxed because this function is always called from
+            // a thread that previously acquired the cell.
+	    cell_status_[cell].fetch_or(
+		CONFLICT_MASK, std::memory_order_relaxed
+	    );
         }
-        
+
         /**
          * \brief Sets the status of a cell
          * \param[in] cell the index of the cell
@@ -198,7 +212,7 @@ namespace GEO {
          * \brief Resizes this CellStatusArray
          * \param[in] size_in number of cells
          * \param[in] capacity_in total number of allocated cells
-         * \pre \p capacity_in >= \p size_in and 
+         * \pre \p capacity_in >= \p size_in and
          *  no concurrent thread is currently running
          */
         void resize(index_t size_in, index_t capacity_in) {
@@ -217,11 +231,11 @@ namespace GEO {
                 delete[] old_cell_status;
             }
             size_ = size_in;
-#ifdef __cpp_lib_atomic_is_always_lock_free                
+#ifdef __cpp_lib_atomic_is_always_lock_free
             static_assert(std::atomic<cell_status_t>::is_always_lock_free);
 #else
             geo_debug_assert(size_ == 0 || cell_status_[0].is_lock_free());
-#endif                
+#endif
         }
 
         /**
@@ -268,17 +282,18 @@ namespace GEO {
 
         /**
          * \brief Clears this CellStatusArray
-         * \details Deallocates all memory 
+         * \details Deallocates all memory
          * \pre all the cells are free and no concurrent thread is running
          */
         void clear() {
             geo_debug_assert(!Process::is_running_threads());
-            #ifdef GEO_DEBUG
+#ifdef GEO_DEBUG
             for(index_t i=0; i<size_; ++i) {
                 geo_debug_assert(cell_thread(i) == FREE_CELL);
             }
-            #endif
+#endif
             delete[] cell_status_;
+	    cell_status_ = nullptr;
             size_ = 0;
             capacity_ = 0;
         }

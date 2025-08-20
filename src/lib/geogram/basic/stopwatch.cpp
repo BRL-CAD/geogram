@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,7 @@ namespace GEO {
 
     double Stopwatch::process_start_time_ = 0.0;
     bool Stopwatch::global_stats_ = false;
-    
+
     void Stopwatch::initialize() {
         process_start_time_ = now();
         global_stats_ =
@@ -55,17 +55,21 @@ namespace GEO {
     }
 
     void Stopwatch::show_stats() {
-        Logger::out("Process") << "Total elapsed time: " 
+        Logger::out("Process") << "Total elapsed time: "
                                << process_elapsed_time()
                                << "s" << std::endl;
         // TODO: specific stats.
     }
-    
+
     Stopwatch::Stopwatch(const std::string& task_name, bool verbose) :
         start_(std::chrono::system_clock::now()),
         task_name_(task_name),
         verbose_(verbose)
     {
+	if(verbose_) {
+	    Logger::out(task_name_) << "Start..." << std::endl;
+	    Logger::instance()->indent();
+	}
     }
 
     Stopwatch::Stopwatch() :
@@ -75,30 +79,35 @@ namespace GEO {
     }
 
     double Stopwatch::elapsed_time() const {
+	// OMG, such nonsense ...
+	// ... but well, lets me get time with reasonable resolution
+	// in a portable way.
         auto now(std::chrono::system_clock::now());
         auto elapsed = now-start_;
-        auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-            elapsed
-        );
+        auto elapsed_milliseconds =
+	    std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
         return 0.001 * double(elapsed_milliseconds.count());
     }
 
     double Stopwatch::now() {
         auto now(std::chrono::system_clock::now());
         auto elapsed = now.time_since_epoch();
-        auto elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-            elapsed
-        );
+        auto elapsed_milliseconds =
+	    std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
         return 0.001 * double(elapsed_milliseconds.count());
     }
-    
+
     Stopwatch::~Stopwatch() {
         if(verbose_) {
-            Logger::out(task_name_)
-                << "Elapsed time: " << elapsed_time()
-                << " s" << std::endl;
-        }
+	    Logger::instance()->unindent();
+	    print_elapsed_time();
+	}
     }
-    
-}
 
+    void Stopwatch::print_elapsed_time() {
+	Logger::out(task_name_)
+	    << "Elapsed: " << String::format_time(elapsed_time())
+	    << std::endl;
+    }
+
+}

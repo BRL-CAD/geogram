@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -73,25 +73,25 @@ namespace GEO {
     ) {
         geo_debug_assert(mesh.facets.are_simplices());
         geo_debug_assert(mesh.vertices.dimension() >= DIM);
-        typedef vecng<DIM, double> Point;
+
         index_t v1 = mesh.facets.vertex(f,0);
         index_t v2 = mesh.facets.vertex(f,1);
-        index_t v3 = mesh.facets.vertex(f,2);        
-        
+        index_t v3 = mesh.facets.vertex(f,2);
+
         if(vertex_weight.is_bound()) {
             return Geom::triangle_mass(
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v1)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v2)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v3)),
+		mesh.vertices.point<DIM>(v1),
+		mesh.vertices.point<DIM>(v2),
+		mesh.vertices.point<DIM>(v3),
                 vertex_weight[v1],
                 vertex_weight[v2],
                 vertex_weight[v3]
             );
         }
         return Geom::triangle_area(
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v1)),
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v2)),
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v3))
+	    mesh.vertices.point<DIM>(v1),
+	    mesh.vertices.point<DIM>(v2),
+	    mesh.vertices.point<DIM>(v3)
         );
     }
 
@@ -122,8 +122,8 @@ namespace GEO {
         double* p,
         index_t nb_points,
         Attribute<double>& weight,
-        signed_index_t facets_begin_in = -1,
-        signed_index_t facets_end_in = -1
+        index_t facets_begin_in = NO_INDEX,
+        index_t facets_end_in = NO_INDEX
     ) {
         geo_assert(mesh.facets.are_simplices());
         geo_assert(mesh.vertices.dimension() >= DIM);
@@ -131,11 +131,11 @@ namespace GEO {
 
         index_t facets_begin = 0;
         index_t facets_end = mesh.facets.nb();
-        if(facets_begin_in != -1) {
-            facets_begin = index_t(facets_begin_in);
+        if(facets_begin_in != NO_INDEX) {
+            facets_begin = facets_begin_in;
         }
-        if(facets_end_in != -1) {
-            facets_end = index_t(facets_end_in);
+        if(facets_end_in != NO_INDEX) {
+            facets_end = facets_end_in;
         }
 
         typedef vecng<DIM, double> Point;
@@ -156,8 +156,8 @@ namespace GEO {
             Atot += At;
         }
 
-        signed_index_t first_t = -1;
-        signed_index_t last_t = 0;
+        index_t first_t = NO_INDEX;
+        index_t last_t = 0;
 
         index_t cur_t = facets_begin;
         double cur_s =
@@ -169,21 +169,21 @@ namespace GEO {
                 geo_debug_assert(cur_t < facets_end);
                 cur_s += mesh_facet_mass<DIM>(mesh, cur_t, weight) / Atot;
             }
-            if(first_t == -1) {
-                first_t = signed_index_t(cur_t);
+            if(first_t == NO_INDEX) {
+                first_t = cur_t;
             }
-            last_t = std::max(last_t, signed_index_t(cur_t));
+            last_t = std::max(last_t, cur_t);
 
             // TODO: take weights into account
             //  with a new random_point_in_triangle_weighted()
             //  function.
             index_t v1 = mesh.facets.vertex(cur_t,0);
             index_t v2 = mesh.facets.vertex(cur_t,1);
-            index_t v3 = mesh.facets.vertex(cur_t,2);            
+            index_t v3 = mesh.facets.vertex(cur_t,2);
             Point cur_p = Geom::random_point_in_triangle(
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v1)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v2)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v3))
+		mesh.vertices.point<DIM>(v1),
+		mesh.vertices.point<DIM>(v2),
+		mesh.vertices.point<DIM>(v3)
             );
             for(coord_index_t coord = 0; coord < DIM; coord++) {
                 p[i * DIM + coord] = cur_p[coord];
@@ -214,18 +214,12 @@ namespace GEO {
         index_t t
     ) {
         geo_debug_assert(mesh.vertices.dimension() >= DIM);
-        typedef vecng<DIM, double> Point;
-
-        index_t v0 = mesh.cells.vertex(t, 0);
-        index_t v1 = mesh.cells.vertex(t, 1);
-        index_t v2 = mesh.cells.vertex(t, 2);
-        index_t v3 = mesh.cells.vertex(t, 3);
 
         double result = Geom::tetra_volume(
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v0)),
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v1)),
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v2)),
-            *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v3))
+	    mesh.cells.point<DIM>(t,0),
+	    mesh.cells.point<DIM>(t,1),
+	    mesh.cells.point<DIM>(t,2),
+	    mesh.cells.point<DIM>(t,3)
         );
 
         return result;
@@ -245,7 +239,7 @@ namespace GEO {
     inline double mesh_tetra_mass(
         const Mesh& mesh,
         index_t t,
-        const Attribute<double>& weight 
+        const Attribute<double>& weight
     ) {
         double result = mesh_tetra_mass<DIM>(mesh, t);
 
@@ -255,14 +249,13 @@ namespace GEO {
             index_t v2 = mesh.cells.vertex(t, 2);
             index_t v3 = mesh.cells.vertex(t, 3);
             result *= (
-                weight[v0] + weight[v1] +
-                weight[v2] + weight[v3]
-            ) / 4.0;
+		weight[v0] + weight[v1] + weight[v2] + weight[v3]
+	    ) / 4.0;
         }
 
         return result;
     }
-    
+
     /**
      * \brief Generates a set of random samples in a volumetric mesh.
      * \param[in] mesh the mesh
@@ -289,19 +282,19 @@ namespace GEO {
         double* p,
         index_t nb_points,
         Attribute<double>& vertex_weight,
-        signed_index_t tets_begin_in = -1,
-        signed_index_t tets_end_in = -1
+        index_t tets_begin_in = NO_INDEX,
+        index_t tets_end_in = NO_INDEX
     ) {
         geo_assert(mesh.vertices.dimension() >= DIM);
         geo_assert(mesh.cells.nb() > 0);
 
         index_t tets_begin = 0;
         index_t tets_end = mesh.cells.nb();
-        if(tets_begin_in != -1) {
-            tets_begin = index_t(tets_begin_in);
+        if(tets_begin_in != NO_INDEX) {
+            tets_begin = tets_begin_in;
         }
-        if(tets_end_in != -1) {
-            tets_end = index_t(tets_end_in);
+        if(tets_end_in != NO_INDEX) {
+            tets_end = tets_end_in;
         }
 
         typedef vecng<DIM, double> Point;
@@ -322,8 +315,8 @@ namespace GEO {
             Vtot += Vt;
         }
 
-        signed_index_t first_t = -1;
-        signed_index_t last_t = 0;
+        index_t first_t = NO_INDEX;
+        index_t last_t = 0;
 
         index_t cur_t = tets_begin;
         double cur_s =
@@ -337,10 +330,10 @@ namespace GEO {
                     mesh, cur_t, vertex_weight
                 ) / Vtot;
             }
-            if(first_t == -1) {
-                first_t = signed_index_t(cur_t);
+            if(first_t == NO_INDEX) {
+                first_t = cur_t;
             }
-            last_t = std::max(last_t, signed_index_t(cur_t));
+            last_t = std::max(last_t, cur_t);
 
             index_t v0 = mesh.cells.vertex(cur_t, 0);
             index_t v1 = mesh.cells.vertex(cur_t, 1);
@@ -351,10 +344,10 @@ namespace GEO {
             //  with a new random_point_in_tetra_weighted()
             //  function.
             Point cur_p = Geom::random_point_in_tetra(
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v0)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v1)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v2)),
-                *reinterpret_cast<const Point*>(mesh.vertices.point_ptr(v3))
+		mesh.vertices.point<DIM>(v0),
+		mesh.vertices.point<DIM>(v1),
+		mesh.vertices.point<DIM>(v2),
+		mesh.vertices.point<DIM>(v3)
             );
             for(coord_index_t coord = 0; coord < DIM; coord++) {
                 p[i * DIM + coord] = cur_p[coord];
@@ -371,4 +364,3 @@ namespace GEO {
 }
 
 #endif
-

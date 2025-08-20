@@ -9,6 +9,23 @@
 #define ZCONF_H
 
 /*
+ * [Bruno] enable 64 bits IO (needed on MacOS and Windows that do not
+ * set these defines by default
+ */
+
+#if defined(_WIN32) || defined(_WIN64) || defined(__APPLE__)
+#define _LARGEFILE64_SOURCE 1
+#define _LFS64_LARGEFILE 1
+#define _FILE_OFFSET_BITS 64
+#endif
+
+#if defined(__APPLE__)
+/* On MacOS, file IO is 64 bits by default ! */
+#define off64_t off_t
+#define lseek64 lseek
+#endif
+
+/*
  * If you *really* need a unique prefix for all types and library functions,
  * compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
  * Even better than compiling with -DZ_PREFIX would be to use configure to set

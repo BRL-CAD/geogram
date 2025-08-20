@@ -6,17 +6,16 @@ Library           OperatingSystem
 Library           lib/VorpatestLibrary.py
 
 *** Variables ***
-${DATADIR}        %{VORPATEST_ROOT_DIR}${/}data${/}CDT2d
+${DATADIR}        %{VORPATEST_ROOT_DIR}${/}data
 
 *** Test Cases ***
 Logger
     [Tags]    daily_valgrind
-    Run Test   
+    Run Test
 
 
 *** Keywords ***
 Run Test
     [Arguments]    ${input_name}=${TEST NAME}    @{options}
     [Documentation]    Tests the Logger, with multiple threads
-    run command    test_logger    @{options}    
-
+    run command    test_logger    @{options}

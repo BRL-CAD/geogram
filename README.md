@@ -6,14 +6,14 @@
 [![Doxygen](https://github.com/BrunoLevy/geogram/actions/workflows/doxygen.yml/badge.svg)](https://github.com/BrunoLevy/geogram/actions/workflows/doxygen.yml)
 
 [![Continuous](https://github.com/BrunoLevy/geogram/actions/workflows/continuous.yml/badge.svg)](https://github.com/BrunoLevy/geogram/actions/workflows/continuous.yml)
-[![Continuous](https://custom-icon-badges.demolab.com/badge/CI-Continuous-lightblue?logo=tasklist&logoColor=white)](https://brunolevy.github.io/geogram/reports/smoke/)
+[![Continuous](https://custom-icon-badges.demolab.com/badge/CI-Continuous-lightblue?logo=tasklist&logoColor=white)](https://brunolevy.github.io/geogram.CI/reports/smoke/)
 
 [![Nightly](https://github.com/BrunoLevy/geogram/actions/workflows/nightly.yml/badge.svg)](https://github.com/BrunoLevy/geogram/actions/workflows/nightly.yml)
-[![Nightly](https://custom-icon-badges.demolab.com/badge/CI-Nightly-lightblue?logo=tasklist&logoColor=white)](https://brunolevy.github.io/geogram/reports/nightly/)
+[![Nightly](https://custom-icon-badges.demolab.com/badge/CI-Nightly-lightblue?logo=tasklist&logoColor=white)](https://brunolevy.github.io/geogram.CI/reports/nightly/)
 
 
 
-![](https://github.com/BrunoLevy/geogram/wiki/geogram_banner_2024_2.png)
+![](https://github.com/BrunoLevy/geogram/wiki/geogram_banner_2025_3.png)
 
 
 Geogram is a programming library with geometric algorithms. It has
@@ -21,10 +21,11 @@ geometry-processing functionalities:
 - [surface reconstruction](https://github.com/BrunoLevy/geogram/wiki/Reconstruction)
 - [remeshing](https://github.com/BrunoLevy/geogram/wiki/Remeshing)
 - [parameterization and texturing](https://github.com/BrunoLevy/geogram/wiki/Texturing)
-- [Boolean operations](https://github.com/BrunoLevy/geogram/wiki/BooleanOps)
+- [Intersections and Boolean operations](https://github.com/BrunoLevy/geogram/wiki/BooleanOps)
+- [Constructive Solid Geometry](https://github.com/BrunoLevy/geogram/wiki/CSG)
 
 It also has lower-level algorithm:
-- [Exact numbers / exact predicates](https://brunolevy.github.io/geogram/multi__precision_8h.html)
+- [Exact numbers / exact predicates](https://github.com/BrunoLevy/geogram/wiki/Exact)
 - [Delaunay triangulations in 2D](https://github.com/BrunoLevy/geogram/wiki/Delaunay2D)
   and highly efficient parallel [Delaunay triangulations in 3D](https://github.com/BrunoLevy/geogram/wiki/Delaunay3D)
 - Memory efficient surfacic/volumetric/hybrid [mesh data structure](https://github.com/BrunoLevy/geogram/wiki/Mesh)
@@ -38,14 +39,14 @@ in 2023.
 
 Geogram contains the main results in Geometry Processing from the former
 ALICE Inria project, that is, more than 30 research articles published
-in ACM SIGGRAPH, ACM Transactions on Graphics, Symposium on Geometry 
+in ACM SIGGRAPH, ACM Transactions on Graphics, Symposium on Geometry
 Processing and Eurographics. It was supported by two grants from the
 European Research Council (ERC): GOODSHAPE and VORPALINE.
 
 Links
 -----
   - [Documentation, how to compile, tutorials....](https://github.com/BrunoLevy/geogram/wiki)
-  - [Programmer's reference manuals...](https://brunolevy.github.io/geogram/)  
+  - [Programmer's reference manuals...](https://brunolevy.github.io/geogram/)
   - [Releases](https://github.com/BrunoLevy/geogram/releases)
   - [Projects with geogram](https://github.com/BrunoLevy/geogram/wiki/Publications)
   - [Graphite](https://github.com/BrunoLevy/GraphiteThree), an experimental 3D modeler built around geogram.
@@ -57,4 +58,3 @@ How does it compare to other geometry-processing libraries ?
 ------------------------------------------------------------
 
 See [FAQ](https://github.com/BrunoLevy/geogram/wiki/FAQ)
-

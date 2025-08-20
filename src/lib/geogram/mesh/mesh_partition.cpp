@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -112,7 +112,7 @@ namespace {
         Mesh& M,
         vector<index_t>& facet_ptr
     ) {
-        const index_t UNVISITED = index_t(-1);
+        static constexpr index_t UNVISITED = NO_INDEX;
 
         vector<index_t> new_index(M.facets.nb(), UNVISITED);
         std::stack<index_t> S;
@@ -155,7 +155,7 @@ namespace {
         Mesh& M,
         vector<index_t>& tet_ptr
     ) {
-        const index_t UNVISITED = index_t(-1);
+        static constexpr index_t UNVISITED = NO_INDEX;
 
         vector<index_t> new_index(M.cells.nb(), UNVISITED);
         std::stack<index_t> S;
@@ -198,12 +198,12 @@ namespace GEO {
         index_t nb_parts
     ) {
         switch(mode) {
-            case MESH_PARTITION_HILBERT:
-                partition_Hilbert_surface(M, facet_ptr, nb_parts);
-                break;
-            case MESH_PARTITION_CONNECTED_COMPONENTS:
-                partition_surface_connected_components(M, facet_ptr);
-                break;
+        case MESH_PARTITION_HILBERT:
+            partition_Hilbert_surface(M, facet_ptr, nb_parts);
+            break;
+        case MESH_PARTITION_CONNECTED_COMPONENTS:
+            partition_surface_connected_components(M, facet_ptr);
+            break;
         }
     }
 
@@ -215,18 +215,17 @@ namespace GEO {
         index_t nb_parts
     ) {
         switch(mode) {
-            case MESH_PARTITION_HILBERT:
-                partition_Hilbert_surface_and_volume(
-                    M, facet_ptr, tet_ptr, nb_parts
-                );
-                break;
-            case MESH_PARTITION_CONNECTED_COMPONENTS:
-                partition_surface_connected_components(M, facet_ptr);
-                if(M.cells.nb() != 0) {
-                    partition_volume_connected_components(M, tet_ptr);
-                }
-                break;
+        case MESH_PARTITION_HILBERT:
+            partition_Hilbert_surface_and_volume(
+                M, facet_ptr, tet_ptr, nb_parts
+            );
+            break;
+        case MESH_PARTITION_CONNECTED_COMPONENTS:
+            partition_surface_connected_components(M, facet_ptr);
+            if(M.cells.nb() != 0) {
+                partition_volume_connected_components(M, tet_ptr);
+            }
+            break;
         }
     }
 }
-

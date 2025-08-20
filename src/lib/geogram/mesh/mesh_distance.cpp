@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -91,7 +91,7 @@ namespace {
          * \details Computes the distances for the batch of points associated
          *  with this thread.
          */
-	void run() override {
+        void run() override {
             for(index_t v = from_; v < to_; v++) {
                 // TODO: optimization
                 // if we know that the points are spatially
@@ -194,7 +194,7 @@ namespace GEO {
         MeshFacetsAABB AABB(m2);
 
         index_t nb_points = 0;
-        
+
         if(m1.cells.nb() == 0 && m1.edges.nb() == 0) {
             nb_points = m1.vertices.nb();
             compute_max_distance(
@@ -207,8 +207,8 @@ namespace GEO {
             // other surface will be included in the computation !
             vector<bool> on_surface(m1.vertices.nb(),false);
             for(index_t f: m1.facets) {
-                for(index_t c: m1.facets.corners(f)) {
-                    on_surface[m1.facet_corners.vertex(c)] = true;
+		for(index_t v: m1.facets.vertices(f)) {
+                    on_surface[v] = true;
                 }
             }
             for(index_t v: m1.vertices) {
@@ -219,7 +219,7 @@ namespace GEO {
             vector<double> points;
             points.reserve(nb_points*m1.vertices.dimension());
             for(index_t v: m1.vertices) {
-                if(on_surface[v]) {                
+                if(on_surface[v]) {
                     for(index_t c=0; c<m1.vertices.dimension(); ++c) {
                         points.push_back(m1.vertices.point_ptr(v)[c]);
                     }
@@ -236,12 +236,12 @@ namespace GEO {
             Geom::mesh_area(m1, 3) / geo_sqr(sampling_step)
         );
 
-        if(nb_samples > nb_points) {            
+        if(nb_samples > nb_points) {
 
             nb_samples -= nb_points;
             Logger::out("Distance") << "Using " << nb_samples
-                << " additional samples"
-                << std::endl;
+                                    << " additional samples"
+                                    << std::endl;
             vector<double> samples(nb_samples * 3);
             Attribute<double> weight; // left unbound
             mesh_generate_random_samples_on_surface<3>(
@@ -264,4 +264,3 @@ namespace GEO {
         );
     }
 }
-

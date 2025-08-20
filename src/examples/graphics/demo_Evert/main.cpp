@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -82,20 +82,25 @@ namespace {
          * \brief Draws the everting sphere with the current parameters.
          */
         void draw() {
+
+	    quads_.begin_frame();
+
             // Update the vertices if needed.
             if (vertices_dirty_) {
                 generate_vertices();
             }
 
             // Set the colors
-            glupDisable(GLUP_VERTEX_COLORS);            
-            if ( rendering_style_ == STYLE_POINTS ) {            
-                glupSetColor3f(GLUP_FRONT_AND_BACK_COLOR, 1.0f, 1.0f, 0.0f);
+            glupDisable(GLUP_VERTEX_COLORS);
+            if ( rendering_style_ == STYLE_POINTS ) {
+                glupSetColor4f(
+		    GLUP_FRONT_AND_BACK_COLOR, 1.0f, 1.0f, 0.0f, alpha
+		);
             } else {
-                glupSetColor3f(GLUP_FRONT_COLOR, 0.0f, 0.5f, 1.0f);
-                glupSetColor3f(GLUP_BACK_COLOR, 1.0f, 0.0f, 0.0f);
+                glupSetColor4f(GLUP_FRONT_COLOR, 0.0f, 0.5f, 1.0f, alpha);
+                glupSetColor4f(GLUP_BACK_COLOR, 1.0f, 0.0f, 0.0f, alpha);
             }
-            
+
             glupMatrixMode(GLUP_MODELVIEW_MATRIX);
 
             // Draw the two hemispheres.
@@ -103,7 +108,7 @@ namespace {
                 int hemisphere = 0;
                 hemisphere < nb_hemispheres_to_display_; ++hemisphere
             ) {
-                
+
                 glupPushMatrix();
                 glupRotatef(float(hemisphere)*180.0f,0.0f,1.0f,0.0f);
 
@@ -122,6 +127,8 @@ namespace {
                 }
                 glupPopMatrix();
             }
+
+	    quads_.end_frame();
         }
 
         /**
@@ -136,7 +143,7 @@ namespace {
                 update();
             }
         }
-        
+
 
         /**
          * \brief Sets the number of strips (or corrugations).
@@ -149,7 +156,7 @@ namespace {
             nb_strips_to_display_ = n;
             update();
         }
-        
+
 
         /**
          * \brief Sets the number of hemispheres to display.
@@ -182,7 +189,7 @@ namespace {
 
         /**
          * \brief Sets the longitudinal resolution.
-         * \param[in] n the number of vertices along the longitudinal 
+         * \param[in] n the number of vertices along the longitudinal
          *  resolution.
          */
         void set_lon_resolution(int n) {
@@ -243,7 +250,13 @@ namespace {
         void set_textured(bool b) {
             textured_ = b;
         }
-        
+
+	void set_transparent(bool b) {
+	    quads_.set_transparent(
+		b && (rendering_style_ != STYLE_POINTS) && !textured_
+	    );
+	}
+
     protected:
 
         /**
@@ -266,7 +279,7 @@ namespace {
                     }
                 glupEnd();
             } else {
-                glupBegin(GLUP_QUADS);
+		quads_.begin();
                 for (int j=0; j<nb_lat_per_hemisphere_; ++j) {
                     if (
                         rendering_style_ == STYLE_POLYGONS ||
@@ -274,21 +287,15 @@ namespace {
                             rendering_style_ == STYLE_BANDS &&
                             (j & 1)==hemisphere
                         )
-                     ) {
-                        for(
-                            int k=0;
-                            k<nb_long_per_strip_; ++k
-                        ) {
-                            draw_vertex(j+1,k);			    
+                    ) {
+                        for(int k=0; k<nb_long_per_strip_; ++k) {
+                            draw_vertex(j+1,k);
                             draw_vertex(j,k);
-                            draw_vertex(j,k+1);			    
-                            draw_vertex(j+1,k+1);			    
+                            draw_vertex(j,k+1);
+                            draw_vertex(j+1,k+1);
                         }
                     } else if (rendering_style_ == STYLE_CHECKERED) {
-                        for(
-                            int k=j%2;
-                            k<nb_long_per_strip_; k+=2
-                        ) {
+                        for(int k=j%2; k<nb_long_per_strip_; k+=2) {
                             draw_vertex(j+1,k);
                             draw_vertex(j,k);
                             draw_vertex(j,k+1);
@@ -296,7 +303,7 @@ namespace {
                         }
                     }
                 }
-                glupEnd();
+		quads_.end();
             }
         }
 
@@ -305,15 +312,15 @@ namespace {
          */
         void generate_vertices() {
             geo_clamp(time_, 0.0, 1.0);
-            
+
             if (nb_lat_per_hemisphere_ < 2) {
                 nb_lat_per_hemisphere_ = 2;
             }
-            
+
             if (nb_long_per_strip_ < 2) {
                 nb_long_per_strip_ = 2;
             }
-            
+
             // allocate vertices
             vertices_.resize(
                 size_t(3*(1 + nb_lat_per_hemisphere_)*(1 + nb_long_per_strip_))
@@ -325,7 +332,7 @@ namespace {
             //  Make a tiny invisible puncture near the pole, to avoid a
             // singularity that creates a bad shading.
             static const double epsilon = 1e-5;
-            
+
             // generate the geometry
             if(bend_cylinder_) {
                 generateGeometry(
@@ -359,23 +366,218 @@ namespace {
         }
 
         inline void draw_vertex(int u, int v) {
-            if(textured_) {
-                glupPrivateTexCoord2f(
-                    float(u) / float(nb_lat_per_hemisphere_),
-                    float(v) / float(nb_long_per_strip_)
-                );
-            }
-	    glupPrivateNormal3fv(
-                &(normals_[3*(v * (nb_lat_per_hemisphere_ + 1) + u)])		
-	    );
-            glupPrivateVertex3fv(
-                &(vertices_[3*(v * (nb_lat_per_hemisphere_ + 1) + u)])
-            );
+	    int lin_index = 3*(v * (nb_lat_per_hemisphere_ + 1) + u);
+	    if(textured_) {
+		quads_.TexCoord2f(
+		    float(u) / float(nb_lat_per_hemisphere_),
+		    float(v) / float(nb_long_per_strip_)
+		);
+	    }
+	    quads_.Normal3fv(&normals_[lin_index]);
+	    quads_.Vertex3fv(&vertices_[lin_index]);
         }
-        
+
+    protected:
+
+	/**
+	 * \brief Stores a list of quads and their normals
+	 *  for sorted transparent rendering.
+	 */
+	class QuadsBuffer {
+	public:
+	    QuadsBuffer() : quads_pointer_(0), transparent_(false) {
+	    }
+
+	    void set_transparent(bool x) {
+		transparent_ = x;
+	    }
+
+	    /**
+	     * \brief Should be called at the beginning of each frame.
+	     */
+	    void begin_frame() {
+		quads_pointer_ = 0;
+		quads_.resize(0);
+		quads_order_.resize(0);
+	    }
+
+	    /**
+	     * \brief Starts a new QUADS primitive
+	     */
+	    void begin() {
+		if(!transparent_) {
+		    glupBegin(GLUP_QUADS);
+		}
+	    }
+
+	    /**
+	     * \brief Specifies the normal vector for the next vertex
+	     * \details Should be called before Vertex3fv()
+	     */
+	    void Normal3fv(const float* N) {
+		if(transparent_) {
+		    quads_.emplace_back(vec3f(N));
+		} else {
+		    // (glupPrivateXXX are just faster inline versions
+		    //  of glupXXX)
+		    glupPrivateNormal3fv(const_cast<float*>(N));
+		}
+	    }
+
+	    /**
+	     * \brief Specifies the tex coords for the next vertex
+	     * \details Should be called before Vertex3fv(). Ignored
+	     *  in transparent mode.
+	     */
+	    void TexCoord2f(float u, float v) {
+		if(!transparent_) {
+		    // (glupPrivateXXX are just faster inline versions
+		    //  of glupXXX)
+		    glupPrivateTexCoord2f(u,v);
+		}
+	    }
+
+	    /**
+	     * \brief Draws a vertex
+	     */
+	    void Vertex3fv(const float* P) {
+		if(transparent_) {
+		    quads_.emplace_back(vec3f(P));
+		} else {
+		    // (glupPrivateXXX are just faster inline versions
+		    //  of glupXXX)
+		    glupPrivateVertex3fv(P);
+		}
+	    }
+
+	    /**
+	     * \brief terminates a QUADS primitive
+	     */
+	    void end() {
+		if(!transparent_) {
+		    glupEnd();
+		    return;
+		}
+
+		// Applies the ModelView transform to the normals and
+		// vertices stored since latest call to begin_frame() or begin()
+		mat4 modelview_t;
+		glupGetMatrixdv(GLUP_MODELVIEW_MATRIX, modelview_t.data());
+
+		// matrix to be used for transforming points
+		// transposed because OpenGL uses row vectors and
+		// vector x matrix transforms.
+		mat4 modelview = modelview_t.transpose();
+
+		// matrix to be used for transforming normals
+		// transposed transposed (that is, not transposed)
+		// because, once agian, OpenGL uses row vectors and
+		// vector x matrix transforms.
+		mat4 modelview_inv_t = modelview_t.inverse();
+
+		for(index_t i=quads_pointer_; i<quads_.size(); i+=2) {
+		    vec4 p(
+			double(quads_[i+1].x),
+			double(quads_[i+1].y),
+			double(quads_[i+1].z),
+			1.0
+		    );
+
+		    vec4 p_xformed= mult(modelview, p);
+
+		    vec4 n(
+			double(quads_[i].x),
+			double(quads_[i].y),
+			double(quads_[i].z),
+			0.0
+		    );
+
+		    vec4 n_xformed = mult(modelview_inv_t, n);
+
+		    quads_[i+1].x = float(p_xformed.x / p_xformed.w);
+		    quads_[i+1].y = float(p_xformed.y / p_xformed.w);
+		    quads_[i+1].z = float(p_xformed.z / p_xformed.w);
+
+		    quads_[i].x = float(n_xformed.x);
+		    quads_[i].y = float(n_xformed.y);
+		    quads_[i].z = float(n_xformed.z);
+		}
+		quads_pointer_ = quads_.size();
+	    }
+
+	    /**
+	     * \brief needs to be called at the end of each frame.
+	     * \details In transparent mode, sorts and draws all the stored
+	     *  transparent quads in back to front order.
+	     */
+	    void end_frame() {
+
+		if(!transparent_) {
+		    return;
+		}
+
+		index_t nb_quads = quads_.size()/8;
+
+		// sort the quads in back to front order
+		quads_order_.resize(nb_quads);
+		for(index_t i=0; i<quads_order_.size(); ++i) {
+		    quads_order_[i] = i;
+		}
+
+		std::sort(
+		    quads_order_.begin(), quads_order_.end(),
+		    [this](index_t i, index_t j)->bool{
+			// compares the avg depth of both quads
+			float z1 =
+			    quads_[8*i+1].z +
+			    quads_[8*i+3].z +
+			    quads_[8*i+5].z +
+			    quads_[8*i+7].z ;
+			float z2 =
+			    quads_[8*j+1].z +
+			    quads_[8*j+3].z +
+			    quads_[8*j+5].z +
+			    quads_[8*j+7].z ;
+			return (z1 < z2);
+		    }
+		);
+
+		// set ModelView matrix to identity (quads are
+		// pre-transformed)
+		glupMatrixMode(GLUP_MODELVIEW_MATRIX);
+		glupPushMatrix();
+		glupLoadIdentity();
+
+		// draw the quads in back to front order
+		// (glupPrivateXXX are just faster inline versions of glupXXX)
+		glupBegin(GLUP_QUADS);
+		for(index_t i=0; i<quads_order_.size(); i++) {
+		    index_t q = quads_order_[i];
+		    glupPrivateNormal3fv(quads_[8*q  ].data());
+		    glupPrivateVertex3fv(quads_[8*q+1].data());
+		    glupPrivateNormal3fv(quads_[8*q+2].data());
+		    glupPrivateVertex3fv(quads_[8*q+3].data());
+		    glupPrivateNormal3fv(quads_[8*q+4].data());
+		    glupPrivateVertex3fv(quads_[8*q+5].data());
+		    glupPrivateNormal3fv(quads_[8*q+6].data());
+		    glupPrivateVertex3fv(quads_[8*q+7].data());
+		}
+		glupEnd();
+
+		// restore ModelView matrix
+		glupPopMatrix();
+	    }
+
+	private:
+	    vector<vec3f> quads_;
+	    vector<index_t> quads_order_;
+	    index_t quads_pointer_;
+	    bool transparent_;
+	};
+
     private:
-        double time_;   
-        
+        double time_;
+
         int nb_strips_;
         int nb_hemispheres_to_display_;
         int nb_strips_to_display_;
@@ -385,19 +587,21 @@ namespace {
         // Stores all the vertices used to render the sphere.
         // Elements in the array are arranged by [latitude][longitude][coord].
         vector<float> vertices_;
-	vector<float> normals_;
-        
+        vector<float> normals_;
+
         bool vertices_dirty_; // If true, need to regenerate vertices.
 
         bool show_half_strips_;
-        
+
         RenderingStyle rendering_style_;
         float alpha;
 
         bool bend_cylinder_;
         bool textured_;
+
+	QuadsBuffer quads_;
     };
-    
+
     /**
      * \brief Porting Michael Mc Guffin's implementation
      *  of sphere eversion to GLUP.
@@ -405,12 +609,11 @@ namespace {
     class DemoEvertApplication : public SimpleApplication {
     public:
 
-        
+
         /**
          * \brief DemoGlupApplication constructor.
          */
         DemoEvertApplication() : SimpleApplication("Evert") {
-            
             // Define the 3d region that we want to display
             // (xmin, ymin, zmin, xmax, ymax, zmax)
             set_region_of_interest(-1.0, -1.0, -1.0, 1.0, 1.0, 1.0);
@@ -432,7 +635,7 @@ namespace {
             bend_cylinder_ = false;
             textured_ = false;
             texture_ = 0;
-	    smooth_ = true;
+            smooth_ = true;
         }
 
         /**
@@ -442,72 +645,72 @@ namespace {
             if(texture_ != 0) {
                 glDeleteTextures(1,&texture_);
             }
-	    SimpleApplication::GL_terminate();
+            SimpleApplication::GL_terminate();
         }
-        
+
         /**
          * \brief Displays and handles the GUI for object properties.
          * \details Overloads Application::draw_object_properties().
          */
         void draw_object_properties() override {
-	    SimpleApplication::draw_object_properties();
-	    
+            SimpleApplication::draw_object_properties();
+
             ImGui::SliderFloat("spd.", &anim_speed_, 0.02f, 2.0f, "%.2f");
-	    ImGui::Tooltip("animation speed");
-            
+            ImGui::Tooltip("animation speed");
+
             ImGui::SliderFloat("time", &time_, 0.0f, 1.0f, "%.2f");
-            
+
             ImGui::Combo("style", (int*)&style_,
                          "points\0polygons\0checkered\0bands\0\0"
-            );
+                        );
             if(style_ == EvertableSphere::STYLE_POINTS) {
                 ImGui::SliderFloat("ptsz", &point_size_, 1.0f, 20.0f, "%.1f");
-		ImGui::Tooltip("point size");
+                ImGui::Tooltip("point size");
             } else {
                 ImGui::Checkbox("mesh", &mesh_);
                 ImGui::SliderFloat("shrk", &shrink_, 0.0f, 1.0f, "%.2f");
-		ImGui::Tooltip("polygons shrink");
+                ImGui::Tooltip("polygons shrink");
             }
 
             ImGui::Checkbox("half sphere", &half_sphere_);
-	    ImGui::Tooltip("hide one half of the sphere");
-            
+            ImGui::Tooltip("hide one half of the sphere");
+
             ImGui::Checkbox("half strips", &half_strips_);
-	    ImGui::Tooltip("hide one half of each corrugation");
-            
+            ImGui::Tooltip("hide one half of each corrugation");
+
             ImGui::SliderFloat(
                 "prop", &proportion_strips_to_display_,
                 0.0f, 1.0f, "%.2f"
             );
-	    ImGui::Tooltip("cheese-proportion of the corrugations to draw");
-            
+            ImGui::Tooltip("cheese-proportion of the corrugations to draw");
+
             ImGui::SliderInt("strp", &nb_strips_, 1, 50);
-	    ImGui::Tooltip(
-                    "number of corrugations \n"
-                    "(if <8, smoothness is not guaranteed)"
+            ImGui::Tooltip(
+                "number of corrugations \n"
+                "(if <8, smoothness is not guaranteed)"
             );
-            
+
             ImGui::SliderInt("lon.", &res_longitude_, 12, 200);
-	    ImGui::Tooltip("number of longitudinal subdivisions");
-	    
+            ImGui::Tooltip("number of longitudinal subdivisions");
+
             ImGui::SliderInt("lat.", &res_latitude_, 12, 200);
-	    ImGui::Tooltip("number of latitudinal subdivisions");
+            ImGui::Tooltip("number of latitudinal subdivisions");
 
             if(ImGui::Checkbox("textured", &textured_)) {
                 sphere_.set_textured(textured_);
             }
-            
-            /*
-            ImGui::Checkbox("transparent", &transparent_);
-            if(transparent_) {
-                ImGui::SliderFloat("opac.", &alpha_, 0.0f, 1.0f, "%.2f");
-            }
-            */
+
+	    ImGui::Checkbox("transparent", &transparent_);
+	    if(transparent_) {
+		ImGui::SliderFloat("opac.", &alpha_, 0.0f, 1.0f, "%.2f");
+	    }
+	    sphere_.set_transparent(transparent_);
+
             ImGui::Checkbox("cylinder", &bend_cylinder_);
-	    ImGui::Tooltip(
-		"display sphere<->cylinder morph\n"
-		"instead of sphere eversion\n"
-		"(not as cool, but cool enough)\n"
+            ImGui::Tooltip(
+                "display sphere<->cylinder morph\n"
+                "instead of sphere eversion\n"
+                "(not as cool, but cool enough)\n"
             );
             ImGui::Checkbox("smooth", &smooth_);
         }
@@ -528,9 +731,9 @@ namespace {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexImage2Dxpm(uv);
-	    start_animation();
+            start_animation();
         }
-        
+
         /**
          * \brief Draws the everting sphere.
          */
@@ -542,26 +745,28 @@ namespace {
                 );
                 time_ = 0.5f * (time_ + 1.0f);
             }
-	    
+
             if(transparent_) {
                 glEnable(GL_BLEND);
+                glBlendEquation(GL_FUNC_ADD);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 sphere_.set_alpha(alpha_);
             } else {
-                glDisable(GL_BLEND);                
+                glDisable(GL_BLEND);
             }
-            
+
             if(mesh_) {
                 glupEnable(GLUP_DRAW_MESH);
             } else {
-                glupDisable(GLUP_DRAW_MESH);                
+                glupDisable(GLUP_DRAW_MESH);
             }
 
-	    if(smooth_) {
-		glupEnable(GLUP_VERTEX_NORMALS);
-	    } else {
-		glupDisable(GLUP_VERTEX_NORMALS);		
-	    }
-	    
+            if(smooth_) {
+                glupEnable(GLUP_VERTEX_NORMALS);
+            } else {
+                glupDisable(GLUP_VERTEX_NORMALS);
+            }
+
             if(textured_) {
                 glupEnable(GLUP_TEXTURING);
                 glActiveTexture(GL_TEXTURE0 + GLUP_TEXTURE_2D_UNIT);
@@ -571,7 +776,7 @@ namespace {
             } else {
                 glupDisable(GLUP_TEXTURING);
             }
-            
+
             glupSetCellsShrink(shrink_);
             glupSetPointSize(point_size_);
             sphere_.set_time(double(time_));
@@ -589,26 +794,26 @@ namespace {
         }
 
         void draw_about() override {
-            ImGui::Separator();            
+            ImGui::Separator();
             if(ImGui::BeginMenu("About...")) {
                 ImGui::Text(
                     "     Animated Sphere Eversion\n"
                 );
                 ImGui::Separator();
-                ImGui::Text(                
+                ImGui::Text(
                     "  Based on the original program by\n"
                     "      Nathaniel Thurston and\n"
-                    "        Michael McGuffin\n" 
+                    "        Michael McGuffin\n"
                     "\n"
-                    );
+                );
                 ImGui::Text(
                     "www.dgp.toronto.edu/~mjmcguff/eversion"
                 );
                 ImGui::Separator();
                 ImGui::Text("\n");
-		float sz = float(280.0 * std::min(scaling(), 2.0));		
+                float sz = float(280.0 * std::min(scaling(), 2.0));
                 ImGui::Image(
-                    convert_to_ImTextureID(geogram_logo_texture_),
+                    static_cast<ImTextureID>(geogram_logo_texture_),
                     ImVec2(sz, sz)
                 );
                 ImGui::Text("\n");
@@ -622,7 +827,7 @@ namespace {
                 ImGui::EndMenu();
             }
         }
-	
+
     private:
         EvertableSphere sphere_;
         float time_;
@@ -635,16 +840,16 @@ namespace {
         int res_longitude_;
         int res_latitude_;
         int nb_strips_;
-        bool half_sphere_;        
+        bool half_sphere_;
         bool half_strips_;
         float proportion_strips_to_display_;
         bool transparent_;
         float alpha_;
         bool textured_;
         GLuint texture_;
-	bool smooth_;
+        bool smooth_;
     };
-      
+
 }
 
 int main(int argc, char** argv) {

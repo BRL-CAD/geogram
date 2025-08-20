@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -71,10 +71,12 @@ namespace GEO {
      * \param[in] adjust if set, call mesh_adjust_surface() to improve
      *  the placement of the points in such a way that the facets of
      *  \p M_out better approximate \p M_in
-     * \param[in] adjust_max_edge_distance distance along which 
-     *  searching for nearest vertex, relative to average 
-     *  edge length in the neighborhood of the considered 
+     * \param[in] adjust_max_edge_distance distance along which
+     *  searching for nearest vertex, relative to average
+     *  edge length in the neighborhood of the considered
      *  vertex
+     * \param[in] adjust_border_importance importance of the least-squares
+     *  fitting term for smoothly projecting vertices on the border.
      *
      * Example 1 - isotropic remesh:
      * \code
@@ -94,8 +96,9 @@ namespace GEO {
         index_t nb_Lloyd_iter = 5,
         index_t nb_Newton_iter = 30,
         index_t Newton_m = 7,
-	bool adjust = true,
-	double adjust_max_edge_distance=0.5
+        bool adjust = true,
+        double adjust_max_edge_distance=0.5,
+	double adjust_border_importance=2.0
     );
 
     /**
@@ -103,25 +106,28 @@ namespace GEO {
      *  minimizes its distance to a reference surface mesh
      * \param[in,out] surface the surface mesh to be adjusted
      * \param[in] reference the reference surface mesh
-     * \param[in] max_edge_distance distance along which 
-     *  searching for nearest vertex, relative to average 
-     *  edge length in the neighborhood of the considered 
+     * \param[in] max_edge_distance distance along which
+     *  searching for nearest vertex, relative to average
+     *  edge length in the neighborhood of the considered
      *  vertex
      * \param[in] project_borders if set, in a final post-processing,
      *  project the vertices on the border of the surface onto the
      *  borders of the reference surface. Whereas it improves a bit
      *  the borders, it results in a worse approximation on the facets
      *  adjacent to the border, hence it is off by default
+     * \param[in] border_importance importance of the least-squares fitting
+     *  term for smoothly projecting vertices on the border, when project_borders
+     *  is not set
      * \details Internally it uses an AABB, hence the order
      *  of the facets of \p reference can be changed.
      */
     void GEOGRAM_API mesh_adjust_surface(
-	Mesh& surface,
-	Mesh& reference,
-	double max_edge_distance=0.5,
-	bool project_borders=false
+        Mesh& surface,
+        Mesh& reference,
+        double max_edge_distance=0.5,
+        bool project_borders=false,
+	double border_importance=2.0
     );
 }
 
 #endif
-

@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -68,59 +68,66 @@ namespace GEO {
      */
     class GEOGRAM_API Stopwatch {
     public:
-        /**
-         * \brief Stopwatch constructor
-         * \param[in] task_name name of the job to measure. This name is
-         * used as a Logger feature when displaying the elapsed time.
-	 * \param[in] verbose if true, then elapsed time is displayed
-	 *  when this Stopwatch is destroyed, else nothing is displayed.
-         */
-        Stopwatch(const std::string& task_name, bool verbose=true);
+    /**
+     * \brief Stopwatch constructor
+     * \param[in] task_name name of the job to measure. This name is
+     * used as a Logger feature when displaying the elapsed time.
+     * \param[in] verbose if true, then elapsed time is displayed
+     *  when this Stopwatch is destroyed, else nothing is displayed.
+     */
+    Stopwatch(const std::string& task_name, bool verbose=true);
 
 
-        /**
-         * \brief Stopwatch constructor
-         * \details Constructs a silent (verbose=false) Stopwatch
-         */
-        Stopwatch();
-        
-        /**
-         * \brief Get the user elapsed time
-         * \details Returns the user time elapsed since the StopWatch
-         * construction (in seconds)
-         */
-        double elapsed_time() const;
+    /**
+     * \brief Stopwatch constructor
+     * \details Constructs a silent (verbose=false) Stopwatch
+     */
+    Stopwatch();
 
-        /**
-         * \brief Stopwatch destructor
-         * \details This prints the time elapsed since the Stopwatch
-         * construction
-         */
-        ~Stopwatch();
+    /**
+     * \brief Get the user elapsed time
+     * \details Returns the user time elapsed since the StopWatch
+     * construction (in seconds)
+     */
+    double elapsed_time() const;
 
-        /**
-         * \details Gets the current time since epoch (in seconds).
-         */
-        static double now();
+    /**
+     * \brief Stopwatch destructor
+     * \details This prints the time elapsed since the Stopwatch
+     * construction to the Logger if verbose was set in the constructor.
+     */
+    ~Stopwatch();
 
-        /**
-         * \details Gets the total elapsed time since process start (in seconds).
-         */
-        static double process_elapsed_time() {
-            return now() - process_start_time_;
-        }
-        
-        static void initialize();
-        static void show_stats();
-        
+
+    /**
+     * \brief Prints elapsed time to the Logger since the Stopwatch
+     * construction.
+     * \details Always print, even if verbose was not set in the constructor.
+     */
+    void print_elapsed_time();
+
+    /**
+     * \details Gets the current time since epoch (in seconds).
+     */
+    static double now();
+
+    /**
+     * \details Gets the total elapsed time since process start (in seconds).
+     */
+    static double process_elapsed_time() {
+        return now() - process_start_time_;
+    }
+
+    static void initialize();
+    static void show_stats();
+
     private:
-        static double process_start_time_;
-        static bool global_stats_;
-        std::chrono::time_point<std::chrono::system_clock> start_;
-        std::string task_name_;
-	bool verbose_;
+    static double process_start_time_;
+    static bool global_stats_;
+    std::chrono::time_point<std::chrono::system_clock> start_;
+    std::string task_name_;
+    bool verbose_;
     };
 }
 
 #endif
-

@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -36,7 +36,7 @@
  *     FRANCE
  *
  */
- 
+
 
 #ifndef H_OGF_IMAGE_TYPES_COLOR_H
 #define H_OGF_IMAGE_TYPES_COLOR_H
@@ -124,7 +124,7 @@ namespace GEO {
          */
         T a() const {
             return superclass::w;
-        }        
+        }
 
         /**
          * \brief Sets the red component.
@@ -157,7 +157,7 @@ namespace GEO {
         void set_a(T a) {
             superclass::w = a;
         }
-        
+
     };
 
     /**
@@ -166,8 +166,28 @@ namespace GEO {
      *  number between 0.0 and 1.0.
      */
     typedef GenColor<Numeric::float64> Color;
+
+    /**
+     * \brief Constructs a color from hue, saturation and lightness
+     * \param[in] h hue, in [0.0,1.0]
+     * \param[in] s saturation, in [0.0,1.0]
+     * \param[in] l lightness, in [0.0,1.0]
+     * \return a Color encoded in r,g,b with double-precision numbers. Alpha
+     *  component is set to 1.0
+     */
+    Color GEOGRAM_API make_color_from_hsl(double h, double s, double l);
+
+    /**
+     * \brief Constructs a random color
+     * \param[in] min_h , max_h range for hue (use [0.0, 1.0] for whole spectrum)
+     * \param[in] min_s , max_s range for saturation, in [0.0, 1.0]
+     * \param[in] min_l , max_l range for lightness, in [0.0, 1.0]
+     */
+    Color GEOGRAM_API make_random_color(
+	double min_h=0.0,   double max_h=1.0,
+	double min_s=0.165, double max_s=0.4,
+	double min_l=0.4,   double max_l=0.8
+    );
 }
 
 #endif
-
-

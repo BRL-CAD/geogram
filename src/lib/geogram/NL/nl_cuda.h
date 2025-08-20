@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -58,7 +58,7 @@
  *   dynamically loaded and all functions could be
  *   found in it.
  * \retval NL_FALSE otherwise.
- * \note For now, only implemented under Linux in 
+ * \note For now, only implemented under Linux in
  *  dynamic libraries mode.
  */
 NLboolean nlInitExtension_CUDA(void);
@@ -90,6 +90,20 @@ NLMatrix nlCUDAMatrixNewFromCRSMatrix(NLMatrix M);
  * \return a handle to the created CUDA matrix.
  */
 NLMatrix nlCUDAJacobiPreconditionerNewFromCRSMatrix(NLMatrix M);
+
+/**
+ * \brief Computes a sparse matrix vector product
+ * \details Computes \f$ y \leftarrow alpha M x + beta y \f$
+ *   As compared to NL abstract matrix API, it has the \p alpha and \p beta
+ *   parameters.
+ * \param[in] M a matrix created from nlCUDAMAtrixNewFromCRSMatrix()
+ * \param[in] x device pointer
+ * \param[in,out] y device pointer
+ * \param[in] alpha , beta two scalars
+ */
+void nlCUDAMatrixSpMV(
+    NLMatrix M, const double* x, double* y, double alpha, double beta
+);
 
 /**
  * \brief Gets a pointer to the BLAS abstraction layer for

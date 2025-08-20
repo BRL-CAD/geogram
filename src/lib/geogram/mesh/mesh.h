@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -43,7 +43,16 @@
 #include <geogram/basic/common.h>
 #include <geogram/basic/range.h>
 #include <geogram/basic/attributes.h>
+#include <geogram/basic/vector_attribute.h>
 #include <geogram/basic/geometry.h>
+#include <tuple>
+
+// GOMGEN (Graphite's pre-processor) does not understand
+// modern C++ (but it is not a big drama since it is just
+// used to generate the GUI).
+#ifdef GOMGEN
+#define MESH_NO_SYNTAXIC_SUGAR
+#endif
 
 /**
  * \file geogram/mesh/mesh.h
@@ -59,7 +68,7 @@ namespace GEO {
     static constexpr index_t NO_FACET  = NO_INDEX;
     static constexpr index_t NO_CELL   = NO_INDEX;
     static constexpr index_t NO_CORNER = NO_INDEX;
-    
+
     /**
      * \brief Base class for mesh sub-element storage.
      * \details Sub-elements are those that cannot exist
@@ -70,164 +79,164 @@ namespace GEO {
     class GEOGRAM_API MeshSubElementsStore {
     public:
 
-        /**
-         * \brief Constructs a new MeshSubElementStore.
-         * \param[in] mesh a reference to the mesh
-         *  this MeshElementStore belongs to.
-         */
-        MeshSubElementsStore(Mesh& mesh);
+    /**
+     * \brief Constructs a new MeshSubElementStore.
+     * \param[in] mesh a reference to the mesh
+     *  this MeshElementStore belongs to.
+     */
+    MeshSubElementsStore(Mesh& mesh);
 
-        /**
-         * \brief MeshElementStore destructor.
-         */
-        virtual ~MeshSubElementsStore();
+    /**
+     * \brief MeshElementStore destructor.
+     */
+    virtual ~MeshSubElementsStore();
 
-        /**
-         * \brief Gets the number of (sub-)elements.
-         * \return the number of (sub-)elements in this store
-         */
-        index_t nb() const {
-            return nb_;
-        }
+    /**
+     * \brief Gets the number of (sub-)elements.
+     * \return the number of (sub-)elements in this store
+     */
+    index_t nb() const {
+        return nb_;
+    }
 
-        /**
-         * \brief Gets the attributes manager.
-         * \details The returned reference is not a const one,
-         *  so that attributes can be bound / unbound / accessed
-         *  even if the mesh is const.
-         * \return a modifiable reference to the attributes manager.
-         */
-        AttributesManager& attributes() const {
-            return const_cast<AttributesManager&>(attributes_);
-        }
+    /**
+     * \brief Gets the attributes manager.
+     * \details The returned reference is not a const one,
+     *  so that attributes can be bound / unbound / accessed
+     *  even if the mesh is const.
+     * \return a modifiable reference to the attributes manager.
+     */
+    AttributesManager& attributes() const {
+        return const_cast<AttributesManager&>(attributes_);
+    }
 
-        /**
-	 * \brief Used by range-based for.
-	 * \return The index of the first position.
-	 */
-        index_as_iterator begin() const {
-	    return index_as_iterator(0);
-	}
+    /**
+     * \brief Used by range-based for.
+     * \return The index of the first position.
+     */
+    index_as_iterator begin() const {
+        return index_as_iterator(0);
+    }
 
-        /**
-	 * \brief Used by range-based for.
-	 * \return The index of one position past the last position.
-	 */
-        index_as_iterator end() const {
-	    return index_as_iterator(nb());
-	}
-    
+    /**
+     * \brief Used by range-based for.
+     * \return The index of one position past the last position.
+     */
+    index_as_iterator end() const {
+        return index_as_iterator(nb());
+    }
+
     protected:
-        
-        /**
-         * \brief Removes all the elements and attributes.
-         * \param[in] keep_attributes if true, then all the
-         *  existing attribute names / bindings are kept (but 
-         *  they are cleared). If false, they are destroyed.
-         * \param[in] keep_memory if true, then memory is
-         *  kept and can be reused by subsequent mesh
-         *  element creations.
-         */
-        virtual void clear_store(
-            bool keep_attributes, bool keep_memory = false
-        );
 
-        /**
-         * \brief Resizes this MeshSubElementsStore.
-         * \details On exit, nb() == new_size, elements are
-         *  created or destroyed if needed.
-         * \param[in] new_size the desired size
-         */
-        virtual void resize_store(index_t new_size);
+    /**
+     * \brief Removes all the elements and attributes.
+     * \param[in] keep_attributes if true, then all the
+     *  existing attribute names / bindings are kept (but
+     *  they are cleared). If false, they are destroyed.
+     * \param[in] keep_memory if true, then memory is
+     *  kept and can be reused by subsequent mesh
+     *  element creations.
+     */
+    virtual void clear_store(
+        bool keep_attributes, bool keep_memory = false
+    );
+
+    /**
+     * \brief Resizes this MeshSubElementsStore.
+     * \details On exit, nb() == new_size, elements are
+     *  created or destroyed if needed.
+     * \param[in] new_size the desired size
+     */
+    virtual void resize_store(index_t new_size);
 
 
-        /**
-         * \brief Reserves space for new elements
-         * \param[in] nb_to_reserve the number of subelements to reserve
-         */
-        void reserve_store(index_t nb_to_reserve) {
-            index_t nb = this->nb();
-            resize_store(nb + nb_to_reserve);
-            resize_store(nb);
-        }
-        
-        /**
-         * \brief Creates a contiguous chunk of attributes for sub-elements.
-         * \param[in] nb number of sub-elements to create
-         * \return the index of the first created sub-element
-         */
-        index_t create_sub_elements(index_t nb) {
-            index_t result = nb_;
-            if(nb_ + nb > attributes_.size()) {
-                index_t new_capacity=nb_ + nb;
-                if(nb < 128) {
-                    new_capacity = std::max(index_t(16),attributes_.size());
-                    while(new_capacity < nb_ + nb) {
-                        new_capacity *= 2;
-                    }
+    /**
+     * \brief Reserves space for new elements
+     * \param[in] nb_to_reserve the number of subelements to reserve
+     */
+    void reserve_store(index_t nb_to_reserve) {
+        index_t nb = this->nb();
+        resize_store(nb + nb_to_reserve);
+        resize_store(nb);
+    }
+
+    /**
+     * \brief Creates a contiguous chunk of attributes for sub-elements.
+     * \param[in] nb number of sub-elements to create
+     * \return the index of the first created sub-element
+     */
+    index_t create_sub_elements(index_t nb) {
+        index_t result = nb_;
+        if(nb_ + nb > attributes_.size()) {
+            index_t new_capacity=nb_ + nb;
+            if(nb < 128) {
+                new_capacity = std::max(index_t(16),attributes_.size());
+                while(new_capacity < nb_ + nb) {
+                    new_capacity *= 2;
                 }
-                attributes_.reserve(new_capacity);
             }
-            nb_ += nb;
-	    attributes_.resize(nb_);
-            return result;
+            attributes_.reserve(new_capacity);
         }
+        nb_ += nb;
+        attributes_.resize(nb_);
+        return result;
+    }
 
-        /**
-         * \brief Creates attributes for a sub-element
-         * \return the index of the created element
-         */
-        index_t create_sub_element() {
-            index_t result = nb_;
-            ++nb_;
-            if(attributes_.capacity() < nb_) {
-                index_t new_capacity =
-		    std::max(index_t(16),attributes_.capacity()*2);
-		attributes_.reserve(new_capacity);
-            }
-	    attributes_.resize(nb_);
-            return result;
+    /**
+     * \brief Creates attributes for a sub-element
+     * \return the index of the created element
+     */
+    index_t create_sub_element() {
+        index_t result = nb_;
+        ++nb_;
+        if(attributes_.capacity() < nb_) {
+            index_t new_capacity =
+                std::max(index_t(16),attributes_.capacity()*2);
+            attributes_.reserve(new_capacity);
         }
+        attributes_.resize(nb_);
+        return result;
+    }
 
-        /**
-         * \brief Makes the size of the store tightly match
-         *   the number of the elements.
-         * \details When elements are created one by one, the
-         *   system may allocate more memory than necessary, to
-         *   amortize the cost of container reallocation. Once
-         *   the object is constructed, this function may be called
-         *   to release the memory that was not used.
-         */
-        void adjust_store() {
-            attributes_.resize(nb_);
-        }
+    /**
+     * \brief Makes the size of the store tightly match
+     *   the number of the elements.
+     * \details When elements are created one by one, the
+     *   system may allocate more memory than necessary, to
+     *   amortize the cost of container reallocation. Once
+     *   the object is constructed, this function may be called
+     *   to release the memory that was not used.
+     */
+    void adjust_store() {
+        attributes_.resize(nb_);
+    }
 
-        /**
-         * \brief Copies a MeshSubElementsStore into
-         *   this one.
-         * \param[in] rhs a const reference to the 
-         *   MeshSubElementsStore to be copied.
-         * \param[in] copy_attributes if true, copies
-         *   also the attributes, else attributes are
-         *   cleared.
-         */
-        void copy(
-            const MeshSubElementsStore& rhs,
-            bool copy_attributes = true
-        ) {
-            nb_ = rhs.nb();
-            if(copy_attributes) {
-                attributes_.copy(rhs.attributes_);
-            } else {
-                attributes_.clear(false,false);
-                attributes_.resize(rhs.attributes_.size());
-            }
+    /**
+     * \brief Copies a MeshSubElementsStore into
+     *   this one.
+     * \param[in] rhs a const reference to the
+     *   MeshSubElementsStore to be copied.
+     * \param[in] copy_attributes if true, copies
+     *   also the attributes, else attributes are
+     *   cleared.
+     */
+    void copy(
+        const MeshSubElementsStore& rhs,
+        bool copy_attributes = true
+    ) {
+        nb_ = rhs.nb();
+        if(copy_attributes) {
+            attributes_.copy(rhs.attributes_);
+        } else {
+            attributes_.clear(false,false);
+            attributes_.resize(rhs.attributes_.size());
         }
-        
+    }
+
     protected:
-        Mesh& mesh_;
-        AttributesManager attributes_;
-        index_t nb_;
+    Mesh& mesh_;
+    AttributesManager attributes_;
+    index_t nb_;
     };
 
 
@@ -242,71 +251,71 @@ namespace GEO {
      */
     class GEOGRAM_API MeshElements {
     public:
-        MeshElements();
-        virtual ~MeshElements();
+    MeshElements();
+    virtual ~MeshElements();
 
-        /**
-         * \brief Deletes a set of elements.
-         * \param[in] to_delete a vector of size nb(). If to_delete[e]
-         *  is different from 0, then element e will be destroyed, else
-         *  it will be kept. On exit, to_delete is modified (it is used
-         *  for internal bookkeeping).
-         * \param[in] remove_isolated_vertices if true, then the vertices
-         *  that are no longer incident to any element are deleted.
-         */
-        virtual void delete_elements(
-            vector<index_t>& to_delete,
-            bool remove_isolated_vertices=true
-        ) = 0;
+    /**
+     * \brief Deletes a set of elements.
+     * \param[in] to_delete a vector of size nb(). If to_delete[e]
+     *  is different from 0, then element e will be destroyed, else
+     *  it will be kept. On exit, to_delete is modified (it is used
+     *  for internal bookkeeping).
+     * \param[in] remove_isolated_vertices if true, then the vertices
+     *  that are no longer incident to any element are deleted.
+     */
+    virtual void delete_elements(
+        vector<index_t>& to_delete,
+        bool remove_isolated_vertices=true
+    ) = 0;
 
-        /**
-         * \brief Applies a permutation to the elements and their attributes.
-         * \details On exit, permutation is modified (used for internal
-         *  bookkeeping). Applying a permutation \p permutation is equivalent 
-         * to:
-         * \code
-         * for(i=0; i<permutation.size(); i++) {
-         *    data2[i] = data[permutation[i]]
-         * }
-         * data = data2 ;
-         * \endcode
-         */
-        virtual void permute_elements(vector<index_t>& permutation) = 0;
+    /**
+     * \brief Applies a permutation to the elements and their attributes.
+     * \details On exit, permutation is modified (used for internal
+     *  bookkeeping). Applying a permutation \p permutation is equivalent
+     * to:
+     * \code
+     * for(i=0; i<permutation.size(); i++) {
+     *    data2[i] = data[permutation[i]]
+     * }
+     * data = data2 ;
+     * \endcode
+     */
+    virtual void permute_elements(vector<index_t>& permutation) = 0;
 
-        /**
-         * \brief Removes all the elements and attributes.
-         * \param[in] keep_attributes if true, then all the
-         *  existing attribute names / bindings are kept (but 
-         *  they are cleared). If false, they are destroyed.
-         * \param[in] keep_memory if true, then memory is
-         *  kept and can be reused by subsequent mesh
-         *  element creations.
-         */
-        virtual void clear(
-            bool keep_attributes=true, bool keep_memory=false
-        ) = 0;
+    /**
+     * \brief Removes all the elements and attributes.
+     * \param[in] keep_attributes if true, then all the
+     *  existing attribute names / bindings are kept (but
+     *  they are cleared). If false, they are destroyed.
+     * \param[in] keep_memory if true, then memory is
+     *  kept and can be reused by subsequent mesh
+     *  element creations.
+     */
+    virtual void clear(
+        bool keep_attributes=true, bool keep_memory=false
+    ) = 0;
 
-        /**
-         * \brief Removes the last element.
-         */
-        virtual void pop() = 0;
-        
+    /**
+     * \brief Removes the last element.
+     */
+    virtual void pop() = 0;
+
     protected:
-        /**
-         * \brief Tests whether a vector contains a non-zero value.
-         * \details This function is used internally by delete_elements()
-         * \param[in] I a vector of signed integers
-         * \retval true if \p I contains at least a non-zero value
-         * \retval false otherwise
-         */
-        static bool has_non_zero(const GEO::vector<index_t>& I) {
-            for(index_t i = 0; i < I.size(); i++) {
-                if(I[i] != 0) {
-                    return true;
-                }
+    /**
+     * \brief Tests whether a vector contains a non-zero value.
+     * \details This function is used internally by delete_elements()
+     * \param[in] I a vector of signed integers
+     * \retval true if \p I contains at least a non-zero value
+     * \retval false otherwise
+     */
+    static bool has_non_zero(const GEO::vector<index_t>& I) {
+        for(index_t i = 0; i < I.size(); i++) {
+            if(I[i] != 0) {
+                return true;
             }
-            return false;
         }
+        return false;
+    }
     };
 
     /**************************************************************************/
@@ -330,11 +339,11 @@ namespace GEO {
          *  incident to them.
          */
         void remove_isolated();
-        
+
         void delete_elements(
             vector<index_t>& to_delete, bool remove_isolated_vertices=true
         ) override;
-        
+
         void permute_elements(vector<index_t>& permutation) override;
 
         /**
@@ -366,7 +375,20 @@ namespace GEO {
             }
             return result;
         }
-        
+
+	/**
+	 * \brief Creates a vertex from a 3d point
+	 * \param[in] p a const reference to the 3d point
+	 * \return the index of the created vertex
+	 * \pre dimension() == 3
+	 */
+	template <index_t DIM> index_t create_vertex(
+	    const vecng<DIM,double>& p
+	) {
+	    geo_debug_assert(dimension() == DIM);
+	    return create_vertex(p.data());
+	}
+
         /**
          * \brief Creates a contiguous chunk of vertices.
          * \param[in] nb number of sub-elements to create
@@ -384,7 +406,7 @@ namespace GEO {
          * \brief Sets single precision mode.
          * \details Single-precision mode is used for instance
          *  by Vorpaview, to make it more memory efficient.
-         *  Existing point coordinates are copied and converted to 
+         *  Existing point coordinates are copied and converted to
          *  single precision.
          */
         void set_single_precision();
@@ -394,11 +416,11 @@ namespace GEO {
          * \details Double precision mode is the default.
          *  Single-precision mode is used for instance
          *  by Vorpaview, to make it more memory efficient.
-         *  Existing point coordinates are copied and converted to 
+         *  Existing point coordinates are copied and converted to
          *  double precision.
          */
         void set_double_precision();
-        
+
         /**
          * \brief Tests whether vertices are stored in
          *  single-precision mode.
@@ -419,7 +441,7 @@ namespace GEO {
         bool double_precision() const {
             return point_.is_bound();
         }
-        
+
         /**
          * \brief Gets the dimension of the vertices.
          * \return the number of coordinates in each vertex
@@ -466,7 +488,7 @@ namespace GEO {
          * \pre !single_precision()
          */
         double* point_ptr(index_t v) {
-            geo_debug_assert(v < nb());            
+            geo_debug_assert(v < nb());
             geo_debug_assert(!single_precision());
             return &point_[v*point_.dimension()];
         }
@@ -475,35 +497,41 @@ namespace GEO {
         /**
          * \brief Gets a point
          * \param[in] v the vertex, in 0..nb()-1
-         * \return a modifiable reference to the point 
+         * \return a modifiable reference to the point
          *  that corresponds to the vertex
          * \pre !single_precision()
          */
-        vec3& point(index_t v) {
-            geo_debug_assert(v < nb());            
+        template<index_t DIM=3> vecng<DIM,double>& point(index_t v) {
+            geo_debug_assert(v < nb());
             geo_debug_assert(!single_precision());
-            geo_debug_assert(dimension() >= 3);
-            return *(vec3*)(&point_[v*point_.dimension()]);
+            geo_debug_assert(dimension() >= DIM);
+            return *reinterpret_cast<vecng<DIM,double>*>(
+		&point_[v*point_.dimension()]
+	    );
         }
 
         /**
          * \brief Gets a point
          * \param[in] v the vertex, in 0..nb()-1
-         * \return a const reference to the point 
+         * \return a const reference to the point
          *  that corresponds to the vertex
          * \pre !single_precision()
          */
-        const vec3& point(index_t v) const {
-            geo_debug_assert(v < nb());            
+        template <index_t DIM=3> const vecng<DIM,double>& point(
+	    index_t v
+	) const {
+            geo_debug_assert(v < nb());
             geo_debug_assert(!single_precision());
-            geo_debug_assert(dimension() >= 3);
-            return *(const vec3*)(&point_[v*point_.dimension()]);
+            geo_debug_assert(dimension() >= DIM);
+            return *reinterpret_cast<const vecng<DIM,double>*>(
+		&point_[v*point_.dimension()]
+	    );
         }
-        
+
         /**
          * \brief Gets a (single-precision) point
          * \param[in] v the index of the vertex
-         * \return a const pointer to the coordinates 
+         * \return a const pointer to the coordinates
          *  of the point that corresponds to the vertex
          * \pre single_precision()
          */
@@ -533,7 +561,7 @@ namespace GEO {
          * \param[in] dim the dimension of the points, i.e. number of
          *  coordinates per point
          * \param[in] steal_arg if true, memory is stolen from \p points,
-         *  using std::vector::swap (no memory copy). 
+         *  using std::vector::swap (no memory copy).
          */
         void assign_points(
             vector<double>& points, index_t dim, bool steal_arg
@@ -542,7 +570,7 @@ namespace GEO {
         /**
          * \brief Assigns all the points.
          * \param[in] points a const pointer to the (\p dim * \p nb_pts)
-         *  coordinates of al the points 
+         *  coordinates of al the points
          * \param[in] dim the dimension of the points, i.e. number of
          *  coordinates per point
          * \param[in] nb_pts number of points
@@ -552,13 +580,49 @@ namespace GEO {
         );
 
         void pop() override;
-        
+
+#ifndef MESH_NO_SYNTAXIC_SUGAR
+
+	/**
+	 * \brief Gets the 3D points of the mesh as an iterable sequence
+	 * \details Each point is returned as a const reference
+	 */
+	template <index_t DIM = 3> auto points() const {
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		index_range(0, nb()),
+		[this](index_t v)->const vecn& {
+		    // for MSVC that cannot chose among const/non-const versions
+		    return *reinterpret_cast<const vecn*>(point_ptr(v));
+		    // return point<DIM>(v); // MSVC does not understand this one
+		}
+	    );
+	}
+
+	/**
+	 * \brief Gets the 3D points of the mesh as an iterable sequence
+	 * \details Each point is returned as a modifiable reference
+	 */
+	template <index_t DIM = 3> auto points() {
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		index_range(0, nb()),
+		[this](index_t v)->vecn& {
+		    // for MSVC that cannot chose among const/non-const versions
+		    return *reinterpret_cast<vecn*>(point_ptr(v));
+		    // return point<DIM>(v); // MSVC does not understand this one
+		}
+	    );
+	}
+
+#endif
+
     protected:
-        
+
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-	
+
         void resize_store(index_t new_size) override;
 
         void bind_point_attribute(index_t dim, bool single_precision=false);
@@ -605,7 +669,7 @@ namespace GEO {
                 }
             }
         }
-        
+
         MeshEdges& edges_;
         MeshFacetCornersStore& facet_corners_;
         MeshCellCornersStore& cell_corners_;
@@ -615,7 +679,7 @@ namespace GEO {
         friend class Mesh;
         friend class GeogramIOHandler;
     };
-    
+
     /*************************************************************************/
 
     /**
@@ -656,7 +720,7 @@ namespace GEO {
         /**
          * \brief Gets a pointer to a vertex index by corner index
          * \param[in] c corner index (2 * edge index + 0 or 1)
-         * \return a pointer to the index of the vertex. 
+         * \return a pointer to the index of the vertex.
          * \note Normal uses do not call this function
          */
         index_t* vertex_index_ptr(index_t c) {
@@ -667,7 +731,7 @@ namespace GEO {
         /**
          * \brief Gets a pointer to a vertex index by corner index
          * \param[in] c corner index (2 * edge index + 0 or 1)
-         * \return a pointer to the index of the vertex. 
+         * \return a pointer to the index of the vertex.
          * \note Normal uses do not call this function
          */
         const index_t* vertex_index_ptr(index_t c) const {
@@ -691,7 +755,7 @@ namespace GEO {
         index_t create_edges(index_t nb) {
             return create_sub_elements(nb);
         }
-        
+
         /**
          * \brief Creates a new edge
          * \param[in] v1 , v2 global indices of the vertices of the edge
@@ -707,7 +771,7 @@ namespace GEO {
         void delete_elements(
             vector<index_t>& to_delete, bool remove_isolated_vertices=true
         ) override;
-        
+
         void permute_elements(vector<index_t>& permutation) override;
 
         void clear(
@@ -715,12 +779,18 @@ namespace GEO {
         ) override;
 
         void pop() override;
-        
+
+	/**
+	 * \brief Swaps both extremities of an edge
+	 * \param[in] e the edge
+	 */
+	void flip(index_t e);
+
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-        
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element() {
@@ -738,14 +808,14 @@ namespace GEO {
             MeshSubElementsStore::copy(rhs, copy_attributes);
             edge_vertex_ = rhs.edge_vertex_;
         }
-        
+
         vector<index_t> edge_vertex_;
         friend class Mesh;
         friend class GeogramIOHandler;
     };
-    
+
     /**************************************************************************/
-    
+
     /**
      * \brief Stores the facets of a mesh (low-level store)
      * \relates MeshFacets
@@ -809,24 +879,24 @@ namespace GEO {
         bool are_simplices() const {
             return is_simplicial_;
         }
-	
+
         /**
          * \brief Gets a pointer to the first element for iterating over
          *  the corners of a facet
          * \param[in] f the facet
          * \return a pointer to the first corner of the facet
          */
-	const index_t* corners_begin_ptr(index_t f) const {
-	    geo_debug_assert(!is_simplicial_);
-	    geo_debug_assert(f < nb());
-	    return &facet_ptr_[f];
-	}
+        const index_t* corners_begin_ptr(index_t f) const {
+            geo_debug_assert(!is_simplicial_);
+            geo_debug_assert(f < nb());
+            return &facet_ptr_[f];
+        }
 
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-        
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element() {
@@ -837,7 +907,7 @@ namespace GEO {
         }
 
         index_t create_sub_elements(index_t nb) {
-            if(!is_simplicial_) {            
+            if(!is_simplicial_) {
                 for(index_t i=0; i<nb; ++i) {
                     facet_ptr_.push_back(NO_CORNER);
                 }
@@ -850,7 +920,7 @@ namespace GEO {
             is_simplicial_ = rhs.is_simplicial_;
             facet_ptr_ = rhs.facet_ptr_;
         }
-        
+
     protected:
         bool is_simplicial_;
         vector<index_t> facet_ptr_;
@@ -890,11 +960,11 @@ namespace GEO {
         }
 
         /**
-         * \brief Gets a pointer to the the facet index 
-	 *  that a corner is adjacent to
+         * \brief Gets a pointer to the the facet index
+         *  that a corner is adjacent to
          * \param[in] c the corner
-         * \return a pointer to the the facet index 
-	 *  that corner \p is adjacent to.
+         * \return a pointer to the the facet index
+         *  that corner \p is adjacent to.
          */
         const index_t* adjacent_facet_ptr(index_t c) const {
             geo_assert(c < nb());
@@ -903,17 +973,17 @@ namespace GEO {
 
 
         /**
-         * \brief Gets a pointer to the the facet index 
-	 *  that a corner is adjacent to
+         * \brief Gets a pointer to the the facet index
+         *  that a corner is adjacent to
          * \param[in] c the corner
-         * \return a pointer to the the facet index 
-	 *  that corner \p is adjacent to.
+         * \return a pointer to the the facet index
+         *  that corner \p is adjacent to.
          */
-	index_t* adjacent_facet_ptr(index_t c) {
+        index_t* adjacent_facet_ptr(index_t c) {
             geo_assert(c < nb());
             return &corner_adjacent_facet_[c];
         }
-	
+
         /**
          * \brief Sets the vertex that a corner is incident to
          * \param[in] c the corner
@@ -931,7 +1001,7 @@ namespace GEO {
          * \details Does not check whether \p v is a valid vertex
          *  index. This function is useful for some algorithms that
          *  need to create/update the facets before creating the
-         *  vertices. 
+         *  vertices.
          * \param[in] c the corner
          * \param[in] v the vertex that corner \p c is incident to
          * \note Normal uses do not call this function
@@ -977,11 +1047,36 @@ namespace GEO {
             return &(corner_vertex_[c]);
         }
 
+	/**
+	 * \brief Gets the point associated with a corner
+	 * \param[in] c the corner
+	 * \return a reference to the DIM-d point associated with the corner
+	 * \pre vertices.dimension() >= DIM
+	 */
+	template <index_t DIM=3> vecng<DIM,double>& point(index_t c) {
+	    geo_debug_assert(c < nb());
+	    return vertices_.point<DIM>(vertex(c));
+	}
+
+	/**
+	 * \brief Gets the point associated with a corner
+	 * \param[in] c the corner
+	 * \return const a reference to the DIM-d point associated with
+	 *  the corner
+	 * \pre vertices.dimension() >= DIM
+	 */
+	template <index_t DIM=3> const vecng<DIM,double>& point(
+	    index_t c
+	) const {
+	    geo_debug_assert(c < nb());
+	    return vertices_.point(vertex(c));
+	}
+
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-	
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element(index_t v, index_t f = NO_FACET) {
@@ -1007,7 +1102,7 @@ namespace GEO {
             corner_vertex_ = rhs.corner_vertex_;
             corner_adjacent_facet_ = rhs.corner_adjacent_facet_;
         }
-        
+
     protected:
         MeshVertices& vertices_;
         MeshFacetsStore& facets_;
@@ -1016,7 +1111,7 @@ namespace GEO {
 
         friend class MeshFacets;
         friend class Mesh;
-        friend class GeogramIOHandler;        
+        friend class GeogramIOHandler;
     };
 
     /*************************************************************************/
@@ -1030,7 +1125,7 @@ namespace GEO {
 
         /**
          * \brief MeshFacets constructor
-         * \param[in] mesh a reference to the mesh 
+         * \param[in] mesh a reference to the mesh
          *  this MeshFacets is attached to
          */
         MeshFacets(Mesh& mesh);
@@ -1055,6 +1150,35 @@ namespace GEO {
             return facet_corners_.vertex(corner(f,lv));
         }
 
+
+        /**
+         * \brief Gets a point by facet and local vertex index
+         * \param[in] f the facet
+         * \param[in] lv the local vertex index in \p f
+         * \return a const reference to the point corresponding to
+	 *   the \p lv%th vertex of facet \p f
+         * \pre lv < nb_vertices(f)
+         */
+	template <index_t DIM=3> const vecng<DIM,double>& point(
+	    index_t f, index_t lv
+	) const {
+	    return vertices_.point<DIM>(vertex(f,lv));
+	}
+
+        /**
+         * \brief Gets a point by facet and local vertex index
+         * \param[in] f the facet
+         * \param[in] lv the local vertex index in \p f
+         * \return a reference to the point corresponding to
+	 *   the \p lv%th vertex of facet \p f
+         * \pre lv < nb_vertices(f)
+         */
+	template <index_t DIM=3> vecng<DIM,double>& point(
+	    index_t f, index_t lv
+	) {
+	    return vertices_.point<DIM>(vertex(f,lv));
+	}
+
         /**
          * \brief Sets a vertex by facet and local vertex index
          * \param[in] f the facet
@@ -1066,21 +1190,21 @@ namespace GEO {
             facet_corners_.set_vertex(corner(f,lv),v);
         }
 
-	/**
-	 * \brief Gets the local index of a vertex in a facet.
-	 * \param[in] f a facet
-	 * \param[in] v a vertex
-	 * \return lv such that vertex(f,lv) == v or NO_VERTE if f is
-	 *  not incident to v
-	 */
-	index_t find_vertex(index_t f, index_t v) const {
-	    for(index_t lv=0; lv<nb_vertices(f); ++lv) {
-		if(vertex(f,lv) == v) {
-		    return lv;
-		}
-	    }
-	    return NO_VERTEX;
-	}
+        /**
+         * \brief Gets the local index of a vertex in a facet.
+         * \param[in] f a facet
+         * \param[in] v a vertex
+         * \return lv such that vertex(f,lv) == v or NO_VERTE if f is
+         *  not incident to v
+         */
+        index_t find_vertex(index_t f, index_t v) const {
+            for(index_t lv=0; lv<nb_vertices(f); ++lv) {
+                if(vertex(f,lv) == v) {
+                    return lv;
+                }
+            }
+            return NO_VERTEX;
+        }
 
         /**
          * \brief finds a common vertex shared by two facets
@@ -1097,39 +1221,39 @@ namespace GEO {
             }
             return NO_VERTEX;
         }
-        
+
         /**
          * \brief Gets an adjacent facet by facet and local edge index
          * \param[in] f the facet
          * \param[in] le the local index of an edge in facet \p f
-         * \return the facet incident to \p f along edge \p le or 
+         * \return the facet incident to \p f along edge \p le or
          *  NO_FACET if \p le is on the border
          */
         index_t adjacent(index_t f, index_t le) const {
             return facet_corners_.adjacent_facet(corner(f,le));
         }
 
-	/**
-	 * \brief Gets the local index of a facet adjacent to another one.
-	 * \param[in] f a facet
-	 * \param[in] f2 another facet
-	 * \return le such that adjacent(f,le) == f2 or NO_INDEX if f and f2
-	 *  are not adjacent.
-	 */
-	index_t find_adjacent(index_t f, index_t f2) const {
-	    for(index_t le=0; le<nb_vertices(f); ++le) {
-		if(adjacent(f,le) == f2) {
-		    return le;
-		}
-	    }
-	    return NO_INDEX;
-	}
-	
+        /**
+         * \brief Gets the local index of a facet adjacent to another one.
+         * \param[in] f a facet
+         * \param[in] f2 another facet
+         * \return le such that adjacent(f,le) == f2 or NO_INDEX if f and f2
+         *  are not adjacent.
+         */
+        index_t find_adjacent(index_t f, index_t f2) const {
+            for(index_t le=0; le<nb_vertices(f); ++le) {
+                if(adjacent(f,le) == f2) {
+                    return le;
+                }
+            }
+            return NO_INDEX;
+        }
+
         /**
          * \brief Sets an adjacent facet by facet and local edge index
          * \param[in] f the facet
          * \param[in] le the local index of an edge in facet \p f
-         * \param[in] f2 specifies the facet incident to \p f along edge 
+         * \param[in] f2 specifies the facet incident to \p f along edge
          *  \p le or NO_FACET if \p le is on the border
          */
         void set_adjacent(index_t f, index_t le, index_t f2) {
@@ -1169,7 +1293,7 @@ namespace GEO {
          * \return the edge le such that vertex(f,le) = v1 and
          *   vertex(f, (le+1)%nb_vertices(f)) == v2
          */
-        index_t find_edge(index_t f, index_t v1, index_t v2) {
+        index_t find_edge(index_t f, index_t v1, index_t v2) const {
             for(index_t c1 = corners_begin(f); c1 != corners_end(f); ++c1) {
                 index_t c2 = next_corner_around_facet(f,c1);
                 if(
@@ -1181,12 +1305,12 @@ namespace GEO {
             }
             return NO_INDEX;
         }
-        
+
         void delete_elements(
             vector<index_t>& to_delete,
             bool remove_isolated_vertices=true
         ) override;
-        
+
         void permute_elements(vector<index_t>& permutation) override;
 
         void clear(
@@ -1206,7 +1330,7 @@ namespace GEO {
             if(nb_vertices_per_polygon != 3) {
                 is_not_simplicial();
             }
-            
+
             index_t first_facet = nb();
             index_t co = facet_corners_.nb();
             facet_corners_.create_sub_elements(
@@ -1234,7 +1358,7 @@ namespace GEO {
             facet_corners_.reserve_store(nb_to_reserve*3);
             this->reserve_store(nb_to_reserve);
         }
-        
+
         /**
          * \brief Creates a contiguous chunk of triangles
          * \param[in] nb_triangles number of triangles to create
@@ -1249,7 +1373,7 @@ namespace GEO {
          * \param[in] nb_quads number of quads to create
          * \return the index of the first quad
          */
-         index_t create_quads(index_t nb_quads) {
+        index_t create_quads(index_t nb_quads) {
             return create_facets(nb_quads, 4);
         }
 
@@ -1284,7 +1408,7 @@ namespace GEO {
             facet_corners_.create_sub_element(v1);
             facet_corners_.create_sub_element(v2);
             facet_corners_.create_sub_element(v3);
-            facet_corners_.create_sub_element(v4);            
+            facet_corners_.create_sub_element(v4);
             index_t result = create_sub_element();
             facet_ptr_[result+1] = facet_corners_.nb();
             geo_debug_assert(facet_ptr_.size() == nb()+1);
@@ -1316,7 +1440,7 @@ namespace GEO {
         /**
          * \brief Creates a polygonal facet
          * \param[in] nb_vertices number of vertices of the facet
-         * \param[in] vertices a const pointer to the \p nb_vertices vertices 
+         * \param[in] vertices a const pointer to the \p nb_vertices vertices
          * \return the index of the created facet
          */
         index_t create_polygon(index_t nb_vertices, const index_t* vertices) {
@@ -1347,9 +1471,17 @@ namespace GEO {
 
         /**
          * \brief Connects the facets
+	 * \details Finds the adjacent_facet() links based on vertex indices
          */
-        void connect();
+	void connect();
 
+        /**
+         * \brief Connects a contiguous sequence of facets
+	 * \details Finds the adjacent_facet() links based on vertex indices
+	 * \param[in] facets_begin first facet to connect
+	 * \param[in] facets_end one position past the last facet to connect
+         */
+	void connect(index_t facets_begin, index_t facets_end);
 
         /**
          * \brief Triangulates the facets
@@ -1404,18 +1536,158 @@ namespace GEO {
 
         void pop() override;
 
-	/**
-	 * \brief Gets the corners of a facet.
-	 * \param[in] f the index of the facet.
-	 * \return a range with all the corners of the facet.
-	 */
-	index_range corners(index_t f) const {
+        /**
+         * \brief Gets the corners of a facet.
+         * \param[in] f the index of the facet.
+         * \return a range with all the corners of the facet.
+         */
+        index_range corners(index_t f) const {
+            geo_debug_assert(f < nb());
+            return index_range(
+                index_as_iterator(corners_begin(f)),
+                index_as_iterator(corners_end(f))
+            );
+        }
+
+#ifndef MESH_NO_SYNTAXIC_SUGAR
+
+        /**
+         * \brief Gets the vertices of a facet.
+         * \param[in] f the index of the facet.
+         * \return a range with all the vertices indices of the facet.
+         */
+	auto vertices(index_t f) const {
 	    geo_debug_assert(f < nb());
-	    return index_range(
-		index_as_iterator(corners_begin(f)),
-		index_as_iterator(corners_end(f))
+	    return transform_range(
+		corners(f), [this](index_t c)->index_t {
+		    return facet_corners_.vertex(c);
+		}
 	    );
 	}
+
+        /**
+         * \brief Gets the facets adjacent to a given facet.
+         * \param[in] f the index of the facet.
+         * \return a range with all the indices of the facets adjacent to this
+	 *  facet. It will output exactly one item per edge of the facet. Edges
+	 *  on the border will output NO_INDEX (no adjacent facet).
+         */
+	auto adjacent(index_t f) const {
+	    geo_debug_assert(f < nb());
+	    return transform_range(
+		corners(f), [this](index_t c)->index_t {
+		    return facet_corners_.adjacent_facet(c);
+		}
+	    );
+	}
+
+	/**
+	 * \brief Gets the points associated with the vertices of a facet.
+         * \param[in] f the index of the facet.
+         * \return a range with the points that correspond to the vertices of
+	 *  the facet, returned as const references.
+	 */
+	template <index_t DIM=3> auto points(index_t f) const {
+	    geo_debug_assert(f < nb());
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		corners(f), [this](index_t c)->const vecn& {
+		    index_t v = facet_corners_.vertex(c);
+		    return vertices_.point<DIM>(v);
+		}
+	    );
+	}
+
+	/**
+	 * \brief Gets the points associated with the vertices of a facet.
+         * \param[in] f the index of the facet.
+         * \return a range with the points that correspond to the vertices of
+	 *  the facet, returned as modifiable references.
+	 */
+	template <index_t DIM=3> auto points(index_t f) {
+	    geo_debug_assert(f < nb());
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		corners(f), [this](index_t c)->vecn& {
+		    index_t v = facet_corners_.vertex(c);
+		    return vertices_.point<DIM>(v);
+		}
+	    );
+	}
+
+        /**
+         * \brief Decomposes a facet into triangles
+         * \param[in] f the index of the facet.
+         * \return a range with a decomposition of the facet into triangles,
+	 *  returned as std::tuple<index_t, index_t, index_t>
+         */
+        auto triangles(index_t f) const {
+            geo_debug_assert(f < nb());
+	    index_t v0 = facet_corners_.vertex(corners_begin(f));
+            return transform_range(
+		index_range(
+		    index_as_iterator(corners_begin(f)+1),
+		    index_as_iterator(corners_end(f)-1)
+		),
+		[this,v0](index_t c)->std::tuple<index_t, index_t, index_t> {
+		    return std::make_tuple(
+			v0,
+			facet_corners_.vertex(c),
+			facet_corners_.vertex(c+1)
+		    );
+		}
+	    );
+        }
+
+        /**
+         * \brief Decomposes a facet into triangles
+         * \param[in] f the index of the facet.
+         * \return a range with a decomposition of the facet into triangles,
+	 *  returned as std::tuple<const vecn&, const vecn&, const vecn&>
+	 *  where vecn can be vec2, vec3, vec4 ... depending on the DIM
+	 *  template argument
+         */
+	template <index_t DIM=3> auto triangle_points(index_t f) const {
+            geo_debug_assert(f < nb());
+	    typedef vecng<DIM,double> vecn;
+            return transform_range(
+		triangles(f),
+		[this](std::tuple<index_t, index_t, index_t> T)
+		->std::tuple<const vecn&, const vecn&, const vecn&> {
+		    return std::tuple<const vecn&, const vecn&, const vecn&>(
+			vertices_.point<DIM>(std::get<0>(T)),
+			vertices_.point<DIM>(std::get<1>(T)),
+			vertices_.point<DIM>(std::get<2>(T))
+		    );
+		}
+	    );
+        }
+
+        /**
+         * \brief Decomposes a facet into triangles
+         * \param[in] f the index of the facet.
+         * \return a range with a decomposition of the facet into triangles,
+	 *  returned as std::tuple<vecn&, vecn&, vecn&>
+	 *  where vecn can be vec2, vec3, vec4 ... depending on the DIM
+	 *  template argument
+         */
+        template <index_t DIM=3> auto triangle_points(index_t f) {
+            geo_debug_assert(f < nb());
+	    typedef vecng<DIM,double> vecn;
+            return transform_range(
+		triangles(f),
+		[this](std::tuple<index_t, index_t, index_t> T)
+		->std::tuple<vecn&, vecn&, vecn&> {
+		    return std::tuple<vecn&, vecn&, vecn&>(
+			vertices_.point(std::get<0>(T)),
+			vertices_.point(std::get<1>(T)),
+			vertices_.point(std::get<2>(T))
+		    );
+		}
+	    );
+        }
+
+#endif
 
     protected:
 
@@ -1423,13 +1695,13 @@ namespace GEO {
          * \brief Indicates that the stored elements are only triangles.
          */
         void is_simplicial() {
-	    if(!is_simplicial_) {
-		is_simplicial_ = true;
-		facet_ptr_.resize(1);
-		facet_ptr_[0] = 0;
-	    }
-	}
-	
+            if(!is_simplicial_) {
+                is_simplicial_ = true;
+                facet_ptr_.resize(1);
+                facet_ptr_[0] = 0;
+            }
+        }
+
         /**
          * \brief Indicates that the stored elements are no
          *  longer only triangles.
@@ -1447,15 +1719,15 @@ namespace GEO {
         }
 
     protected:
-        MeshVertices& vertices_;        
+        MeshVertices& vertices_;
         MeshFacetCornersStore& facet_corners_;
         friend class Mesh;
         friend class GeogramIOHandler;
-	friend void GEOGRAM_API tessellate_facets(
-	    Mesh& M, index_t max_nb_vertices
-	);
+        friend void GEOGRAM_API tessellate_facets(
+            Mesh& M, index_t max_nb_vertices
+        );
     };
-    
+
     /*************************************************************************/
 
     enum MeshCellType {
@@ -1466,7 +1738,7 @@ namespace GEO {
         MESH_CONNECTOR = 4,
         MESH_NB_CELL_TYPES = 5
     };
-    
+
     /**
      * \brief Lookup tables that describe the combinatorics
      *  of each cell type.
@@ -1475,14 +1747,14 @@ namespace GEO {
     struct CellDescriptor {
         /** Number of vertices */
         index_t nb_vertices;
-        
+
         /** Number of facets */
         index_t nb_facets;
-        
+
         /** Number of vertices in each facet */
         index_t nb_vertices_in_facet[6];
-        
-        /** 
+
+        /**
          * Cell vertex index by (facet index,facet vertex index).
          */
         index_t facet_vertex[6][4];
@@ -1490,7 +1762,7 @@ namespace GEO {
         /**
          * Number of edges */
         index_t nb_edges;
-        
+
         /**
          * Cell vertex index by (edge index, edge vertex index).
          */
@@ -1502,10 +1774,10 @@ namespace GEO {
         index_t edge_adjacent_facet[12][2];
     };
 
-    
+
     /**
      * \brief Gathers declarations of global cell descriptors.
-     * \details Cannot be declared as static variables in 
+     * \details Cannot be declared as static variables in
      *  MeshCellsStore, since visual C++ does not allows
      *  exporting class static variables from a DLL.
      */
@@ -1514,7 +1786,7 @@ namespace GEO {
          * \brief Maps a cell type to the associated cell descriptor.
          */
         GEOGRAM_API extern CellDescriptor*
-             cell_type_to_cell_descriptor[GEO::MESH_NB_CELL_TYPES];
+        cell_type_to_cell_descriptor[GEO::MESH_NB_CELL_TYPES];
 
         GEOGRAM_API extern CellDescriptor tet_descriptor;
         GEOGRAM_API extern CellDescriptor hex_descriptor;
@@ -1522,7 +1794,7 @@ namespace GEO {
         GEOGRAM_API extern CellDescriptor pyramid_descriptor;
         GEOGRAM_API extern CellDescriptor connector_descriptor;
     }
-    
+
     /**
      * \brief Stores the cells of a mesh (low-level store)
      * \relates MeshCells
@@ -1545,7 +1817,7 @@ namespace GEO {
         /**
          * \brief Gets the type of a cell
          * \param[in] c the cell, in 0..nb()-1
-         * \return one of 
+         * \return one of
          *   MESH_TET, MESH_HEX, MESH_PRISM, MESH_PYRAMID, MESH_CONNECTOR.
          */
         MeshCellType type(index_t c) const {
@@ -1561,31 +1833,20 @@ namespace GEO {
          * \param[in] c a cell, in 0..nb()-1
          * \return the descriptor of cell \p c
          */
-        const CellDescriptor& descriptor(index_t c) const {
-            geo_debug_assert(c < nb());            
-            return is_simplicial_ ? MeshCellDescriptors::tet_descriptor :
-                *(
-                    MeshCellDescriptors::cell_type_to_cell_descriptor[
-                        cell_type_[c]
-                    ]
-                );
-        }
+        const CellDescriptor& descriptor(index_t c) const;
 
         /**
          * \brief Gets a descriptor by cell type
          * \details The descriptor of a cell is a set of static
          *  arrays that facilitate some accesses (most client
          *  code do not need to use this function)
-         * \param[in] t one of 
+         * \param[in] t one of
          *   MESH_TET, MESH_HEX, MESH_PRISM, MESH_PYRAMID, MESH_CONNECTOR
          * \return the descriptor of cell \p c
          */
         static const CellDescriptor& cell_type_to_cell_descriptor(
             MeshCellType t
-        ) {
-            geo_debug_assert(t < GEO::MESH_NB_CELL_TYPES);
-            return *(MeshCellDescriptors::cell_type_to_cell_descriptor[t]);
-        }
+        );
 
         /**
          * \brief Gets the number of corners of a cell
@@ -1604,7 +1865,7 @@ namespace GEO {
          * \return the first corner of the cell
          */
         index_t corners_begin(index_t c) const {
-            geo_debug_assert(c < nb());            
+            geo_debug_assert(c < nb());
             return is_simplicial_ ? 4*c : cell_ptr_[c];
         }
 
@@ -1615,7 +1876,7 @@ namespace GEO {
          * \return one position past the last corner of the cell
          */
         index_t corners_end(index_t c) const {
-            geo_debug_assert(c < nb());            
+            geo_debug_assert(c < nb());
             return is_simplicial_ ? 4*(c+1) : cell_ptr_[c] + nb_corners(c);
         }
 
@@ -1629,9 +1890,9 @@ namespace GEO {
             geo_debug_assert(c < nb());
             // There seems to be a linkage problem under MSVC for the
             // following assertion check...
-#ifndef GEO_OS_WINDOWS            
+#ifndef GEO_OS_WINDOWS
             geo_debug_assert(lv < nb_corners(c));
-#endif            
+#endif
             return corners_begin(c) + lv;
         }
 
@@ -1652,7 +1913,7 @@ namespace GEO {
          * \return the first facet of the cell
          */
         index_t facets_begin(index_t c) const {
-            geo_debug_assert(c < nb());            
+            geo_debug_assert(c < nb());
             return is_simplicial_ ? 4*c : cell_ptr_[c];
         }
 
@@ -1663,7 +1924,7 @@ namespace GEO {
          * \return one position past the last facet of the facet
          */
         index_t facets_end(index_t c) const {
-            geo_debug_assert(c < nb());            
+            geo_debug_assert(c < nb());
             return is_simplicial_ ? 4*(c+1) : cell_ptr_[c] + nb_facets(c);
         }
 
@@ -1687,12 +1948,12 @@ namespace GEO {
         index_t nb_edges(index_t c) const {
             return descriptor(c).nb_edges;
         }
-        
+
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-        
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element(MeshCellType type) {
@@ -1707,7 +1968,7 @@ namespace GEO {
             if(!is_simplicial_) {
                 for(index_t i=0; i<nb; ++i) {
                     cell_ptr_.push_back(NO_CORNER);
-                    cell_type_.push_back(Numeric::uint8(type));                
+                    cell_type_.push_back(Numeric::uint8(type));
                 }
             }
             return MeshSubElementsStore::create_sub_elements(nb);
@@ -1721,7 +1982,7 @@ namespace GEO {
             cell_type_ = rhs.cell_type_;
             cell_ptr_ = rhs.cell_ptr_;
         }
-        
+
     protected:
         bool is_simplicial_;
         vector<Numeric::uint8> cell_type_;
@@ -1729,9 +1990,9 @@ namespace GEO {
 
     protected:
         friend class Mesh;
-        friend class GeogramIOHandler;                
+        friend class GeogramIOHandler;
     };
-    
+
     /*************************************************************************/
 
     /**
@@ -1786,12 +2047,37 @@ namespace GEO {
             geo_debug_assert(c < nb());
             return &(corner_vertex_[c]);
         }
-        
+
+	/**
+	 * \brief Gets the point associated with a corner
+	 * \param[in] c the corner
+	 * \return a reference to the DIM-d point associated with the corner
+	 * \pre vertices.dimension() >= DIM
+	 */
+	template <index_t DIM=3> vecng<DIM,double>& point(index_t c) {
+	    geo_debug_assert(c < nb());
+	    return vertices_.point<DIM>(vertex(c));
+	}
+
+	/**
+	 * \brief Gets the point associated with a corner
+	 * \param[in] c the corner
+	 * \return const a reference to the DIM-d point associated with
+	 *  the corner
+	 * \pre vertices.dimension() >= DIM
+	 */
+	template <index_t DIM=3> const vecng<DIM,double>& point(
+	    index_t c
+	) const {
+	    geo_debug_assert(c < nb());
+	    return vertices_.point(vertex(c));
+	}
+
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-        
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element(index_t v) {
@@ -1812,14 +2098,14 @@ namespace GEO {
             MeshSubElementsStore::copy(rhs, copy_attributes);
             corner_vertex_ = rhs.corner_vertex_;
         }
-        
+
     protected:
         MeshVertices& vertices_;
         vector<index_t> corner_vertex_;
 
         friend class MeshCells;
         friend class Mesh;
-        friend class GeogramIOHandler;                
+        friend class GeogramIOHandler;
     };
 
     /*************************************************************************/
@@ -1850,12 +2136,12 @@ namespace GEO {
         /**
          * \brief Sets a cell adjacent to a facet
          * \param[in] f the facet, in 0..nb()-1
-         * \param[in] c specifies the cell adjacent 
-         *  to facet \p f, or is set to NO_FACET 
+         * \param[in] c specifies the cell adjacent
+         *  to facet \p f, or is set to NO_FACET
          *  if \p f is on the border
          */
         void set_adjacent_cell(index_t f, index_t c) {
-            geo_debug_assert(f < nb());            
+            geo_debug_assert(f < nb());
             geo_debug_assert(c == NO_CELL || c < cells_.nb());
             adjacent_cell_[f] = c;
         }
@@ -1863,30 +2149,30 @@ namespace GEO {
         /**
          * \brief Gets a const pointer to a cell adjacent to a facet
          * \param[in] f the facet, in 0..nb()-1
-         * \return a const pointer to the cell adjacent to facet \p f, 
-	 *  or NO_FACET if \p f is on the border
+         * \return a const pointer to the cell adjacent to facet \p f,
+         *  or NO_FACET if \p f is on the border
          */
         const index_t* adjacent_cell_ptr(index_t f) const {
             geo_assert(f < nb());
             return &adjacent_cell_[f];
         }
-	
+
         /**
          * \brief Gets a pointer to a cell adjacent to a facet
          * \param[in] f the facet, in 0..nb()-1
-         * \return a pointer to the cell adjacent to facet \p f, 
-	 *  or NO_FACET if \p f is on the border
+         * \return a pointer to the cell adjacent to facet \p f,
+         *  or NO_FACET if \p f is on the border
          */
         index_t* adjacent_cell_ptr(index_t f) {
             geo_assert(f < nb());
             return &adjacent_cell_[f];
         }
-        
+
     protected:
         void clear_store(
             bool keep_attributes, bool keep_memory = false
         ) override;
-        
+
         void resize_store(index_t new_size) override;
 
         index_t create_sub_element(index_t c = NO_CELL) {
@@ -1907,7 +2193,7 @@ namespace GEO {
             MeshSubElementsStore::copy(rhs, copy_attributes);
             adjacent_cell_ = rhs.adjacent_cell_;
         }
-        
+
     protected:
         MeshVertices& vertices_;
         MeshCellsStore& cells_;
@@ -1915,7 +2201,7 @@ namespace GEO {
 
         friend class MeshCells;
         friend class Mesh;
-        friend class GeogramIOHandler;                
+        friend class GeogramIOHandler;
     };
 
     /*************************************************************************/
@@ -1962,6 +2248,34 @@ namespace GEO {
         }
 
         /**
+         * \brief Gets a point by cell and local vertex index
+         * \param[in] c the cell
+         * \param[in] lv the local vertex index in \p c
+         * \return a const reference to the point corresponding to
+	 *   the \p lv%th vertex of cell \p c
+         * \pre lv < nb_vertices(c)
+         */
+	template <index_t DIM=3> const vecng<DIM,double>& point(
+	    index_t c, index_t lv
+	) const {
+	    return vertices_.point<DIM>(vertex(c,lv));
+	}
+
+        /**
+         * \brief Gets a point by cell and local vertex index
+         * \param[in] c the cell
+         * \param[in] lv the local vertex index in \p c
+         * \return a reference to the point corresponding to
+	 *   the \p lv%th vertex of cell \p c
+         * \pre lv < nb_vertices(c)
+         */
+	template <index_t DIM=3> vecng<DIM,double>& point(
+	    index_t c, index_t lv
+	) {
+	    return vertices_.point<DIM>(vertex(c,lv));
+	}
+
+        /**
          * \brief Gets a cell adjacent to another one by local facet index
          * \param[in] c the cell, in 0..nb()-1
          * \param[in] lf local facet index, in 0..nb_facets(c)-1
@@ -1976,7 +2290,7 @@ namespace GEO {
          * \brief Sets a cell adjacent to another one by local facet index
          * \param[in] c the cell, in 0..nb()-1
          * \param[in] lf local facet index, in 0..nb_facets(c)-1
-         * \param[in] c2 specifies the cell adjacent to \p c along 
+         * \param[in] c2 specifies the cell adjacent to \p c along
          *  facet \p lf or NO_CELL if no such cell exists
          */
         void set_adjacent(index_t c, index_t lf, index_t c2) {
@@ -2053,28 +2367,95 @@ namespace GEO {
             return descriptor(c).edge_adjacent_facet[le][lf];
         }
 
+        /**
+         * \brief Gets the corners of a cell.
+         * \param[in] c the index of the cell.
+         * \return a range with all the corners of the facet.
+         */
+        index_range corners(index_t c) const {
+            geo_debug_assert(c < nb());
+            return index_range(
+                index_as_iterator(corners_begin(c)),
+                index_as_iterator(corners_end(c))
+            );
+        }
+
+        /**
+         * \brief Gets the facets of a cell.
+         * \param[in] c the index of the cell.
+         * \return a range with all the global indices of the cell facets.
+         */
+        index_range facets(index_t c) const {
+            geo_debug_assert(c < nb());
+            return index_range(
+                index_as_iterator(facets_begin(c)),
+                index_as_iterator(facets_end(c))
+            );
+        }
+
+#ifndef MESH_NO_SYNTAXIC_SUGAR
+
 	/**
-	 * \brief Gets the corners of a cell.
-	 * \param[in] c the index of the cell.
-	 * \return a range with all the corners of the facet.
+	 * \brief Gets the points associated with the vertices of a cell.
+         * \param[in] cell the index of the cell.
+         * \return a range with the points that correspond to the vertices of
+	 *  the cell, returned as const references.
 	 */
-	index_range corners(index_t c) const {
-	    geo_debug_assert(c < nb());
-	    return index_range(
-		index_as_iterator(corners_begin(c)),
-		index_as_iterator(corners_end(c))
+	template <index_t DIM=3> auto points(index_t cell) const {
+	    geo_debug_assert(cell < nb());
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		corners(cell), [this](index_t c)->const vecn& {
+		    index_t v = cell_corners_.vertex(c);
+		    return vertices_.point<DIM>(v);
+		}
 	    );
 	}
-        
+
+	/**
+	 * \brief Gets the points associated with the vertices of a cell.
+         * \param[in] cell the index of the cell.
+         * \return a range with the points that correspond to the vertices of
+	 *  the cell, returned as modifiable references.
+	 */
+	template <index_t DIM=3> auto points(index_t cell) {
+	    geo_debug_assert(cell < nb());
+	    typedef vecng<DIM,double> vecn;
+	    return transform_range_ref(
+		corners(cell), [this](index_t c)->vecn& {
+		    index_t v = cell_corners_.vertex(c);
+		    return vertices_.point<DIM>(v);
+		}
+	    );
+	}
+
+        /**
+         * \brief Gets the cells adjacent to a given cell.
+         * \param[in] c the index of the cell.
+         * \return a range with all the indices of the cels adjacent to this
+	 *  cell. It will output exactly one item per facet of the cell. Facets
+	 *  on the border will output NO_INDEX (no adjacent cell).
+         */
+	auto adjacent(index_t c) const {
+	    geo_debug_assert(c < nb());
+	    return transform_range(
+		facets(c), [this](index_t f)->index_t {
+		    return cell_facets_.adjacent_cell(f);
+		}
+	    );
+	}
+
+#endif
+
         void clear(
             bool keep_attributes=true, bool keep_memory=false
         ) override;
-        
+
         void delete_elements(
             vector<index_t>& to_delete,
             bool remove_isolated_vertices=true
         ) override;
-        
+
         void permute_elements(vector<index_t>& permutation) override;
 
         /**
@@ -2090,22 +2471,22 @@ namespace GEO {
             if(nb_cells == 0) {
                 return NO_CELL;
             }
-           
-           
+
+
             if(type != MESH_TET) {
                 is_not_simplicial();
             }
-            
+
             const CellDescriptor& desc = cell_type_to_cell_descriptor(type);
 
             //   Note: there is padding, the same number of corners and
             // faces is created for each cell, so that a single cell
             // pointer is used for both.
-            
+
             index_t cell_size = std::max(desc.nb_vertices, desc.nb_facets);
             index_t first_cell = nb();
             index_t co = cell_corners_.nb();
-            
+
             cell_corners_.create_sub_elements(
                 nb_cells*cell_size
             );
@@ -2113,7 +2494,7 @@ namespace GEO {
             cell_facets_.create_sub_elements(
                 nb_cells*cell_size
             );
-            
+
             index_t result = create_sub_elements(nb_cells, type);
 
             if(!is_simplicial_) {
@@ -2121,12 +2502,12 @@ namespace GEO {
                     cell_ptr_[c] = co;
                     co += cell_size;
                 }
-            
+
                 geo_debug_assert(cell_ptr_.size() == nb()+1);
                 geo_debug_assert(cell_ptr_[nb()] == cell_corners_.nb());
                 geo_debug_assert(cell_ptr_[nb()] == cell_facets_.nb());
             }
-            
+
             return result;
         }
 
@@ -2170,7 +2551,7 @@ namespace GEO {
          * \brief Creates a tetrahedron
          * \param[in] v1 , v2 , v3 , v4 the vertices of the tetrahedron,
          *  all in 0 .. mesh.vertices.nb()-1
-         * \param[in] adj1 , adj2 , adj3 , adj4 
+         * \param[in] adj1 , adj2 , adj3 , adj4
          *  adjacent cells, or NO_CELL if unspecified / on border
          * \return the created tetrahedron
          */
@@ -2199,16 +2580,16 @@ namespace GEO {
 
         /**
          * \brief Creates an hexahedron
-         * \param[in] v1 , v2 , v3 , v4 , v5 , v6 , v7 , v8 
+         * \param[in] v1 , v2 , v3 , v4 , v5 , v6 , v7 , v8
          *  the vertices of the hexahedron,
          *  all in 0 .. mesh.vertices.nb()-1
-         * \param[in] adj1 , adj2 , adj3 , adj4 , adj5 , adj6 
+         * \param[in] adj1 , adj2 , adj3 , adj4 , adj5 , adj6
          *  adjacent cells, or NO_CELL if unspecified / on border
          * \return the created hexahedron
          */
         index_t create_hex(
             index_t v1, index_t v2, index_t v3, index_t v4,
-            index_t v5, index_t v6, index_t v7, index_t v8,            
+            index_t v5, index_t v6, index_t v7, index_t v8,
             index_t adj1 = NO_CELL,
             index_t adj2 = NO_CELL,
             index_t adj3 = NO_CELL,
@@ -2232,7 +2613,7 @@ namespace GEO {
             cell_facets_.create_sub_element(adj5);
             cell_facets_.create_sub_element(adj6);
             cell_facets_.create_sub_element(NO_CELL); // padding
-            cell_facets_.create_sub_element(NO_CELL); // padding           
+            cell_facets_.create_sub_element(NO_CELL); // padding
             index_t result = create_sub_element(MESH_HEX);
             cell_ptr_[nb()] = cell_corners_.nb();
             geo_debug_assert(cell_facets_.nb() == cell_corners_.nb());
@@ -2251,7 +2632,7 @@ namespace GEO {
         index_t create_prism(
             index_t v1, index_t v2,
             index_t v3, index_t v4,
-            index_t v5, index_t v6, 
+            index_t v5, index_t v6,
             index_t adj1 = NO_CELL,
             index_t adj2 = NO_CELL,
             index_t adj3 = NO_CELL,
@@ -2270,7 +2651,7 @@ namespace GEO {
             cell_facets_.create_sub_element(adj3);
             cell_facets_.create_sub_element(adj4);
             cell_facets_.create_sub_element(adj5);
-            cell_facets_.create_sub_element(NO_CELL); // padding           
+            cell_facets_.create_sub_element(NO_CELL); // padding
             index_t result = create_sub_element(MESH_PRISM);
             cell_ptr_[nb()] = cell_corners_.nb();
             geo_debug_assert(cell_facets_.nb() == cell_corners_.nb());
@@ -2287,14 +2668,14 @@ namespace GEO {
          * \return the created pyramid
          */
         index_t create_pyramid(
-            index_t v1, index_t v2, index_t v3, index_t v4, index_t v5, 
+            index_t v1, index_t v2, index_t v3, index_t v4, index_t v5,
             index_t adj1 = NO_CELL,
             index_t adj2 = NO_CELL,
             index_t adj3 = NO_CELL,
             index_t adj4 = NO_CELL,
             index_t adj5 = NO_CELL
         ) {
-            is_not_simplicial();            
+            is_not_simplicial();
             cell_corners_.create_sub_element(v1);
             cell_corners_.create_sub_element(v2);
             cell_corners_.create_sub_element(v3);
@@ -2324,7 +2705,7 @@ namespace GEO {
          * \return the created connector
          */
         index_t create_connector(
-            index_t v1, index_t v2, index_t v3, index_t v4, 
+            index_t v1, index_t v2, index_t v3, index_t v4,
             index_t adj1 = NO_CELL,
             index_t adj2 = NO_CELL,
             index_t adj3 = NO_CELL
@@ -2346,17 +2727,17 @@ namespace GEO {
 
         /**
          * \brief Connects the cells.
-         * \details This creates as needed the connectors that represent 
-         *  non-conformal connections between a quadrilateral facet and 
+         * \details This creates as needed the connectors that represent
+         *  non-conformal connections between a quadrilateral facet and
          *  two triangular facets.
-         * \param[in] remove_trivial_slivers if set, this removes the 
+         * \param[in] remove_trivial_slivers if set, this removes the
          *  slivers that are adjacent to a quadrilateral facet.
-	 * \param[in] verbose_if_OK if set, says OK if no bad connector
-	 *  configuration was detected.
+         * \param[in] verbose_if_OK if set, says OK if no bad connector
+         *  configuration was detected.
          */
         void connect(
-	    bool remove_trivial_slivers = true, bool verbose_if_OK=false
-	);
+            bool remove_trivial_slivers = true, bool verbose_if_OK=false
+        );
 
         /**
          * \brief Replaces the surfacic part of this mesh
@@ -2367,12 +2748,12 @@ namespace GEO {
         /**
          * \brief Replaces the surfacic part of this mesh
          *   with the borders of the volumetric part.
-	 * \param[out] facet_cell on exit, stores the
-	 *   index of the cell adjacent to the facet
-	 *   on the border.
+         * \param[out] facet_cell on exit, stores the
+         *   index of the cell adjacent to the facet
+         *   on the border.
          */
-	void compute_borders(Attribute<index_t>& facet_cell);
-	
+        void compute_borders(Attribute<index_t>& facet_cell);
+
         /**
          * \brief Copies a tetrahedron mesh into this Mesh.
          * \details Tetrahedron adjacences are not computed.
@@ -2403,8 +2784,8 @@ namespace GEO {
             bool steal_args
         );
 
-        void pop() override;        
-        
+        void pop() override;
+
         index_t tet_adjacent(index_t t, index_t lf) const {
             geo_debug_assert(is_simplicial_);
             geo_debug_assert(t < nb());
@@ -2456,7 +2837,7 @@ namespace GEO {
         index_t tet_facet_vertex(
             index_t t, index_t lf, index_t lv
         ) const {
-            geo_debug_assert(is_simplicial_);            
+            geo_debug_assert(is_simplicial_);
             geo_debug_assert(t < nb());
             geo_debug_assert(lf < 4);
             geo_debug_assert(lv < 3);
@@ -2464,7 +2845,7 @@ namespace GEO {
                 4 * t + local_tet_facet_vertex_index(lf,lv)
             );
         }
-        
+
         /**
          * \brief Finds the local index of a facet in a tetrahedron
          *  by the global indices of its vertices.
@@ -2481,7 +2862,7 @@ namespace GEO {
         index_t find_tet_facet(
             index_t t, index_t v1, index_t v2, index_t v3
         ) const {
-            geo_debug_assert(is_simplicial_);            
+            geo_debug_assert(is_simplicial_);
             for(index_t lf = 0; lf < 4; ++lf) {
                 index_t w1 = tet_facet_vertex(t, lf, 0);
                 index_t w2 = tet_facet_vertex(t, lf, 1);
@@ -2512,7 +2893,7 @@ namespace GEO {
         }
 
     protected:
-        
+
         /**
          * \brief Indicates that the stored elements are no
          *  longer only tetrahedra.
@@ -2544,16 +2925,16 @@ namespace GEO {
         bool facets_match(
             index_t c1, index_t f1, index_t c2, index_t f2
         ) const;
-        
+
         /**
          * \brief Finds the local index of a vertex in a cell.
          * \param[in] c index of the cell
          * \param[in] v global index of the vertex
-         * \return the local index 
+         * \return the local index
          *  (in 0..cell_nb_vertices(c)-1) of the vertex in
          *  cell \p c or NO_VERTEX if \p c is not incident to \p v
          */
-         index_t find_cell_vertex(index_t c, index_t v) const {
+        index_t find_cell_vertex(index_t c, index_t v) const {
             geo_debug_assert(c < nb());
             geo_debug_assert(v < vertices_.nb());
             for(index_t lv=0; lv<nb_vertices(c); ++lv) {
@@ -2563,7 +2944,7 @@ namespace GEO {
             }
             return NO_VERTEX;
         }
-        
+
         /**
          * \brief Finds the local index of a facet in a cell
          *  that can be connected to a facet of another cell
@@ -2575,9 +2956,9 @@ namespace GEO {
          *  modulo a circular permutation, or NO_FACET if such a facet does not
          *  exist in \p c1.
          */
-         index_t find_cell_facet(
+        index_t find_cell_facet(
             index_t c1, index_t c2, index_t f2
-         ) const {
+        ) const {
             for(index_t f1=0; f1<nb_facets(c1); ++f1) {
                 if(facets_match(c1,f1,c2,f2)) {
                     return f1;
@@ -2602,7 +2983,7 @@ namespace GEO {
             index_t c1, index_t lf1,
             index_t c2, index_t lf2
         ) const;
-        
+
 
         /**
          * \brief Tests whether two triangular cell facets have a common edge.
@@ -2624,42 +3005,42 @@ namespace GEO {
         ) const;
 
         /**
-         * \brief Creates a connector between a quadrandular facet and two 
+         * \brief Creates a connector between a quadrandular facet and two
          *  triangular facets.
          * \details This function is used by connect_cells()
          * \param[in] c1 index of the cell that has the quadrangular facet
          * \param[in] lf1 index of the quadrangular facet in \p c1
-         * \param[in] matches a const reference to a vector of 
-         *  (cell index, facet index) pairs that are candidate triangles to be 
+         * \param[in] matches a const reference to a vector of
+         *  (cell index, facet index) pairs that are candidate triangles to be
          *  connected to the quadrangular facet. Each of them
-         *  has three vertices in common with the quadrangular facet. 
-         *  It may contain more than two (cell,facet) index pairs. 
+         *  has three vertices in common with the quadrangular facet.
+         *  It may contain more than two (cell,facet) index pairs.
          *  In this case, among them we select the pair of triangular facets
-         *  that have an edge in common. 
-         * \retval true if a connector was created. A connector is created if 
-         *  among the candidate triangular facets there are exactly two facets 
+         *  that have an edge in common.
+         * \retval true if a connector was created. A connector is created if
+         *  among the candidate triangular facets there are exactly two facets
          *  on the border with an edge in common.
          * \retval false otherwise
          */
         bool create_connector(
             index_t c1, index_t lf1,
             const std::vector< std::pair<index_t, index_t> >& matches
-        ); 
+        );
 
         /**
          * \brief Optimized implementation of connect() used
          *  when the mesh is simplicial.
          */
         void connect_tets();
-        
+
     protected:
         MeshVertices& vertices_;
         MeshCellCornersStore& cell_corners_;
         MeshCellFacetsStore& cell_facets_;
         friend class Mesh;
-        friend class GeogramIOHandler;                
+        friend class GeogramIOHandler;
     };
-    
+
     /*************************************************************************/
 
     /**
@@ -2677,222 +3058,223 @@ namespace GEO {
         MESH_CELLS  = 8,
         MESH_ALL_ELEMENTS = 15,
         MESH_FACET_CORNERS = 16,
-        MESH_CELL_CORNERS = 32,        
+        MESH_CELL_CORNERS = 32,
         MESH_CELL_FACETS = 64,
         MESH_ALL_SUBELEMENTS = 65
     };
 
     /*************************************************************************/
-    
+
     /**
      * \brief Represents a mesh.
      * \details A mesh can have vertices, optionally facets and
      *  optionally volumetric cells. Attributes can be attached
-     *  to all elements and sub-elements. 
+     *  to all elements and sub-elements.
      */
     class GEOGRAM_API Mesh {
     public:
-        MeshVertices          vertices;
-        MeshEdges             edges;
-        MeshFacets            facets;
-        MeshFacetCornersStore facet_corners;
-        MeshCells             cells;
-        MeshCellCornersStore  cell_corners;
-        MeshCellFacetsStore   cell_facets;
+    MeshVertices          vertices;
+    MeshEdges             edges;
+    MeshFacets            facets;
+    MeshFacetCornersStore facet_corners;
+    MeshCells             cells;
+    MeshCellCornersStore  cell_corners;
+    MeshCellFacetsStore   cell_facets;
 
-        /**
-         * \brief Mesh constructor
-         * \param[in] dimension dimension of the vertices
-         * \param[in] single_precision if true, vertices are
-         *  stored in single precision (float), else they are
-         *  stored as double precision (double).
-         */
-        Mesh(index_t dimension=3, bool single_precision=false);
+    /**
+     * \brief Mesh constructor
+     * \param[in] dimension dimension of the vertices
+     * \param[in] single_precision if true, vertices are
+     *  stored in single precision (float), else they are
+     *  stored as double precision (double).
+     */
+    Mesh(index_t dimension=3, bool single_precision=false);
 
-	/**
-	 * \brief Mesh destructor.
-	 */
-	virtual ~Mesh();
-	
-        /**
-         * \brief Removes all the elements and attributes of
-         *  this mesh.
-         * \param[in] keep_attributes if true, then all the
-         *  existing attribute names / bindings are kept (but 
-         *  they are cleared). If false, they are destroyed.
-         * \param[in] keep_memory if true, then memory is
-         *  kept and can be reused by subsequent mesh
-         *  element creations.
-         */
-        void clear(bool keep_attributes=true, bool keep_memory=false);
+    /**
+     * \brief Mesh destructor.
+     */
+    virtual ~Mesh();
 
-        /**
-         * \brief Displays number of vertices, facets and borders.
-         */
-        void show_stats(const std::string& tag = "Mesh") const;
+    /**
+     * \brief Removes all the elements and attributes of
+     *  this mesh.
+     * \param[in] keep_attributes if true, then all the
+     *  existing attribute names / bindings are kept (but
+     *  they are cleared). If false, they are destroyed.
+     * \param[in] keep_memory if true, then memory is
+     *  kept and can be reused by subsequent mesh
+     *  element creations.
+     */
+    void clear(bool keep_attributes=true, bool keep_memory=false);
 
-
-        /**
-         * \brief Does some validity checks.
-         * \details Used for debugging. If the
-         *  validity checks are not satisfied, 
-         *  then it crashes with an assertion
-         *  failure.
-         */
-        void assert_is_valid();
+    /**
+     * \brief Displays number of vertices, facets and borders.
+     */
+    void show_stats(const std::string& tag = "Mesh") const;
 
 
-        /**
-         * \brief Copies a mesh onto this one
-         * \param[in] rhs a const reference to the mesh to be copied
-         * \param[in] copy_attributes if true, all the attributes are
-         *   copied.
-         * \param[in] what a combination of MESH_VERTICES, MESH_EDGES,
-         *  MESH_FACETS, MESH_CELLS flags. Set to MESH_ALL_ELEMENTS
-         *  to copy everything (default). If MESH_VERTICES is not set,
-         *  then the mesh is cleared.
-         */
-        void copy(
-            const Mesh& rhs,
-            bool copy_attributes=true,
-            MeshElementsFlags what=MESH_ALL_ELEMENTS
-        );
+    /**
+     * \brief Does some validity checks.
+     * \details Used for debugging. If the
+     *  validity checks are not satisfied,
+     *  then it crashes with an assertion
+     *  failure.
+     */
+    void assert_is_valid();
 
 
-        /**
-         * \brief Gets the list of all attributes.
-         * \return a ';'-separated list of all attributes. 
-         */
-        std::string get_attributes() const;
-    
-        /**
-         * \brief Gets the list of all scalar attributes.
-         * \return a ';'-separated list of all scalar attributes. 
-	 * \details Whenever there is a vector attribute v of dim d,
-	 *  it appends v[0];v[1];...v[d-1] to the list.
-         */
-        std::string get_scalar_attributes() const;
+    /**
+     * \brief Copies a mesh onto this one
+     * \details All attributes of this mesh are deleted, and
+     *   Attribute instances connected to this mesh are unbound.
+     * \param[in] rhs a const reference to the mesh to be copied
+     * \param[in] copy_attributes if true, all the attributes are
+     *   copied.
+     * \param[in] what a combination of MESH_VERTICES, MESH_EDGES,
+     *  MESH_FACETS, MESH_CELLS flags. Set to MESH_ALL_ELEMENTS
+     *  to copy everything (default). If MESH_VERTICES is not set,
+     *  then the mesh is cleared.
+     */
+    void copy(
+        const Mesh& rhs,
+        bool copy_attributes=true,
+        MeshElementsFlags what=MESH_ALL_ELEMENTS
+    );
 
-	/**
-	 * \brief Gets the list of all vector attributes.
-	 * \param[in] max_dim if non-zero, only vector attributes of
-	 *  dimension lower than \p max_dim are returned.
-	 * \return a ';'-separated list of all vector attributes.
-	 */
-	std::string get_vector_attributes(index_t max_dim = 0) const;
-	
-        /**
-         * \brief Gets the number of subelements types.
-         * \return the number of subelements types.
-         */
-        index_t nb_subelements_types() const;
 
-        /**
-         * \brief Gets a MeshSubElementsStore by index.
-         * \param[in] i index of the subelements
-         * \return a reference to the corresponding MeshSubElementsStore
-         * \pre i < nb_subelements_types()
-         */
-        MeshSubElementsStore& get_subelements_by_index(index_t i);
+    /**
+     * \brief Gets the list of all attributes.
+     * \return a ';'-separated list of all attributes.
+     */
+    std::string get_attributes() const;
 
-        /**
-         * \brief Gets a MeshSubElementsStore by index.
-         * \param[in] i index of the subelements
-         * \return a const reference to the corresponding MeshSubElementsStore
-         * \pre i < nb_subelements_types()
-         */
-        const MeshSubElementsStore& get_subelements_by_index(index_t i) const;
-        
-        
-        /**
-         * \brief Gets a MeshSubElementsStore by subelements type.
-         * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
-         *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
-         * \return a reference to the corresponding MeshSubElementsStore
-         */
-        MeshSubElementsStore& get_subelements_by_type(MeshElementsFlags what);
+    /**
+     * \brief Gets the list of all scalar attributes.
+     * \return a ';'-separated list of all scalar attributes.
+     * \details Whenever there is a vector attribute v of dim d,
+     *  it appends v[0];v[1];...v[d-1] to the list.
+     */
+    std::string get_scalar_attributes() const;
 
-        /**
-         * \brief Gets a MeshSubElementsStore by subelements type.
-         * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
-         *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
-         * \return a const reference to the corresponding MeshSubElementsStore
-         */
-        const MeshSubElementsStore& get_subelements_by_type(
-            MeshElementsFlags what
-        ) const;
+    /**
+     * \brief Gets the list of all vector attributes.
+     * \param[in] max_dim if non-zero, only vector attributes of
+     *  dimension lower than \p max_dim are returned.
+     * \return a ';'-separated list of all vector attributes.
+     */
+    std::string get_vector_attributes(index_t max_dim = 0) const;
 
-        /**
-         * \brief Gets a subelement name by subelement type.
-         * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
-         *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
-         * \return a string with the name of the subelement.
-         */
-        static std::string subelements_type_to_name(MeshElementsFlags what);
+    /**
+     * \brief Gets the number of subelements types.
+     * \return the number of subelements types.
+     */
+    index_t nb_subelements_types() const;
 
-        /**
-         * \brief Gets a subelement type by subelement name.
-         * \param[in] name the name of the subelement as a string
-         * \return one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
-         *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
-         *  or MESH_NONE if the name is invalid
-         */
-        static MeshElementsFlags name_to_subelements_type(
-            const std::string& name
-        );
+    /**
+     * \brief Gets a MeshSubElementsStore by index.
+     * \param[in] i index of the subelements
+     * \return a reference to the corresponding MeshSubElementsStore
+     * \pre i < nb_subelements_types()
+     */
+    MeshSubElementsStore& get_subelements_by_index(index_t i);
 
-        /**
-         * \brief Extracts localisation, name and optional component from 
-         *   an attribute name.
-         * \param[in] full_attribute_name for instance, facets.density, or
-         *  vertices.normal[0]
-         * \param[out] where one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
-         *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_FACETS, MESH_CELL_CORNERS
-         * \param[out] attribute_name the name of the attribute, without the
-         *  localisation and without the component
-         * \param[out] component the component (between square brackets in 
-         *  \p full_attribute_name) or 0 if no component was specified
-         * \retval true if the attribute name could be parsed
-         * \retval false if the attribute name has invalid syntax
-         */
-        static bool parse_attribute_name(
-            const std::string& full_attribute_name,
-            MeshElementsFlags& where,        
-            std::string& attribute_name,
-            index_t& component
-        );
-        
+    /**
+     * \brief Gets a MeshSubElementsStore by index.
+     * \param[in] i index of the subelements
+     * \return a const reference to the corresponding MeshSubElementsStore
+     * \pre i < nb_subelements_types()
+     */
+    const MeshSubElementsStore& get_subelements_by_index(index_t i) const;
+
+
+    /**
+     * \brief Gets a MeshSubElementsStore by subelements type.
+     * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
+     *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
+     * \return a reference to the corresponding MeshSubElementsStore
+     */
+    MeshSubElementsStore& get_subelements_by_type(MeshElementsFlags what);
+
+    /**
+     * \brief Gets a MeshSubElementsStore by subelements type.
+     * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
+     *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
+     * \return a const reference to the corresponding MeshSubElementsStore
+     */
+    const MeshSubElementsStore& get_subelements_by_type(
+        MeshElementsFlags what
+    ) const;
+
+    /**
+     * \brief Gets a subelement name by subelement type.
+     * \param[in] what one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
+     *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
+     * \return a string with the name of the subelement.
+     */
+    static std::string subelements_type_to_name(MeshElementsFlags what);
+
+    /**
+     * \brief Gets a subelement type by subelement name.
+     * \param[in] name the name of the subelement as a string
+     * \return one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
+     *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_CORNERS, MESH_CELL_FACETS
+     *  or MESH_NONE if the name is invalid
+     */
+    static MeshElementsFlags name_to_subelements_type(
+        const std::string& name
+    );
+
+    /**
+     * \brief Extracts localisation, name and optional component from
+     *   an attribute name.
+     * \param[in] full_attribute_name for instance, facets.density, or
+     *  vertices.normal[0]
+     * \param[out] where one of MESH_VERTICES, MESH_EDGES, MESH_FACETS,
+     *  MESH_FACET_CORNERS, MESH_CELLS, MESH_CELL_FACETS, MESH_CELL_CORNERS
+     * \param[out] attribute_name the name of the attribute, without the
+     *  localisation and without the component
+     * \param[out] component the component (between square brackets in
+     *  \p full_attribute_name) or 0 if no component was specified
+     * \retval true if the attribute name could be parsed
+     * \retval false if the attribute name has invalid syntax
+     */
+    static bool parse_attribute_name(
+        const std::string& full_attribute_name,
+        MeshElementsFlags& where,
+        std::string& attribute_name,
+        index_t& component
+    );
+
     protected:
-        /**
-         * \brief Displays the list of attributes to the Logger.
-         * \param[in] tag the tag to be sent to the Logger
-         * \param[in] subelement_name the name of the subelement
-         *   (vertices, facets, facet_corners ...)
-         * \param[in] subelements a const reference to the MeshSubElementsStore
-         */
-        void display_attributes(
-            const std::string& tag, const std::string& subelement_name,
-            const MeshSubElementsStore& subelements 
-        ) const;
+    /**
+     * \brief Displays the list of attributes to the Logger.
+     * \param[in] tag the tag to be sent to the Logger
+     * \param[in] subelement_name the name of the subelement
+     *   (vertices, facets, facet_corners ...)
+     * \param[in] subelements a const reference to the MeshSubElementsStore
+     */
+    void display_attributes(
+        const std::string& tag, const std::string& subelement_name,
+        const MeshSubElementsStore& subelements
+    ) const;
 
-    private:
-        /**
-         * \brief Forbids copy.
-         * \details This is to make sure that client code does
-         *   not unintentionlly copies a Mesh (for
-         *   instance by passing it by-value to a function). 
-         *   Use copy() instead.
-         */
-        Mesh(const Mesh& rhs);
+    /**
+     * \brief Forbids copy.
+     * \details This is to make sure that client code does
+     *   not unintentionlly copies a Mesh (for
+     *   instance by passing it by-value to a function).
+     *   Use copy() instead.
+     */
+    Mesh(const Mesh& rhs) = delete;
 
-        /**
-         * \brief Forbids copy.
-         * \details This is to make sure that client code does
-         *   not unintentionlly copies a Mesh (for
-         *   instance by passing it by-value to a function). 
-         *   Use copy() instead.
-         */
-        const Mesh& operator=(const Mesh& rhs);
+    /**
+     * \brief Forbids copy.
+     * \details This is to make sure that client code does
+     *   not unintentionlly copies a Mesh (for
+     *   instance by passing it by-value to a function).
+     *   Use copy() instead.
+     */
+    const Mesh& operator=(const Mesh& rhs) = delete;
     };
 
     /*************************************************************************/

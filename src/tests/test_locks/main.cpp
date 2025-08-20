@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -75,13 +75,13 @@ namespace {
             global_lock_(GEOGRAM_SPINLOCK_INIT),
             io_lock_(GEOGRAM_SPINLOCK_INIT),
             nb_times_(nb_times)
-        {
-            Process::release_spinlock(global_lock_); 
-            if(!single_lock_) {
-                locks_.resize(size);
+            {
+                Process::release_spinlock(global_lock_);
+                if(!single_lock_) {
+                    locks_.resize(size);
+                }
+                data_.assign(size, -1);
             }
-            data_.assign(size, -1);
-        }
 
         /**
          * \brief Accesses the critical section without locking
@@ -91,7 +91,7 @@ namespace {
          */
         void test_locks(index_t pid) {
             Process::acquire_spinlock(io_lock_);
-            std::cerr << "Starting thread " << Thread::current()->id() 
+            std::cerr << "Starting thread " << Thread::current()->id()
                       << std::endl;
             Process::release_spinlock(io_lock_);
             index_t j = 0;
@@ -106,7 +106,7 @@ namespace {
                 unlock(j);
             }
             Process::acquire_spinlock(io_lock_);
-            std::cerr << "End of thread " << Thread::current()->id() 
+            std::cerr << "End of thread " << Thread::current()->id()
                       << std::endl;
             Process::release_spinlock(io_lock_);
         }
@@ -167,7 +167,7 @@ namespace {
 int main(int argc, char** argv) {
     using namespace GEO;
 
-    GEO::initialize();
+    GEO::initialize(GEO::GEOGRAM_INSTALL_ALL);
 
     try {
         Stopwatch W("Total time");
@@ -190,12 +190,12 @@ int main(int argc, char** argv) {
         if(CmdLine::get_arg_bool("locks")) {
             parallel_for(
                 0, Process::max_threads(),
-		std::bind(&LockTest::test_locks, &lock_test, std::placeholders::_1)
+                std::bind(&LockTest::test_locks, &lock_test, std::placeholders::_1)
             );
         } else {
             parallel_for(
                 0, Process::max_threads(),
-		std::bind(&LockTest::test_locks, &lock_test, std::placeholders::_1)		
+                std::bind(&LockTest::test_locks, &lock_test, std::placeholders::_1)
             );
         }
     }
@@ -206,4 +206,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-

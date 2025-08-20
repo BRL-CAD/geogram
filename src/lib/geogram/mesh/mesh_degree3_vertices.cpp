@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -181,7 +181,7 @@ namespace {
      *  different from standard triangle numerotation used here.
      */
     struct Degree3Vertex {
-        
+
         /**
          * \brief Constructs a new Degree3Vertex
          * \param[in] M the mesh
@@ -198,9 +198,9 @@ namespace {
                 index_t k = (j + 1) % 3;
 
                 t[1] = index_t(t_adjacent(M, t[0], j));
-                geo_debug_assert(t[1] != index_t(-1));
+                geo_debug_assert(t[1] != NO_INDEX);
                 t[2] = index_t(t_adjacent(M, t[0], k));
-                geo_debug_assert(t[2] != index_t(-1));
+                geo_debug_assert(t[2] != NO_INDEX);
                 v[1] = t_vertex(M, t[0], j);
                 v[2] = t_vertex(M, t[0], k);
                 adj[0] = t_adjacent(M, t[0], i);
@@ -230,10 +230,10 @@ namespace {
                 adj[2] = t_adjacent(M, t[2], i);
             }
 
-            const vec3& p0 = Geom::mesh_vertex(M, v[0]);
-            const vec3& p1 = Geom::mesh_vertex(M, v[1]);
-            const vec3& p2 = Geom::mesh_vertex(M, v[2]);
-            const vec3& p3 = Geom::mesh_vertex(M, v[3]);
+            const vec3& p0 = M.vertices.point(v[0]);
+            const vec3& p1 = M.vertices.point(v[1]);
+            const vec3& p2 = M.vertices.point(v[2]);
+            const vec3& p3 = M.vertices.point(v[3]);
 
             dist = ::sqrt(
                 Geom::point_triangle_squared_distance(p3, p0, p1, p2)
@@ -417,4 +417,3 @@ namespace GEO {
         return nb_removed;
     }
 }
-

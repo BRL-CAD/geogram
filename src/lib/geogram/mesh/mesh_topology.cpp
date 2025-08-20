@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -73,22 +73,46 @@ namespace GEO {
     index_t get_connected_components(
         const Mesh& M, vector<index_t>& component
     ) {
-        static const index_t NO_COMPONENT = index_t(-1);
         index_t nb_components = 0;
-        component.assign(M.facets.nb(), NO_COMPONENT);
+        component.assign(M.facets.nb(), NO_INDEX);
         for(index_t f: M.facets) {
-            if(component[f] == NO_COMPONENT) {
+            if(component[f] == NO_INDEX) {
                 std::stack<index_t> S;
                 S.push(f);
                 component[f] = nb_components;
                 do {
                     index_t cur_f = S.top();
                     S.pop();
-                    for(index_t c: M.facets.corners(cur_f)) {
-                        index_t adj_f = M.facet_corners.adjacent_facet(c);
-                        if(adj_f != NO_FACET &&
-                           component[adj_f] == NO_COMPONENT
-                        ) {
+                    for(index_t adj_f: M.facets.adjacent(cur_f)) {
+                        if(adj_f != NO_FACET && component[adj_f] == NO_INDEX) {
+                            S.push(index_t(adj_f));
+                            component[adj_f] = nb_components;
+                        }
+                    }
+                } while(!S.empty());
+                nb_components++;
+            }
+        }
+        return nb_components;
+    }
+
+    index_t GEOGRAM_API get_connected_components(
+        const Mesh& M, Attribute<index_t>& component
+    ) {
+        index_t nb_components = 0;
+	for(index_t f: M.facets) {
+	    component[f] = NO_INDEX;
+	}
+        for(index_t f: M.facets) {
+            if(component[f] == NO_INDEX) {
+                std::stack<index_t> S;
+                S.push(f);
+                component[f] = nb_components;
+                do {
+                    index_t cur_f = S.top();
+                    S.pop();
+                    for(index_t adj_f: M.facets.adjacent(cur_f)) {
+                        if(adj_f != NO_FACET && component[adj_f] == NO_INDEX) {
                             S.push(index_t(adj_f));
                             component[adj_f] = nb_components;
                         }
@@ -207,8 +231,46 @@ namespace GEO {
             << " nbConn=" << nb_conn2 << std::endl;
 
         Logger::out("Topology") << (result ? "match." : "mismatch.")
-            << std::endl;
+                                << std::endl;
         return result;
     }
-}
 
+    void reorient_connected_components(Mesh& surf) {
+	vector<index_t> component;
+	index_t nb_components = get_connected_components(surf, component);
+
+	vector<vec3> comp_G(nb_components,{0.0,0.0,0.0});
+	vector<index_t> comp_N(nb_components,0);
+	vector<double> comp_signed_V(nb_components,0.0);
+
+	for(index_t f: surf.facets) {
+	    index_t comp = component[f];
+	    for(index_t lv=0; lv<surf.facets.nb_vertices(f); ++lv) {
+		index_t v = surf.facets.vertex(f,lv);
+		comp_G[comp] += surf.vertices.point(v);
+		++comp_N[comp];
+	    }
+	}
+
+	for(index_t comp=0; comp<nb_components; ++comp) {
+	    comp_G[comp] /= double(comp_N[comp]);
+	}
+
+	for(index_t f: surf.facets) {
+	    index_t comp = component[f];
+	    for(auto [ p1, p2, p3] : surf.facets.triangle_points(f)) {
+		comp_signed_V[comp] += Geom::tetra_signed_volume(
+		    comp_G[comp],p1,p2,p3
+		);
+	    }
+	}
+
+	for(index_t f: surf.facets) {
+	    index_t comp = component[f];
+	    if(comp_signed_V[comp] < 0.0) {
+		surf.facets.flip(f);
+	    }
+	}
+    }
+
+}

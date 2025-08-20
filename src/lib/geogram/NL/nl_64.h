@@ -13,7 +13,7 @@
  *  * Neither the name of the ALICE Project-Team nor the names of its
  *  contributors may be used to endorse or promote products derived from this
  *  software without specific prior written permission.
- * 
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -38,7 +38,7 @@
  */
 
 /*
- * Wrappers to avoid warnings when using OpenNL functions with 64 bit 
+ * Wrappers to avoid warnings when using OpenNL functions with 64 bit
  * indices. Note: dimension of matrix still limited to 32 bit indices
  * (but not NNZ).
  */
@@ -52,9 +52,9 @@
 #include <cassert>
 
 inline NLuint nlTo32(NLulong x) {
-#ifndef NDEBUG    
+#ifndef NDEBUG
     assert(x <= NLulong(std::numeric_limits<NLuint>::max()));
-#endif    
+#endif
     return NLuint(x);
 }
 
@@ -78,8 +78,24 @@ inline void nlCoefficient(NLulong i, NLdouble a) {
     nlCoefficient(nlTo32(i), a);
 }
 
-inline void nlAddIJCoefficient(NLulong i, NLulong j, NLdouble a) {
-    nlAddIJCoefficient(nlTo32(i), nlTo32(j), a);
+inline NLulong nlAddIJCoefficient(NLulong i, NLulong j, NLdouble a) {
+    return nlAddIJCoefficient(nlTo32(i), nlTo32(j), a);
+}
+
+inline void nlAddIRightHandSide(NLulong i, NLdouble a) {
+    nlAddIRightHandSide(nlTo32(i), a);
+}
+
+inline void nlAddIJCoefficientAt(
+    NLulong i, NLulong j, NLdouble a, NLulong pos
+) {
+    nlAddIJCoefficientAt(nlTo32(i), nlTo32(j), a, pos);
+}
+
+inline void nlSetIJCoefficientAtRowOffset(
+    NLulong i, NLulong j, NLdouble a, NLulong row_offset
+) {
+    nlSetIJCoefficientAtRowOffset(nlTo32(i), nlTo32(j), a, nlTo32(row_offset));
 }
 
 inline double nlGetEigenValue(int i) {
@@ -97,4 +113,3 @@ inline double nlMultiGetVariable(NLulong i, NLulong j) {
 #endif
 
 #endif
-

@@ -11,33 +11,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-22.04]
         config: [Debug, Release]
         options: [Standard, Gargantua]
         tool: [valgrind, gcov]
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             name: Linux
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
       - name: Checkout exploragram
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: BrunoLevy/exploragram
           path: src/lib/exploragram
 
       - name: Checkout data
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: BrunoLevy/geogram.data
           path: tests/data
 
       - name: Python3
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -75,7 +75,7 @@ jobs:
 #####################################################################
 
       - name: Publish tests results as artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nightly-${{matrix.name}}-${{matrix.config}}-${{matrix.options}}-${{matrix.tool}}
           if-no-files-found: ignore
@@ -88,7 +88,7 @@ jobs:
             TESTS_SUCCESS
 
       - name: "Notify tests results"
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: "TESTS_SUCCESS"
           fail: true
@@ -101,10 +101,10 @@ jobs:
     needs: NightlyWithTool
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
@@ -115,6 +115,8 @@ jobs:
       - name: Publish reports on gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: BrunoLevy/geogram.CI
           publish_dir: ./reports/nightly
           destination_dir: reports/nightly
+          force_orphan: true   # to clean history of gh-pages branch
